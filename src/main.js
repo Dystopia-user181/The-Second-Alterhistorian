@@ -1,5 +1,8 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
-
-createApp(App).mount('#app');
+import "./js/utils/extensions";
+import "./js/utils/formatting";
+import "./js/database/index";
+import "./js/eventhub";
+import "./js/machines";
+import "./js/player";
+import "./js/game";
+import "./js/ui/game-ui";
