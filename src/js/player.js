@@ -27,12 +27,30 @@ export const Player = {
 			}
 		};
 	},
+	storageKey: "igj2022-scarlet-summer-alterhistorian2",
 	load() {
-		// some stuff here
+		let tempPlayer = JSON.parse(localStorage.getItem(this.storageKey));
+		if (tempPlayer) deepAssign(player, this.coercePlayer(tempPlayer, this.defaultStart()));
 		initializeMachines();
+	},
+	coercePlayer(target, source) {
+		if (target === null || target === undefined) return source;
+		if (typeof target !== "object") return target;
+		let fillObject;
+		if (source.constructor === Array) fillObject = [];
+		else fillObject = {};
+		for (const prop of Object.keys(source)) {
+			fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
+		}
+		return fillObject;
+	},
+	savePlayer() {
+		localStorage.setItem(this.storageKey, JSON.stringify(player));
 	}
 };
 
 window.player = Player.defaultStart();
 
 Player.load();
+
+window.saveInterval = setInterval(() => Player.savePlayer(), 10000);

@@ -2,11 +2,13 @@
 import { Currencies } from "./js/database/currencies";
 
 import MachineTab from "./components/MachineTab.vue";
+import Sidebar from "./components/Sidebar.vue";
 
 export default {
 	name: "App",
 	components: {
-		MachineTab
+		MachineTab,
+		Sidebar
 	},
 	data() {
 		return {
@@ -37,7 +39,10 @@ export default {
 		@mousemove="updateMousePos"
 	>
 		<h1>The Second Alterhistorian</h1>
-		<machine-tab />
+		<div class="c-main-tabs">
+			<machine-tab />
+			<sidebar />
+		</div>
 		<div
 			v-if="holding.amount > 0"
 			class="c-held-item"
@@ -55,7 +60,7 @@ export default {
 <style scoped>
 .c-game-ui {
 	min-height: 100vh;
-	padding: 20px;
+	padding-top: 20px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -63,9 +68,16 @@ export default {
 	position: relative;
 }
 
+.c-main-tabs {
+	display: flex;
+	justify-content: stretch;
+	width: 100%;
+	flex: 1 0 auto;
+}
+
 .c-held-item {
 	position: absolute;
-	opacity: 0.6;
+	opacity: 0.8;
 	width: 40px;
 	height: 40px;
 	padding-left: 30px;

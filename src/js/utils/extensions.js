@@ -18,3 +18,10 @@ String.prototype.capitalize = function() {
 window.last = function last(array) {
 	return array[array.length - 1];
 }
+
+window.deepAssign = function deepAssign(target, source) {
+	for (const prop of Object.keys(source)) {
+		if (typeof source[prop] === "object") deepAssign(target[prop], source[prop]);
+		else target[prop] = source[prop];
+	}
+}

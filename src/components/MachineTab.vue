@@ -43,7 +43,7 @@ export default {
 	background-color: #202020;
 	overflow: hidden;
 	position: relative;
-	flex-grow: 1;
+	flex: 1 0 auto;
 	align-self: stretch;
 	justify-self: stretch;
 }
