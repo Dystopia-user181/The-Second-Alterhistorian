@@ -33,10 +33,12 @@ export default {
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
 			this.inputData = this.inputs.map(x => ({
 				stack: x.data,
+				amount: Stack.volumeOfStack(x.data),
 				capacity: x.config.capacity
 			}));
 			this.outputData = this.outputs.map(x => ({
 				stack: x.data,
+				amount: Stack.volumeOfStack(x.data),
 				capacity: x.config.capacity
 			}));
 			if (this.holdFunction) this.holdFunction();
@@ -98,8 +100,11 @@ export default {
 				<resource-stack
 					:stack="inputData[id].stack"
 					:capacity="inputData[id].capacity"
-					text="Input"
-				/>
+				>
+					{{ format(inputData[id].amount, 2, 1) }} / {{ format(inputData[id].capacity, 2, 1) }}
+					<br>
+					Input
+				</resource-stack>
 			</div>
 			<div
 				v-if="inputs.length && outputs.length"
@@ -114,9 +119,16 @@ export default {
 				<resource-stack
 					:stack="outputData[id].stack"
 					:capacity="outputData[id].capacity"
-					text="Output"
-				/>
+				>
+					{{ format(outputData[id].amount, 2, 1) }} / {{ format(outputData[id].capacity, 2, 1) }}
+					<br>
+					Output
+				</resource-stack>
 			</div>
+			<span
+				v-if="!inputs.length && !outputs.length"
+				class="fas fa-lock"
+			/>
 		</div>
 	</div>
 </template>
@@ -130,6 +142,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	position: absolute;
+	border-radius: 0 10px 10px 10px;
 }
 
 .l-machine__inner {
@@ -138,7 +151,7 @@ export default {
 	height: 100%;
 	display: flex;
 	align-items: stretch;
-	justify-content: stretch;
+	justify-content: center;
 }
 
 .c-machine__input {
@@ -155,6 +168,8 @@ export default {
 	transition: all 0.2s;
 	flex-grow: 1;
 	cursor: pointer;
+	border-radius: 10px;
+	overflow: hidden;
 }
 
 .c-machine__input:active, .c-machine__output:active {
@@ -163,5 +178,10 @@ export default {
 
 .l-machine-input-output-separator {
 	width: 5px;
+}
+
+.fa-lock {
+	font-size: 200px;
+	margin-top: 10px;
 }
 </style>

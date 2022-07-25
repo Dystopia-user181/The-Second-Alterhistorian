@@ -47,6 +47,9 @@ export default {
 				document.addEventListener("mouseleave", stopHolding);
 				this.beforeDestroy = stopHolding;
 			}
+		},
+		openUpgrades(machine) {
+			Modal.machineUpgrades.show({ machine });
 		}
 	}
 }
@@ -66,10 +69,18 @@ export default {
 				:style="objectMap(machine.position, x => x, x => `${x}px`)"
 			/>
 			<div
-				class="fas fa-arrows"
+				class="c-machine-sidebar"
 				:style="objectMap(machine.position, x => x, x => `${x}px`)"
-				@mousedown="registerMoveHold(machine)"
-			/>
+			>
+				<div
+					class="fas fa-arrows"
+					@mousedown="registerMoveHold(machine)"
+				/>
+				<div
+					class="fas fa-arrow-up"
+					@mousedown="openUpgrades(machine)"
+				/>
+			</div>
 		</span>
 	</div>
 </template>
@@ -84,8 +95,14 @@ export default {
 	justify-self: stretch;
 }
 
-.fa-arrows {
+.c-machine-sidebar {
 	position: absolute;
+	display: flex;
+	flex-direction: column;
+	transform: translateX(-100%);
+}
+
+.c-machine-sidebar .fas {
 	width: 25px;
 	height: 25px;
 	display: flex;
@@ -94,7 +111,17 @@ export default {
 	background-color: #333333;
 	border-radius: 5px 0 0 5px;
 	font-size: 1.1em;
-	transform: translateX(-100%);
+}
+
+.c-machine-sidebar .fas:nth-child(even) {
+	opacity: 0.7;
+}
+
+.fa-arrows {
 	cursor: move;
+}
+
+.fa-arrow-up {
+	cursor: pointer;
 }
 </style>

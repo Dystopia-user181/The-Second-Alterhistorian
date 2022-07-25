@@ -11,10 +11,6 @@ export default {
 		capacity: {
 			type: Number,
 			required: false
-		},
-		text: {
-			type: String,
-			required: false
 		}
 	},
 	data() {
@@ -38,10 +34,9 @@ export default {
 
 <template>
 	<div class="c-resources-container">
-		<span
-			class="c-resources-container--text"
-			v-html="text"
-		/>
+		<span class="c-resources-container--text">
+			<slot />
+		</span>
 		<div class="c-resources-stack">
 			<div
 				v-for="(style, id) in display"
@@ -65,7 +60,9 @@ export default {
 
 .c-resources-container--text {
 	position: relative;
+	text-align: center;
 	z-index: 1;
+	font-size: 0.9em;
 }
 
 .c-resources-stack {

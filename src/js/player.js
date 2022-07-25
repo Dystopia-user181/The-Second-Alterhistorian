@@ -1,4 +1,4 @@
-import { initializeMachines } from "./machines";
+import { initializeMachines, MachineTypes } from "./machines";
 
 export const Player = {
 	defaultStart() {
@@ -11,6 +11,16 @@ export const Player = {
 							type: "shoveller",
 							x: 50,
 							y: 50,
+							upgrades: {
+								0: 0,
+								1: 0
+							},
+							outputs: [[]]
+						},
+						1: {
+							type: "cistern",
+							x: 50,
+							y: 350,
 							upgrades: {
 								0: 0,
 								1: 0
@@ -31,6 +41,7 @@ export const Player = {
 	load() {
 		let tempPlayer = JSON.parse(localStorage.getItem(this.storageKey));
 		if (tempPlayer) deepAssign(player, this.coercePlayer(tempPlayer, this.defaultStart()));
+		this.fixMachines();
 		initializeMachines();
 	},
 	coercePlayer(target, source) {
@@ -49,6 +60,26 @@ export const Player = {
 	},
 	savePlayer() {
 		localStorage.setItem(this.storageKey, JSON.stringify(player));
+	},
+	fixMachines() {
+		for (const town of Object.values(player.towns)) {
+			for (const machine of Object.values(town.machines)) {
+				const type = MachineTypes[machine.type];
+				for (let i = 0; i < type.upgrades.length; i++) {
+					if (!(i in machine.upgrades)) machine.upgrades[i] = 0;
+				}
+				if (type.inputs.length) {
+					for (let i = 0; i < type.inputs.length; i++) {
+						if (!(i in machine.inputs)) machine.inputs[i] = [];
+					}
+				}
+				if (type.outputs.length) {
+					for (let i = 0; i < type.outputs.length; i++) {
+						if (!(i in machine.outputs)) machine.outputs[i] = [];
+					}
+				}
+			}
+		}
 	}
 };
 

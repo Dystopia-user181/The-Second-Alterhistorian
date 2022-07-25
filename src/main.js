@@ -5,4 +5,5 @@ import "./js/eventhub";
 import "./js/machines";
 import "./js/player";
 import "./js/game";
+import "./js/ui/modals";
 import "./js/ui/game-ui";

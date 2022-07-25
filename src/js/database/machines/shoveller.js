@@ -12,9 +12,11 @@ GameDatabase.machines.shoveller = {
 	}],
 	upgrades: {
 		capacity: {
+			id: 0,
 			cost: 10,
 			max: 1,
-			id: 0
+			title: "Capacity",
+			description: "Incrcease capacity"
 		}
 	}
 };

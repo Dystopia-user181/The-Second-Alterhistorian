@@ -17,7 +17,7 @@ function MachineType(data) {
 		} */
 
 		get upgrades() {
-			return objectMap(this.type.upgrades, x => x, x => MachineUpgrade(x, this));
+			return objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
 		}
 
 		get params() {
@@ -121,14 +121,30 @@ class MachineUpgrade {
 		return run(this.config.effect, this.count);
 	}
 
+	get formattedEffect() {
+		return !this.config.formatEffect ? formatX(this.effect, 2, 1) : this.config.formatEffect(this.effect);
+	}
+
+	get title() {
+		return run(this.config.title, this);
+	}
+
+	get description() {
+		return run(this.config.description, this);
+	}
+
+	get canAfford() {
+		if (this.maxed) return false;
+		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+	}
+
 	buy() {
-		if (this.maxed) return;
+		if (!this.canAfford) return;
 		if (!this.currencyType) {
-			if (player.money < this.cost) return;
 			player.money -= this.cost;
 			this.count++;
 		} else {
-			if (player.holding.resource !== this.currencyType || player.holding.amount < this.cost) return;
 			player.holding.amount -= this.cost;
 			this.count++;
 		}

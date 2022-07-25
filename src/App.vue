@@ -1,36 +1,28 @@
-<script>
+<script setup>
+import { ref, shallowRef, reactive } from "vue";
 import { Currencies } from "./js/database/currencies";
 
 import MachineTab from "./components/MachineTab.vue";
 import Sidebar from "./components/Sidebar.vue";
+import PopupModal from "./components/modals/PopupModal.vue";
 
-export default {
-	name: "App",
-	components: {
-		MachineTab,
-		Sidebar
-	},
-	data() {
-		return {
-			holding: { resource: "", amount: 0 },
-			mouseX: 0,
-			mouseY: 0,
-		}
-	},
-	methods: {
-		update() {
-			this.holding.resource = player.holding.resource;
-			this.holding.amount = player.holding.amount;
-		},
-		currencyColour(curr) {
-			return Currencies[curr].colour;
-		},
-		updateMousePos(event) {
-			this.mouseX = event.clientX;
-			this.mouseY = event.clientY;
-		}
-	}
-};
+const holding = reactive({ resource: "", amount: 0 }),
+	mouseX = ref(0),
+	mouseY = ref(0),
+	modal = shallowRef({});
+
+function update() {
+	holding.resource = player.holding.resource;
+	holding.amount = player.holding.amount;
+	modal.value = Modal.current;
+}
+function currencyColour(curr) {
+	return Currencies[curr].colour;
+}
+function updateMousePos(event) {
+	mouseX.value = event.clientX;
+	mouseY.value = event.clientY;
+}
 </script>
 
 <template>
@@ -54,6 +46,7 @@ export default {
 		>
 			{{ format(holding.amount, 2, 1) }}
 		</div>
+		<popup-modal v-if="modal" :modal="modal" />
 	</div>
 </template>
 
@@ -84,5 +77,6 @@ export default {
 	padding-top: 30px;
 	filter: brightness(80%);
 	pointer-events: none;
+	z-index: 100;
 }
 </style>
