@@ -6,6 +6,14 @@ window.objectMap = function objectMap(obj, keyfun, propfun) {
 	return newObj;
 }
 
+window.mapToObject = function mapToObject(arr, keyfun, propfun) {
+	const newObj = {};
+	for (const i of Object.keys(arr)) {
+		newObj[keyfun(arr[i], i)] = propfun(arr[i], i);
+	}
+	return newObj;
+}
+
 window.run = function run(param, ...args) {
 	if (typeof param === "function") return param(...args);
 	else return param;

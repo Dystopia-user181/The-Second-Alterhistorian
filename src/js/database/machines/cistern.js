@@ -1,5 +1,7 @@
 import { GameDatabase } from "../game-database";
 
+import { machineUpg } from "./init";
+
 GameDatabase.machines.cistern = {
 	name: "cistern",
 	inputs: [],
@@ -11,15 +13,13 @@ GameDatabase.machines.cistern = {
 		},
 		isUnlocked: machine => machine.upgrades.unlock.maxed
 	}],
-	upgrades: {
-		unlock: {
-			cost: 2,
-			max: 1,
-			id: 0,
-			title: "Unlock",
-			description: "Unlock the cistern",
-			effect: count => Boolean(count),
-			formatEffect: effect => effect ? "Unlocked" : "Not unlocked"
-		}
-	}
+	upgrades: machineUpg([{
+		name: "unlock",
+		cost: 2,
+		max: 1,
+		title: "Unlock",
+		description: "Unlock the cistern",
+		effect: count => Boolean(count),
+		formatEffect: effect => effect ? "Unlocked" : "Not unlocked"
+	}])
 };

@@ -99,7 +99,7 @@ export default {
 	position: absolute;
 	display: flex;
 	flex-direction: column;
-	transform: translateX(-100%);
+	transform: translateX(calc(1px - 100%));
 }
 
 .c-machine-sidebar .fas {

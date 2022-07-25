@@ -1,3 +1,4 @@
-import { GameDatabase } from "../game-database";
+import "./init";
 
-GameDatabase.machines = {};
+import "./shoveller";
+import "./cistern";

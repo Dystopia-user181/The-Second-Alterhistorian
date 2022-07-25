@@ -59,6 +59,7 @@ export default {
 	height: 100px;
 	margin: 3px;
 	transition: all 0.2s;
+	vertical-align: top;
 }
 
 .c-machine-upgrade--bought {
