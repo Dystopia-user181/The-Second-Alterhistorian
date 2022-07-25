@@ -11,4 +11,4 @@ export function gameLoop(diff) {
 	EventHub.dispatch(GAME_EVENTS.GAME_TICK_AFTER);
 }
 
-window.gameLoopInterval = setInterval(gameLoop, 33);
+window.gameLoopInterval = setInterval(gameLoop, 16);

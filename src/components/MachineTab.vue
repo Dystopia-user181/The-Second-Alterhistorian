@@ -12,8 +12,18 @@ export default {
 		return {
 			machines: [],
 			holding: false,
-			beforeDestroy: null
+			beforeDestroy: null,
+			offsetX: 0,
+			offsetY: 0,
+			width: 0,
+			height: 0,
+			ctx: null,
+			holdingFunction: null
 		}
+	},
+	computed: {
+		maxOffsetX: () => 6000,
+		maxOffsetY: () => 4000
 	},
 	beforeDestroy() {
 		if (this.beforeDestroy) this.beforeDestroy();
@@ -22,23 +32,37 @@ export default {
 		update() {
 			this.machines = Machines[player.currentlyIn].map(machine => ({
 				position: {
-					top: machine.data.y,
-					left: machine.data.x
+					top: machine.data.y - this.offsetY,
+					left: machine.data.x - this.offsetX
 				},
 				machineData: machine
 			}));
+			if (this.holdingFunction) this.holdingFunction();
+			this.width = this.$refs.machineTab.offsetWidth;
+			this.offsetX = Math.min(this.offsetX, this.maxOffsetX - this.width);
+			this.height = this.$refs.machineTab.offsetHeight;
+			this.offsetY = Math.min(this.offsetY, this.maxOffsetY - this.height);
+			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");;
+			this.ctx.clearRect(0, 0, this.width, this.height);
+			this.ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+			for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
+				this.ctx.fillRect(i - 1, 0, 2, this.height);
+			}
+			for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
+				this.ctx.fillRect(0, i - 1, this.width, 2);
+			}
 		},
 		registerMoveHold(machine) {
 			if (!this.holding) {
 				this.holding = true;
 				const followMouse = function(event) {
-					machine.machineData.data.x = Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft, 30);
-					machine.machineData.data.y = Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop, 30);
+					machine.machineData.data.x = Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + this.offsetX, 20);
+					machine.machineData.data.y = Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + this.offsetY, 20);
 				}.bind(this);
-				this.$refs.machineTab.addEventListener("mousemove", followMouse);
+				document.addEventListener("mousemove", followMouse);
 				const stopHolding = function() {
 					this.holding = false;
-					this.$refs.machineTab.removeEventListener("mousemove", followMouse);
+					document.removeEventListener("mousemove", followMouse);
 					document.removeEventListener("mouseup", stopHolding);
 					document.removeEventListener("mouseleave", stopHolding);
 					this.beforeDestroy = null;
@@ -50,6 +74,25 @@ export default {
 		},
 		openUpgrades(machine) {
 			Modal.machineUpgrades.show({ machine });
+		},
+		registerOffsetHold(offset) {
+			if (!this.holding) {
+				this.holding = true;
+				this.holdingFunction = function() {
+					this.offsetX = Math.max(Math.min(this.offsetX + offset[0] * 15, this.maxOffsetY - this.width), 0);
+					this.offsetY = Math.max(Math.min(this.offsetY + offset[1] * 15, this.maxOffsetY - this.height), 0);
+				}.bind(this);
+				const stopHolding = function() {
+					this.holding = false;
+					this.holdingFunction = null;
+					document.removeEventListener("mouseup", stopHolding);
+					document.removeEventListener("mouseleave", stopHolding);
+					this.beforeDestroy = null;
+				}.bind(this);
+				document.addEventListener("mouseup", stopHolding);
+				document.addEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = stopHolding;
+			}
 		}
 	}
 }
@@ -60,6 +103,12 @@ export default {
 		class="c-machine-tab"
 		ref="machineTab"
 	>
+		<canvas
+			ref="canvas"
+			class="c-machine-tab__canvas"
+			:width="width"
+			:height="height"
+		/>
 		<span
 			v-for="(machine, machineId) in machines"
 			:key="machineId"
@@ -82,6 +131,26 @@ export default {
 				/>
 			</div>
 		</span>
+		<div
+			v-if="offsetX > 0"
+			class="fas fa-chevron-left c-machine-tab__offset c-machine-tab__offset-left"
+			@mousedown="registerOffsetHold([-1, 0])"
+		/>
+		<div
+			v-if="offsetY > 0"
+			class="fas fa-chevron-up c-machine-tab__offset c-machine-tab__offset-up"
+			@mousedown="registerOffsetHold([0, -1])"
+		/>
+		<div
+			v-if="offsetX <= maxOffsetX - width"
+			class="fas fa-chevron-right c-machine-tab__offset c-machine-tab__offset-right"
+			@mousedown="registerOffsetHold([1, 0])"
+		/>
+		<div
+			v-if="offsetY <= maxOffsetY - height"
+			class="fas fa-chevron-down c-machine-tab__offset c-machine-tab__offset-down"
+			@mousedown="registerOffsetHold([0, 1])"
+		/>
 	</div>
 </template>
 
@@ -118,11 +187,57 @@ export default {
 	opacity: 0.7;
 }
 
-.fa-arrows {
+.c-machine-sidebar .fa-arrows {
 	cursor: move;
 }
 
-.fa-arrow-up {
+.c-machine-sidebar .fa-arrow-up {
 	cursor: pointer;
+}
+
+.c-machine-tab__offset {
+	position: absolute;
+	opacity: 0.5;
+	font-size: 30px;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.c-machine-tab__offset:hover {
+	text-shadow: 0 0 5px;
+}
+
+.c-machine-tab__offset:active {
+	opacity: 1;
+}
+
+.c-machine-tab__offset-left {
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%) scaleY(1.5);
+}
+
+.c-machine-tab__offset-up {
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%) scaleX(1.5);
+}
+
+.c-machine-tab__offset-right {
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%) scaleY(1.5);
+}
+
+.c-machine-tab__offset-down {
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%) scaleX(1.5);
+}
+
+.c-machine-tab__canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 </style>

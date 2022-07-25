@@ -46,7 +46,7 @@ export default {
 		transferFromOutputToHolding(output) {
 			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
 			else if (player.holding.resource !== last(output.data).resource) return;
-			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.01);
+			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.005);
 		},
 		registerOutputHold(id) {
 			if (!this.holdFunction) {
@@ -66,7 +66,7 @@ export default {
 			if (player.holding.amount <= 0) return;
 			player.holding.amount = Stack.addToStack(input.data, {
 				resource: player.holding.resource,
-				amount: Math.min(input.config.capacity * 0.01, player.holding.resource)
+				amount: Math.min(input.config.capacity * 0.005, player.holding.resource)
 			});
 		},
 		registerInputHold(id) {

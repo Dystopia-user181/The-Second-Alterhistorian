@@ -5,23 +5,11 @@ import App from './../../App.vue';
 const vueApp = createApp(App);
 
 vueApp.mixin({
-	created() {
+	mounted() {
 		if (this.update) {
 			this.on$(GAME_EVENTS.UPDATE, this.update);
 			this.update();
 		}
-	
-		// Following is used to force the recomputation of computed values
-		// from this fiddle https://codepen.io/sirlancelot/pen/JBeXeV
-		const recomputed = Object.create(null);
-		const watchers = this._computedWatchers;
-	
-		if (!watchers) return;
-	
-		for (const key in watchers) makeRecomputable(watchers[key], key, recomputed);
-	
-		this.$recompute = key => recomputed[key] = !recomputed[key];
-		Vue.observable(recomputed);
 	},
 	destroyed() {
 		EventHub.ui.offAll(this);
