@@ -71,23 +71,18 @@ window.Modal = Modal;
 Modal.machineUpgrades = new Modal(MachineUpgradeModal);
 Modal.message = new class extends Modal {
 	show(text) {
-	  super.show();
-	  if (!this.queue) this.queue = [];
-	  if (!this.queue.length) this.text = text;
-	  this.queue.push(text);
-	  // Sometimes we have stacked messages that get lost, since we don't have stacking modal system.
-	  // TODO: remove this console.log
-	  // eslint-disable-next-line no-console
+		super.show();
+		if (!this.queue) this.queue = [];
+		if (!this.queue.length) this.text = text;
+		this.queue.push(text);
 	}
   
 	hide() {
-	  if (this.queue.length <= 1) {
-		Modal.hide();
-	  }
-	  this.queue.shift();
-	  if (this.queue && this.queue.length === 0) this.text = undefined;
-	  else {
-		this.text = this.queue[0];
-	  }
+		if (this.queue.length <= 1) {
+			Modal.hide();
+		}
+		this.queue.shift();
+		if (this.queue && this.queue.length === 0) this.text = undefined;
+		else this.text = this.queue[0];
 	}
   }(MessageModal, 2);

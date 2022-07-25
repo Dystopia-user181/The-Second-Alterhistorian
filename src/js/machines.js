@@ -100,10 +100,10 @@ function MachineType(data) {
 			if (this.outputs.length) {
 				returnObj.outputs = Array.from(Array(this.outputs.length), () => []);
 			}
-			if (this.upgrades.length) {
-				returnObj.upgrades = Array(this.upgrades.length).fill(0);
+			if (Object.values(this.upgrades).length) {
+				returnObj.upgrades = Array(Object.values(this.upgrades).length).fill(0);
 			}
-			return returnObj
+			return returnObj;
 		}
 	}
 }
@@ -177,6 +177,7 @@ class MachineUpgrade {
 }
 
 export const MachineTypes = objectMap(GameDatabase.machines, x => x, x => MachineType(x));
+window.MachineTypes = MachineTypes;
 
 export const Machines = {};
 window.Machines = Machines;
@@ -211,7 +212,7 @@ export const Machine = {
 				const produces = {
 					resource: conf.produces.resource,
 					amount: conf.produces.amount * Math.min(x.maxDiff, diff)
-				}
+				};
 				Stack.addToStack(x.data, produces);
 				machine.outputDiffs[id] = Math.min(x.maxDiff, diff);
 			});
@@ -231,6 +232,8 @@ export const Machine = {
 		while (true) {
 			if (!machines[i]) {
 				machines[i] = newMach;
+				Machines[townName].push(new MachineTypes[type](townName, i));
+				break;
 			}
 			i++;
 		}
