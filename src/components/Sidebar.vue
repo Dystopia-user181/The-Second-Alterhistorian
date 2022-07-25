@@ -31,38 +31,41 @@ export default {
 
 <template>
 	<div class="c-sidebar">
-		<h2 class="c-money-display">
-			${{format(money, 2, 2)}}
-		</h2>
-		<button
-			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount < 1 }"
-			@click="sellStatic(1)"
-		>
-			Sell 1
-		</button>
-		<button
-			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount < 10 }"
-			@click="sellStatic(10)"
-		>
-			Sell 10
-		</button>
-		<br>
-		<button
-			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount <= 0 }"
-			@click="sellDynamic(0.1)"
-		>
-			Sell 10%
-		</button>
-		<button
-			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount <= 0 }"
-			@click="sellDynamic(1)"
-		>
-			Sell All
-		</button>
+		<div>
+			<h2 class="c-money-display">
+				${{format(money, 2, 2)}}
+			</h2>
+			<button
+				class="c-sidebar-sell-button"
+				:class="{ disabled: holdingAmount < 1 }"
+				@click="sellStatic(1)"
+			>
+				Sell 1
+			</button>
+			<button
+				class="c-sidebar-sell-button"
+				:class="{ disabled: holdingAmount < 10 }"
+				@click="sellStatic(10)"
+			>
+				Sell 10
+			</button>
+			<br>
+			<button
+				class="c-sidebar-sell-button"
+				:class="{ disabled: holdingAmount <= 0 }"
+				@click="sellDynamic(0.1)"
+			>
+				Sell 10%
+			</button>
+			<button
+				class="c-sidebar-sell-button"
+				:class="{ disabled: holdingAmount <= 0 }"
+				@click="sellDynamic(1)"
+			>
+				Sell All
+			</button>
+		</div>
+		<div class="c-sidebar__buy-machines"></div>
 	</div>
 </template>
 
@@ -70,7 +73,10 @@ export default {
 .c-sidebar {
 	width: 250px;
 	padding: 10px;
-	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	align-self: stretch;
 }
 
 .c-money-display {
@@ -78,7 +84,13 @@ export default {
 }
 
 .c-sidebar-sell-button {
-	width: 109px;
+	width: 108px;
 	margin: 3px;
+}
+
+.c-sidebar__buy-machines {
+	width: 100%;
+	flex: 1 0 auto;
+	overflow-y: auto;
 }
 </style>

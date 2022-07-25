@@ -63,7 +63,6 @@ function updateMousePos(event) {
 
 .c-main-tabs {
 	display: flex;
-	justify-content: stretch;
 	width: 100%;
 	flex: 1 0 auto;
 }

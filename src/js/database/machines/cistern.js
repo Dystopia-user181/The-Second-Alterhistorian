@@ -21,5 +21,6 @@ GameDatabase.machines.cistern = {
 		description: "Unlock the cistern",
 		effect: count => Boolean(count),
 		formatEffect: effect => effect ? "Unlocked" : "Not unlocked"
-	}])
+	}]),
+	description: `Produces Water.`
 };

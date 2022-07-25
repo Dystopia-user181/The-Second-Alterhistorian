@@ -34,6 +34,9 @@ export const Player = {
 			holding: {
 				resource: "earth",
 				amount: 0
+			},
+			display: {
+				offset: { x: 0, y: 0 }
 			}
 		};
 	},

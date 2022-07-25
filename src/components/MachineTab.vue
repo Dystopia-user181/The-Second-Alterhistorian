@@ -22,8 +22,12 @@ export default {
 		}
 	},
 	computed: {
-		maxOffsetX: () => 6000,
-		maxOffsetY: () => 4000
+		maxOffsetX: () => 2998,
+		maxOffsetY: () => 1998
+	},
+	created() {
+		this.offsetX = player.display.offset.x;
+		this.offsetY = player.display.offset.y;
 	},
 	beforeDestroy() {
 		if (this.beforeDestroy) this.beforeDestroy();
@@ -40,8 +44,10 @@ export default {
 			if (this.holdingFunction) this.holdingFunction();
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.offsetX = Math.min(this.offsetX, this.maxOffsetX - this.width);
+			player.display.offset.x = this.offsetX;
 			this.height = this.$refs.machineTab.offsetHeight;
 			this.offsetY = Math.min(this.offsetY, this.maxOffsetY - this.height);
+			player.display.offset.y = this.offsetY;
 			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");;
 			this.ctx.clearRect(0, 0, this.width, this.height);
 			this.ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
@@ -56,8 +62,14 @@ export default {
 			if (!this.holding) {
 				this.holding = true;
 				const followMouse = function(event) {
-					machine.machineData.data.x = Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + this.offsetX, 20);
-					machine.machineData.data.y = Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + this.offsetY, 20);
+					machine.machineData.data.x = Math.min(
+						Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + this.offsetX, 20),
+						this.maxOffsetX - 270
+					);
+					machine.machineData.data.y = Math.min(
+						Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + this.offsetY, 20),
+						this.maxOffsetY - 270
+					);
 				}.bind(this);
 				document.addEventListener("mousemove", followMouse);
 				const stopHolding = function() {
@@ -79,7 +91,7 @@ export default {
 			if (!this.holding) {
 				this.holding = true;
 				this.holdingFunction = function() {
-					this.offsetX = Math.max(Math.min(this.offsetX + offset[0] * 15, this.maxOffsetY - this.width), 0);
+					this.offsetX = Math.max(Math.min(this.offsetX + offset[0] * 15, this.maxOffsetX - this.width), 0);
 					this.offsetY = Math.max(Math.min(this.offsetY + offset[1] * 15, this.maxOffsetY - this.height), 0);
 				}.bind(this);
 				const stopHolding = function() {
@@ -129,6 +141,10 @@ export default {
 					class="fas fa-arrow-up"
 					@mousedown="openUpgrades(machine)"
 				/>
+				<div
+					class="fas fa-info-circle"
+					@mousedown="machine.machineData.showDescription()"
+				/>
 			</div>
 		</span>
 		<div
@@ -142,12 +158,12 @@ export default {
 			@mousedown="registerOffsetHold([0, -1])"
 		/>
 		<div
-			v-if="offsetX <= maxOffsetX - width"
+			v-if="offsetX < maxOffsetX - width"
 			class="fas fa-chevron-right c-machine-tab__offset c-machine-tab__offset-right"
 			@mousedown="registerOffsetHold([1, 0])"
 		/>
 		<div
-			v-if="offsetY <= maxOffsetY - height"
+			v-if="offsetY < maxOffsetY - height"
 			class="fas fa-chevron-down c-machine-tab__offset c-machine-tab__offset-down"
 			@mousedown="registerOffsetHold([0, 1])"
 		/>
@@ -193,6 +209,10 @@ export default {
 
 .c-machine-sidebar .fa-arrow-up {
 	cursor: pointer;
+}
+
+.c-machine-sidebar .fa-info-circle {
+	cursor: help;
 }
 
 .c-machine-tab__offset {

@@ -27,5 +27,6 @@ GameDatabase.machines.shoveller = {
 		title: "Velocity",
 		effect: count => Math.pow(1.5, count) + count,
 		description: "Increase production"
-	}])
+	}]),
+	description: `Produces Earth.`
 };

@@ -71,6 +71,10 @@ function MachineType(data) {
 			return MachineTypes[data.name];
 		}
 
+		showDescription() {
+			Modal.message.show(this.type.description);
+		}
+
 		static upgrades = data.upgrades;
 
 		static inputs = data.inputs;
@@ -78,6 +82,8 @@ function MachineType(data) {
 		static outputs = data.outputs;
 
 		static name = data.name;
+
+		static description = data.description;
 
 		static customLoop = data.customLoop;
 
