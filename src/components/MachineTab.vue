@@ -100,6 +100,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	transform: translateX(calc(1px - 100%));
+	z-index: 1;
 }
 
 .c-machine-sidebar .fas {

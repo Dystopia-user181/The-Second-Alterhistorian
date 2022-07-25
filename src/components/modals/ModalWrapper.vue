@@ -42,7 +42,7 @@ export default {
 }
 
 .c-modal__title {
-	font-size: 1.3em;
+	font-size: 2em;
 	font-weight: bold;
 }
 </style>

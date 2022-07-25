@@ -80,6 +80,25 @@ function MachineType(data) {
 		static name = data.name;
 
 		static customLoop = data.customLoop;
+
+		static newMachine(x, y) {
+			const returnObj = {
+				x,
+				y,
+				type: this.name,
+				connections: [],
+			};
+			if (this.inputs.length) {
+				returnObj.inputs = Array.from(Array(this.inputs.length), () => []);
+			}
+			if (this.outputs.length) {
+				returnObj.outputs = Array.from(Array(this.outputs.length), () => []);
+			}
+			if (this.upgrades.length) {
+				returnObj.upgrades = Array(this.upgrades.length).fill(0);
+			}
+			return returnObj
+		}
 	}
 }
 
@@ -196,6 +215,18 @@ export const Machine = {
 				const amount = typeof conf.uses === "object" ? Math.min(conf.uses.amount * diff, conf.uses.maximum) : conf.uses;
 				if (x.data.length) Stack.removeFromStack(x.data, { resource: last(x).resource, amount });
 			});
+		}
+	},
+	add(townName, type, x, y) {
+		const machines = player.towns[townName].machines;
+		if (Object.values(machines).length > 50) return Modal.message.show("Reached machine cap in this town!");
+		const newMach = MachineTypes[type].newMachine(x, y);
+		let i = 0;
+		while (true) {
+			if (!machines[i]) {
+				machines[i] = newMach;
+			}
+			i++;
 		}
 	}
 };

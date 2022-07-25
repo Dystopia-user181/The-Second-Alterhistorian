@@ -143,6 +143,7 @@ export default {
 	align-items: center;
 	position: absolute;
 	border-radius: 0 10px 10px 10px;
+	z-index: 1;
 }
 
 .l-machine__inner {

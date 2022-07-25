@@ -28,7 +28,7 @@ export default {
 </script>
 
 <template>
-	<modal-wrapper>
+	<modal-wrapper class="c-machine-upgrade-modal">
 		<template #header>
 			Upgrades ({{ machine.machineData.type.name.capitalize() }})
 		</template>
@@ -41,4 +41,8 @@ export default {
 </template>
 
 <style scoped>
+.c-machine-upgrade-modal {
+	min-width: 400px;
+	min-height: 250px;
+}
 </style>

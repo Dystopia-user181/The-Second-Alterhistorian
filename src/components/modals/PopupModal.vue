@@ -62,8 +62,7 @@ export default {
   background-color: #262626;
   border: 2px solid #ffffff;
   padding: 10px;
-  min-width: 500px;
-  min-height: 300px;
+  min-width: 300px;
   transition-duration: 0.2s;
   border-radius: 10px;
 }
