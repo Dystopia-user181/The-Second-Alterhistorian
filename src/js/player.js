@@ -22,8 +22,16 @@ export const Player = {
 							x: 50,
 							y: 350,
 							upgrades: {
-								0: 0,
-								1: 0
+								0: 0
+							},
+							outputs: [[]]
+						},
+						2: {
+							type: "quarry",
+							x: 350,
+							y: 50,
+							upgrades: {
+								0: 0
 							},
 							outputs: [[]]
 						}

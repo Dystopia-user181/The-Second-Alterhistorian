@@ -63,7 +63,7 @@ export default {
 			}
 		},
 		transferFromHoldingToInput(input) {
-			if (player.holding.amount <= 0) return;
+			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
 			player.holding.amount = Stack.addToStack(input.data, {
 				resource: player.holding.resource,
 				amount: Math.min(input.config.capacity * 0.005, player.holding.resource)
