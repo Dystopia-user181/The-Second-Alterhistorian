@@ -9,8 +9,8 @@ export const Player = {
 					machines: {
 						0: {
 							type: "shoveller",
-							x: 20,
-							y: 20,
+							x: 50,
+							y: 50,
 							upgrades: {
 								0: 0,
 								1: 0
@@ -39,6 +39,9 @@ export const Player = {
 		let fillObject;
 		if (source.constructor === Array) fillObject = [];
 		else fillObject = {};
+		for (const prop of Object.keys(target)) {
+			fillObject[prop] = deepClone(target[prop]);
+		}
 		for (const prop of Object.keys(source)) {
 			fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
 		}

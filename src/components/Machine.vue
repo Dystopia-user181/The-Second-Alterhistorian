@@ -20,8 +20,12 @@ export default {
 			inputData: [],
 			outputs: [],
 			outputData: [],
-			holdFunction: null
+			holdFunction: null,
+			beforeDestroy: null
 		}
+	},
+	beforeDestroy() {
+		if (this.beforeDestroy) this.beforeDestroy();
 	},
 	methods: {
 		update() {
@@ -45,11 +49,15 @@ export default {
 		registerOutputHold(id) {
 			if (!this.holdFunction) {
 				this.holdFunction = this.transferFromOutputToHolding.bind(this, this.outputs[id]);
-				const onMouseUp = function() {
+				const stopHolding = function() {
 					this.holdFunction = null;
-					document.removeEventListener("mouseup", onMouseUp);
+					document.removeEventListener("mouseup", stopHolding);
+					document.removeEventListener("mouseleave", stopHolding);
+					this.beforeDestroy = null;
 				}.bind(this);
-				document.addEventListener("mouseup", onMouseUp);
+				document.addEventListener("mouseup", stopHolding);
+				document.addEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = stopHolding;
 			}
 		},
 		transferFromHoldingToInput(input) {
@@ -62,11 +70,15 @@ export default {
 		registerInputHold(id) {
 			if (!this.holdFunction) {
 				this.holdFunction = this.transferFromHoldingToInput.bind(this, this.inputs[id].data);
-				const onMouseUp = function() {
+				const stopHolding = function() {
 					this.holdFunction = null;
-					document.removeEventListener("mouseup", onMouseUp);
+					document.removeEventListener("mouseup", stopHolding);
+					document.removeEventListener("mouseleave", stopHolding);
+					this.beforeDestroy = null;
 				}.bind(this);
-				document.addEventListener("mouseup", onMouseUp);
+				document.addEventListener("mouseup", stopHolding);
+				document.addEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = stopHolding;
 			}
 		}
 	}
@@ -111,7 +123,7 @@ export default {
 
 <style scoped>
 .c-machine-container {
-	background-color: #2b2b2b;
+	background-color: #333333;
 	height: 250px;
 	padding: 3px 1.5px;
 	display: flex;

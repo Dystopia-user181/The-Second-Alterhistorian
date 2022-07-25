@@ -9,7 +9,6 @@ vueApp.mixin({
 		if (this.update) {
 			this.on$(GAME_EVENTS.UPDATE, this.update);
 			this.update();
-			console.log("ligma balls")
 		}
 	
 		// Following is used to force the recomputation of computed values
@@ -45,6 +44,9 @@ vueApp.mixin({
 		},
 		formatPow(value, places, placesUnder1000) {
 			return formatPow(value, places, placesUnder1000);
+		},
+		objectMap(...args) {
+			return objectMap(...args);
 		}
 	}
 });
