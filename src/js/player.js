@@ -1,4 +1,5 @@
 import { initializeMachines, MachineTypes } from "./machines";
+import { Towns } from "./towns";
 
 export const Player = {
 	defaultStart() {
@@ -6,36 +7,7 @@ export const Player = {
 			money: 0,
 			towns: {
 				home: {
-					machines: {
-						0: {
-							type: "shoveller",
-							x: 50,
-							y: 50,
-							upgrades: {
-								0: 0,
-								1: 0
-							},
-							outputs: [[]]
-						},
-						1: {
-							type: "cistern",
-							x: 50,
-							y: 350,
-							upgrades: {
-								0: 0
-							},
-							outputs: [[]]
-						},
-						2: {
-							type: "quarry",
-							x: 350,
-							y: 50,
-							upgrades: {
-								0: 0
-							},
-							outputs: [[]]
-						}
-					}
+					machines: Towns.home.defaultMachines
 				}
 			},
 			currentlyIn: "home",

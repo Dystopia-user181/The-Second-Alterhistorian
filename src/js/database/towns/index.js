@@ -1,3 +1,3 @@
-import { GameDatabase } from "../game-database";
+import "./init";
 
-GameDatabase.towns = {};
+import "./home";
