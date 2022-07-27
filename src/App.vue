@@ -1,6 +1,7 @@
 <script setup>
 import { ref, shallowRef, reactive } from "vue";
 import { Currencies } from "./js/database/currencies";
+import { Modal } from "./js/ui/modals";
 
 import MachineTab from "./components/MachineTab.vue";
 import Sidebar from "./components/Sidebar.vue";

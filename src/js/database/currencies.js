@@ -9,7 +9,7 @@ export const Currencies = {
 	},
 	clay: {
 		colour: "#93a070",
-		value: 0.5
+		value: 1
 	},
 	coal: {
 		colour: "#060302"

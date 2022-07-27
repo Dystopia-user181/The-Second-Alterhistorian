@@ -26,7 +26,7 @@ export default {
 			this.description = this.upgrade.description;
 			this.maxed = this.upgrade.maxed;
 			this.canAfford = this.upgrade.canAfford;
-			this.currencyDisplay = this.upgrade.currencyDisplay || "money";
+			this.currencyDisplay = this.upgrade.currencyDisplay || "";
 		}
 	},
 };
@@ -48,7 +48,7 @@ export default {
 		Currently: {{ effect }}
 		<span v-if="!maxed">
 			<br>
-			Cost: {{ format(cost, 2, 1) }} {{ currencyDisplay }}
+			Cost: {{ !currencyDisplay ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyDisplay }}
 		</span>
 	</button>
 </template>

@@ -14,7 +14,10 @@ GameDatabase.towns.home = {
 		x: 50,
 		y: 650
 	}],
-	sidebarShop: {
-		//
-	}
+	sidebarShop: [
+		{
+			type: "waterMixer",
+			cost: 15
+		}
+	]
 };

@@ -1,4 +1,5 @@
 import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
+import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
 import MessageModal from "./../../components/modals/MessageModal.vue";
 
 export class Modal {
@@ -66,9 +67,8 @@ export class Modal {
 	static queue = []
 }
 
-window.Modal = Modal;
-
 Modal.machineUpgrades = new Modal(MachineUpgradeModal);
+Modal.machineProduction = new Modal(MachineProductionModal);
 Modal.message = new class extends Modal {
 	show(text) {
 		super.show();

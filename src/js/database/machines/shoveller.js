@@ -22,7 +22,7 @@ GameDatabase.machines.shoveller = {
 	},
 	{
 		name: "velocity",
-		cost: 10,
+		cost: count => Math.pow(4, count) * 10,
 		max: 2,
 		title: "Velocity",
 		effect: count => Math.pow(1.5, count) + count,

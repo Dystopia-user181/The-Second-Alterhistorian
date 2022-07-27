@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { Modal } from "./../../js/ui/modals";
 
 import ModalWrapper from "./ModalWrapper.vue";
 

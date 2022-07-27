@@ -11,7 +11,7 @@ export const Stack = {
 		} else {
 			stack.unshift({ ...item });
 		}
-		return item.amount - amount;
+		return amount;
 	},
 	removeFromStack(stack, amount, isBottom = true) {
 		if (!stack.length) return 0;
@@ -25,3 +25,5 @@ export const Stack = {
 		}
 	}
 }
+
+window.Stack = Stack;

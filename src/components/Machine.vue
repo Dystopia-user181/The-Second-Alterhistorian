@@ -21,10 +21,17 @@ export default {
 			outputs: [],
 			outputData: [],
 			holdFunction: null,
-			beforeDestroy: null
+			beforeDestroy: null,
+			animation: ""
 		}
 	},
-	beforeDestroy() {
+	mounted() {
+		if (this.machine.isNew) {
+			this.animation = "a-just-bought 2s";
+			delete this.machine.isNew;
+		}
+	},
+	beforeUnmount() { 
 		if (this.beforeDestroy) this.beforeDestroy();
 	},
 	methods: {
@@ -44,6 +51,7 @@ export default {
 			if (this.holdFunction) this.holdFunction();
 		},
 		transferFromOutputToHolding(output) {
+			if (!output.data.length) return;
 			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
 			else if (player.holding.resource !== last(output.data).resource) return;
 			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.005);
@@ -64,14 +72,14 @@ export default {
 		},
 		transferFromHoldingToInput(input) {
 			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-			player.holding.amount = Stack.addToStack(input.data, {
+			player.holding.amount = player.holding.amount - Stack.addToStack(input.data, {
 				resource: player.holding.resource,
-				amount: Math.min(input.config.capacity * 0.005, player.holding.resource)
-			});
+				amount: Math.min(input.config.capacity * 0.005, player.holding.amount)
+			}, input.config.capacity);
 		},
 		registerInputHold(id) {
 			if (!this.holdFunction) {
-				this.holdFunction = this.transferFromHoldingToInput.bind(this, this.inputs[id].data);
+				this.holdFunction = this.transferFromHoldingToInput.bind(this, this.inputs[id]);
 				const stopHolding = function() {
 					this.holdFunction = null;
 					document.removeEventListener("mouseup", stopHolding);
@@ -82,28 +90,35 @@ export default {
 				document.addEventListener("mouseleave", stopHolding);
 				this.beforeDestroy = stopHolding;
 			}
+		},
+		inputClassObject(input) {
+			return player.holding.amount === 0 ? "c-cursor-default" : (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
 		}
 	}
 };
 </script>
 
 <template>
-	<div class="c-machine-container">
+	<div
+		class="c-machine-container"
+		:style="{ animation }"
+	>
 		<span class="c-emphasise-text">{{ machine.type.name.capitalize() }}</span>
 		<div class="l-machine__inner">
 			<div
 				v-for="(input, id) in inputs"
 				:key="id"
 				class="c-machine__input"
+				:class="inputClassObject(input)"
 				@mousedown="registerInputHold(id)"
 			>
 				<resource-stack
 					:stack="inputData[id].stack"
 					:capacity="inputData[id].capacity"
 				>
-					{{ format(inputData[id].amount, 2, 1) }} / {{ format(inputData[id].capacity, 2, 1) }}
+					{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
 					<br>
-					Input
+					Input {{ id + 1}}
 				</resource-stack>
 			</div>
 			<div
@@ -120,9 +135,9 @@ export default {
 					:stack="outputData[id].stack"
 					:capacity="outputData[id].capacity"
 				>
-					{{ format(outputData[id].amount, 2, 1) }} / {{ format(outputData[id].capacity, 2, 1) }}
+					{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
 					<br>
-					Output
+					Output {{ id + 1}}
 				</resource-stack>
 			</div>
 			<span
@@ -171,6 +186,7 @@ export default {
 	cursor: pointer;
 	border-radius: 10px;
 	overflow: hidden;
+	text-overflow: initial;
 }
 
 .c-machine__input:active, .c-machine__output:active {
@@ -184,5 +200,26 @@ export default {
 .fa-lock {
 	font-size: 200px;
 	margin-top: 10px;
+}
+
+hr {
+	border: none;
+	height: 1.5px;
+	min-width: 60px;
+	margin: 2px 0;
+	background-color: #ffffff;
+}
+
+.c-cursor-default {
+	cursor: default;
+}
+
+.c-cursor-notallowed {
+	cursor: not-allowed;
+}
+
+@keyframes a-just-bought {
+	0% { filter: brightness(300%); }
+	100% { filter: brightness(100%); }
 }
 </style>

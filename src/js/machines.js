@@ -1,11 +1,13 @@
 import { GameDatabase } from "./database/game-database";
 import { Stack } from "./stack";
+import { Modal } from "./ui/modals";
 
 function MachineType(data) {
 	return class {
 		constructor(town, id) {
 			this.town = town;
 			this.id = id;
+			this.outputDiffs = mapToObject(data.outputs, (x, id) => x.id === undefined ? id : x.id, () => 0);
 		}
 
 		get data() {
@@ -17,7 +19,7 @@ function MachineType(data) {
 		} */
 
 		get upgrades() {
-			return objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
+			return !this.type.upgrades ? {} : objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
 		}
 
 		get params() {
@@ -29,14 +31,13 @@ function MachineType(data) {
 			return this.type.inputs.map((x, id) => ({
 				config: objectMap(x, y => y, (item, propName) => {
 					switch(propName) {
-						case "capacity": case "uses":
+						case "capacity": case "consumes":
 							return run(item, this);
-						case "isUnlocked":
-							return item === undefined ? true : run(item, this);
 						default:
 							return item;
 					}
 				}),
+				isUnlocked: x.isUnlocked === undefined ? true : run(x.isUnlocked, this),
 				get data() {
 					return data.inputs[id]
 				},
@@ -46,12 +47,16 @@ function MachineType(data) {
 			}));
 		}
 
+		inputItem(id) {
+			return last(this.inputs[id].data);
+		}
+
 		get outputs() {
 			const data = this.data;
 			return this.type.outputs.map((x, id) => ({
 				config: objectMap(x, y => y, (item, propName) => {
 					switch(propName) {
-						case "capacity": case "produces": case "requires":
+						case "capacity": case "produces": case "requires": case "requiresList":
 							return run(item, this);
 						default:
 							return item;
@@ -72,7 +77,15 @@ function MachineType(data) {
 		}
 
 		showDescription() {
-			Modal.message.show(this.type.description);
+			const acceptsTable = this.type.inputs.length ? `<br><div style="display: inline-block; text-align: left;">
+				${this.type.inputs.map(x => x.accepts.map(x => x.capitalize()))
+					.map((x, id) => `Input ${id + 1} accepts: ${x.join(", ")}`).join("<br>")}
+			</div>` : "";
+			Modal.message.show(`${this.type.description}${acceptsTable}`);
+		}
+
+		showProduction() {
+			Modal.machineProduction.show({ machine: this });
 		}
 
 		static upgrades = data.upgrades;
@@ -100,7 +113,7 @@ function MachineType(data) {
 			if (this.outputs.length) {
 				returnObj.outputs = Array.from(Array(this.outputs.length), () => []);
 			}
-			if (Object.values(this.upgrades).length) {
+			if (this.upgrades && Object.values(this.upgrades).length) {
 				returnObj.upgrades = Array(Object.values(this.upgrades).length).fill(0);
 			}
 			return returnObj;
@@ -190,39 +203,49 @@ export const Machine = {
 				machine.type.customLoop.bind(machine)(diff);
 				continue;
 			}
-			machine.outputDiffs = {};
-			const outputs = machine.outputs.filter(x => x.isUnlocked);
-			outputs.forEach(x => {
-				const conf = x.config;
-				x.maxDiff = (conf.capacity - Stack.volumeOfStack(x.data)) / conf.produces.amount;
-				if (!conf.requires) return;
-				if (!inputs.data.length) return x.maxDiff = 0;
-				const input = last(inputs.data);
-				if (conf.requires.resource) {
-					if (input.resource !== conf.requires.resource) return x.maxDiff = 0;
-					x.maxDiff = Math.min(x.maxDiff, input.amount / conf.requires.amount);
-				} else if (conf.requires.resourceList) {
-					const usedResource =  conf.requires.resourceList.find(x => x.resource === input.resource);
+			Machine.tickThisMachine(machine, diff);
+		}
+	},
+	tickThisMachine(machine, diff) {
+		machine.outputDiffs = {};
+		const outputs = machine.outputs.filter(x => x.isUnlocked);
+		let inputs = machine.inputs.filter(x => x.isUnlocked);
+		outputs.forEach(x => {
+			const conf = x.config;
+			x.maxDiff = (conf.capacity - Stack.volumeOfStack(x.data)) / conf.produces.amount;
+			if (!conf.requires && !conf.requiresList) return;
+			if (!inputs.length) return;
+			const requiresList = conf.requiresList ? conf.requiresList : [conf.requires];
+			for (const requirement of requiresList) {
+				const input = last(inputs[requirement.inputId].data);
+				if (!input) return x.maxDiff = 0;
+				if (requirement.resource) {
+					if (input.resource !== requirement.resource) return x.maxDiff = 0;
+					x.maxDiff = Math.min(x.maxDiff, input.amount / requirement.amount);
+				} else if (requirement.resourceList) {
+					const usedResource =  requirement.resourceList.find(x => x.resource === input.resource);
 					if (!usedResource) return x.maxDiff = 0;
 					x.maxDiff = Math.min(x.maxDiff, input.amount / usedResource.amount);
 				}
-			});
-			outputs.forEach((x, id) => {
-				const conf = x.config;
-				const produces = {
-					resource: conf.produces.resource,
-					amount: conf.produces.amount * Math.min(x.maxDiff, diff)
-				};
-				Stack.addToStack(x.data, produces);
-				machine.outputDiffs[id] = Math.min(x.maxDiff, diff);
-			});
-			const inputs = machine.inputs.filter(x => x.isUnlocked);
-			inputs.forEach(x => {
-				const conf = x.config;
-				const amount = typeof conf.uses === "object" ? Math.min(conf.uses.amount * diff, conf.uses.maximum) : conf.uses;
-				if (x.data.length) Stack.removeFromStack(x.data, { resource: last(x).resource, amount });
-			});
-		}
+			}
+		});
+		outputs.forEach((x, id) => {
+			const conf = x.config;
+			const produces = {
+				resource: conf.produces.resource,
+				amount: conf.produces.amount * Math.min(x.maxDiff, diff)
+			};
+			Stack.addToStack(x.data, produces);
+			machine.outputDiffs[conf.id !== undefined ? conf.id : id] = Math.min(x.maxDiff, diff);
+		});
+		// Re-calculate inputs
+		inputs = machine.inputs.filter(x => x.isUnlocked);
+		inputs.forEach(x => {
+			const conf = x.config;
+			const amount = typeof conf.consumes === "object" ? Math.min(conf.consumes.amount * diff, conf.consumes.maximum)
+				: conf.consumes * diff;
+			if (x.data.length) Stack.removeFromStack(x.data, amount);
+		});
 	},
 	add(townName, type, x, y) {
 		const machines = player.towns[townName].machines;
@@ -233,10 +256,15 @@ export const Machine = {
 			if (!machines[i]) {
 				machines[i] = newMach;
 				Machines[townName].push(new MachineTypes[type](townName, i));
+				last(Machines[townName]).isNew = true;
 				break;
 			}
 			i++;
 		}
+	},
+	remove(townName, machine) {
+		delete player.towns[townName].machines[machine.id];
+		Machines[townName].splice(Machines[townName].indexOf(machine), 1);
 	}
 };
 window.Machine = Machine;

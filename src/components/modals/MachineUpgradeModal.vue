@@ -21,7 +21,7 @@ export default {
 	},
 	methods: {
 		update() {
-			this.upgrades = this.machine.machineData.upgrades;
+			this.upgrades = Object.values(this.machine.upgrades);
 		}
 	},
 };
@@ -30,13 +30,14 @@ export default {
 <template>
 	<modal-wrapper class="c-machine-upgrade-modal">
 		<template #header>
-			Upgrades ({{ machine.machineData.type.name.capitalize() }})
+			Upgrades ({{ machine.type.name.capitalize() }})
 		</template>
 		<machine-upgrade
 			v-for="upgrade in upgrades"
 			:key="upgrade.id"
 			:upgrade="upgrade"
 		/>
+		<span v-if="!upgrades.length"> No upgrades, sorry :( </span>
 	</modal-wrapper>
 </template>
 

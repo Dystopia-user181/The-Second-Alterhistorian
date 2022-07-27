@@ -1,12 +1,13 @@
 <script>
 import { Machines } from "./../js/machines";
+import { Modal } from "./../js/ui/modals";
 
-import Machine from "./Machine.vue";
+import MachineVue from "./Machine.vue";
 
 export default {
 	name: "MachineTab",
 	components: {
-		Machine
+		MachineVue
 	},
 	data() {
 		return {
@@ -29,7 +30,7 @@ export default {
 		this.offsetX = player.display.offset.x;
 		this.offsetY = player.display.offset.y;
 	},
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.beforeDestroy) this.beforeDestroy();
 	},
 	methods: {
@@ -105,6 +106,11 @@ export default {
 				document.addEventListener("mouseleave", stopHolding);
 				this.beforeDestroy = stopHolding;
 			}
+		},
+		deleteMachine(machine) {
+			// TODO: Add confirmation modal
+			Machine.remove(player.currentlyIn, machine);
+			this.update();
 		}
 	}
 }
@@ -125,7 +131,7 @@ export default {
 			v-for="(machine, machineId) in machines"
 			:key="machineId"
 		>
-			<machine
+			<machine-vue
 				:machine="machine.machineData"
 				:style="objectMap(machine.position, x => x, x => `${x}px`)"
 			/>
@@ -139,11 +145,20 @@ export default {
 				/>
 				<div
 					class="fas fa-arrow-up"
-					@mousedown="openUpgrades(machine)"
+					@mousedown="openUpgrades(machine.machineData)"
 				/>
 				<div
 					class="fas fa-info-circle"
 					@mousedown="machine.machineData.showDescription()"
+				/>
+				<div
+					class="fas fa-chart-bar"
+					@mousedown="machine.machineData.showProduction()"
+				/>
+				<div
+					v-if="!machine.machineData.data.isDefault"
+					class="fas fa-trash"
+					@mousedown="deleteMachine(machine.machineData)"
 				/>
 			</div>
 		</span>
@@ -211,8 +226,14 @@ export default {
 	cursor: pointer;
 }
 
-.c-machine-sidebar .fa-info-circle {
+.c-machine-sidebar .fa-info-circle,
+.c-machine-sidebar .fa-chart-bar {
 	cursor: help;
+}
+
+.c-machine-sidebar .fa-trash {
+	cursor: pointer;
+	color: #cc5555;
 }
 
 .c-machine-tab__offset {

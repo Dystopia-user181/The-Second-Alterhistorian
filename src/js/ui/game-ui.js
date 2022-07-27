@@ -11,7 +11,7 @@ vueApp.mixin({
 			this.update();
 		}
 	},
-	destroyed() {
+	beforeUnmount() {
 		EventHub.ui.offAll(this);
 	},
 	methods: {
@@ -40,15 +40,6 @@ vueApp.mixin({
 });
 
 vueApp.mount('#app');
-	
-// This function is also from the fiddle above
-function makeRecomputable(watcher, key, recomputed) {
-	const original = watcher.getter;
-	recomputed[key] = true;
-	
-	// eslint-disable-next-line no-sequences
-	watcher.getter = vm => (recomputed[key], original.call(vm, vm));
-}
 	
 export const GameUI = {
 	events: [],
