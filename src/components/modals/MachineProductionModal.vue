@@ -22,7 +22,7 @@ export default {
 		update() {
 			this.inputs = this.machine.inputs.map((x, id) => (!x.data.length ? null : {
 				resource: last(x.data).resource,
-				amount: typeof x.config.consumes === "object" ? Math.min(x.config.consumes.amount, x.config.consumes.maximum) : x.config.consumes,
+				amount: typeof x.config.consumes === "object" ? Math.min(x.config.consumes.amount, x.config.consumes.maximum * 1e10) : x.config.consumes,
 				id
 			})).filter(x => x && x.amount > 0);
 			this.outputs = this.machine.outputs.map((x, id) => (!x.data.length ? null : {
@@ -46,7 +46,7 @@ export default {
 				v-for="input in inputs"
 				:key="input.id"
 			>
-				Input {{ input.id + 1 }}: Consumes {{ format(input.amount, 2, 1) }} {{ input.resource.capitalize() }}/s
+				Input {{ input.id + 1 }}: Consumes {{ format(input.amount, 2, 2) }} {{ input.resource.capitalize() }}/s
 				<br>
 			</span>
 		</template>
@@ -57,7 +57,7 @@ export default {
 				v-for="output in outputs"
 				:key="output.id"
 			>
-				Output {{ output.id + 1 }}: Produces {{ format(output.amount, 2, 1) }} {{ output.resource.capitalize() }}/s
+				Output {{ output.id + 1 }}: Produces {{ format(output.amount, 2, 2) }} {{ output.resource.capitalize() }}/s
 				<br>
 			</span>
 		</template>

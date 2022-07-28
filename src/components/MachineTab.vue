@@ -40,6 +40,7 @@ export default {
 					top: machine.data.y - this.offsetY,
 					left: machine.data.x - this.offsetX
 				},
+				notifyUpgrade: machine.hasUpgradeAvailable,
 				machineData: machine
 			}));
 			if (this.holdingFunction) this.holdingFunction();
@@ -108,9 +109,13 @@ export default {
 			}
 		},
 		deleteMachine(machine) {
-			// TODO: Add confirmation modal
-			Machine.remove(player.currentlyIn, machine);
-			this.update();
+			if (shiftDown) {
+				Machine.remove(player.currentlyIn, machine);
+				this.update();
+			}
+			else {
+				Modal.removeMachine.show({ machine }).then(() => this.update());
+			}
 		}
 	}
 }
@@ -145,6 +150,7 @@ export default {
 				/>
 				<div
 					class="fas fa-arrow-up"
+					:class="{ 'c-glow-yellow': machine.notifyUpgrade }"
 					@mousedown="openUpgrades(machine.machineData)"
 				/>
 				<div

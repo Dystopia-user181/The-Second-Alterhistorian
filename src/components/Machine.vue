@@ -22,12 +22,12 @@ export default {
 			outputData: [],
 			holdFunction: null,
 			beforeDestroy: null,
-			animation: ""
+			animation: false
 		}
 	},
 	mounted() {
 		if (this.machine.isNew) {
-			this.animation = "a-just-bought 2s";
+			this.animation = true
 			delete this.machine.isNew;
 		}
 	},
@@ -54,9 +54,13 @@ export default {
 			if (!output.data.length) return;
 			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
 			else if (player.holding.resource !== last(output.data).resource) return;
-			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.005);
+			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
 		},
-		registerOutputHold(id) {
+		registerOutputHold(id, e) {
+			if (e.button === 2) {
+				this.allToHolding(id);
+				return;
+			}
 			if (!this.holdFunction) {
 				this.holdFunction = this.transferFromOutputToHolding.bind(this, this.outputs[id]);
 				const stopHolding = function() {
@@ -70,14 +74,25 @@ export default {
 				this.beforeDestroy = stopHolding;
 			}
 		},
+		allToHolding(id) {
+			const output = this.outputs[id];
+			if (!output.data.length) return;
+			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
+			else if (player.holding.resource !== last(output.data).resource) return;
+			player.holding.amount += Stack.removeFromStack(output.data, last(output.data).amount);
+		},
 		transferFromHoldingToInput(input) {
 			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
 			player.holding.amount = player.holding.amount - Stack.addToStack(input.data, {
 				resource: player.holding.resource,
-				amount: Math.min(input.config.capacity * 0.005, player.holding.amount)
+				amount: Math.min(input.config.capacity * 0.007, player.holding.amount)
 			}, input.config.capacity);
 		},
-		registerInputHold(id) {
+		registerInputHold(id, e) {
+			if (e.button === 2) {
+				this.allToInput(id);
+				return;
+			}
 			if (!this.holdFunction) {
 				this.holdFunction = this.transferFromHoldingToInput.bind(this, this.inputs[id]);
 				const stopHolding = function() {
@@ -91,6 +106,14 @@ export default {
 				this.beforeDestroy = stopHolding;
 			}
 		},
+		allToInput(id) {
+			const input = this.inputs[id];
+			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
+			player.holding.amount = player.holding.amount - Stack.addToStack(input.data, {
+				resource: player.holding.resource,
+				amount: player.holding.amount
+			}, input.config.capacity);
+		},
 		inputClassObject(input) {
 			return player.holding.amount === 0 ? "c-cursor-default" : (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
 		}
@@ -101,7 +124,7 @@ export default {
 <template>
 	<div
 		class="c-machine-container"
-		:style="{ animation }"
+		:class="{ 'c-machine-container--new': animation }"
 	>
 		<span class="c-emphasise-text">{{ machine.type.name.capitalize() }}</span>
 		<div class="l-machine__inner">
@@ -110,7 +133,8 @@ export default {
 				:key="id"
 				class="c-machine__input"
 				:class="inputClassObject(input)"
-				@mousedown="registerInputHold(id)"
+				@mousedown="registerInputHold(id, $event)"
+				@contextmenu="$event.preventDefault()"
 			>
 				<resource-stack
 					:stack="inputData[id].stack"
@@ -129,7 +153,8 @@ export default {
 				v-for="(output, id) in outputs"
 				:key="id"
 				class="c-machine__output"
-				@mousedown="registerOutputHold(id)"
+				@mousedown="registerOutputHold(id, $event)"
+				@contextmenu="$event.preventDefault()"
 			>
 				<resource-stack
 					:stack="outputData[id].stack"
@@ -197,17 +222,13 @@ export default {
 	width: 5px;
 }
 
+hr {
+	margin: 2px 0;
+}
+
 .fa-lock {
 	font-size: 200px;
 	margin-top: 10px;
-}
-
-hr {
-	border: none;
-	height: 1.5px;
-	min-width: 60px;
-	margin: 2px 0;
-	background-color: #ffffff;
 }
 
 .c-cursor-default {
@@ -218,8 +239,12 @@ hr {
 	cursor: not-allowed;
 }
 
+.c-machine-container--new {
+	animation: a-just-bought 3s;
+}
+
 @keyframes a-just-bought {
-	0% { filter: brightness(300%); }
-	100% { filter: brightness(100%); }
+	0% { filter: brightness(400%) drop-shadow(0 0 50px #ffffff); }
+	100% { filter: brightness(100%) drop-shadow(0 0 0 transparent); }
 }
 </style>

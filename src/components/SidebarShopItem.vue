@@ -32,19 +32,24 @@ export default {
 	<button
 		class="c-sidebar__shop-item"
 		:class="{ disabled: !canAfford }"
+		@click="shopItem.buy()"
 	>
-		<h2>
+		<span class="c-emphasise-text">
 			{{ name }}
-			<br>
-			Cost: {{ !currencyType ? "$" : ""}} {{ format(cost, 2, 1) }} {{  }}
-		</h2>
+		</span>
+		<hr>
+		{{ description }}
+		<br>
+		Cost: {{ !currencyType ? "$" : ""}} {{ format(cost, 2, 1) }} {{ currencyType }}
 	</button>
 </template>
 
 <style scoped>
 .c-sidebar__shop-item {
-	width: 100%;
+	width: 95%;
 	min-height: 70px;
 	margin: 3px;
+	text-align: left;
+	align-self: center;
 }
 </style>

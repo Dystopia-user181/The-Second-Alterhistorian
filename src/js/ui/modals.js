@@ -1,6 +1,7 @@
 import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
 import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
 import MessageModal from "./../../components/modals/MessageModal.vue";
+import RemoveMachineModal from "./../../components/modals/RemoveMachineModal.vue";
 
 export class Modal {
 	constructor(component, priority = 0) {
@@ -16,6 +17,11 @@ export class Modal {
 		// Add this modal to the front of the queue and sort based on priority to ensure priority is maintained.
 		modalQueue.unshift(this);
 		Modal.sortModalQueue();
+		return {
+			then: (func) => {
+				this.afterHide = func;
+			}
+		}
 	}
 	
 	get isOpen() {
@@ -44,7 +50,11 @@ export class Modal {
 	}
 	
 	static hide() {
-		Modal.queue.shift();
+		const closed = Modal.queue.shift();
+		if (closed) {
+			if (closed.afterHide) closed.afterHide();
+			delete closed.afterHide;
+		}
 		if (Modal.queue.length === 0) Modal.current = undefined;
 		else Modal.current = Modal.queue[0];
 	}
@@ -69,12 +79,13 @@ export class Modal {
 
 Modal.machineUpgrades = new Modal(MachineUpgradeModal);
 Modal.machineProduction = new Modal(MachineProductionModal);
+Modal.removeMachine = new Modal(RemoveMachineModal);
 Modal.message = new class extends Modal {
 	show(text) {
-		super.show();
 		if (!this.queue) this.queue = [];
 		if (!this.queue.length) this.text = text;
 		this.queue.push(text);
+		return super.show();
 	}
   
 	hide() {
@@ -85,4 +96,4 @@ Modal.message = new class extends Modal {
 		if (this.queue && this.queue.length === 0) this.text = undefined;
 		else this.text = this.queue[0];
 	}
-  }(MessageModal, 2);
+}(MessageModal, 2);

@@ -3,7 +3,7 @@ import { Stack } from "./stack";
 import { Modal } from "./ui/modals";
 
 function MachineType(data) {
-	return class {
+	const returnValue = class {
 		constructor(town, id) {
 			this.town = town;
 			this.id = id;
@@ -20,6 +20,10 @@ function MachineType(data) {
 
 		get upgrades() {
 			return !this.type.upgrades ? {} : objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
+		}
+
+		get hasUpgradeAvailable() {
+			return Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
 		}
 
 		get params() {
@@ -88,17 +92,7 @@ function MachineType(data) {
 			Modal.machineProduction.show({ machine: this });
 		}
 
-		static upgrades = data.upgrades;
-
-		static inputs = data.inputs;
-
-		static outputs = data.outputs;
-
 		static name = data.name;
-
-		static description = data.description;
-
-		static customLoop = data.customLoop;
 
 		static newMachine(x, y) {
 			const returnObj = {
@@ -119,6 +113,12 @@ function MachineType(data) {
 			return returnObj;
 		}
 	}
+
+	for (const i of Object.keys(data)) {
+		if (i !== "name") returnValue[i] = data[i];
+	}
+
+	return returnValue;
 }
 
 class MachineUpgrade {
@@ -264,7 +264,7 @@ export const Machine = {
 	},
 	remove(townName, machine) {
 		delete player.towns[townName].machines[machine.id];
-		Machines[townName].splice(Machines[townName].indexOf(machine), 1);
+		Machines[townName].splice(Machines[townName].findIndex(x => x.id === machine.id), 1);
 	}
 };
 window.Machine = Machine;

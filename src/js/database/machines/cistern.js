@@ -35,7 +35,7 @@ GameDatabase.machines.cistern = {
 		cost: count => Math.pow(4, count) * 30,
 		max: 2,
 		title: "Velocity",
-		effect: count => Math.pow(1.5, count) + count,
+		effect: count => Math.pow(1.5, count) + 1.5 * count,
 		description: "Increase production"
 	}]),
 	description: `Produces Water.`

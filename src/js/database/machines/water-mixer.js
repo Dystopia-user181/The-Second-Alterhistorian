@@ -18,7 +18,7 @@ GameDatabase.machines.waterMixer = {
 	name: "waterMixer",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),
-		capacity: () => 5,
+		capacity: () => 10,
 		consumes: machine => ({
 			amount: recipesByInput[machine.inputResource || "none"].input.amount,
 			maximum: machine.outputDiffs.main * recipesByInput[machine.inputResource || "none"].input.amount

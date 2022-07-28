@@ -60,10 +60,39 @@ button:hover {
 
 .disabled {
 	cursor: not-allowed;
-	opacity: 0.7;
+	opacity: 0.5;
 }
 
 .c-emphasise-text {
 	font-weight: bold;
 	font-size: 1.1em;
+}
+
+hr {
+	border: none;
+	height: 1.5px;
+	min-width: 60px;
+	background-color: #ffffff;
+}
+
+@keyframes a-opacity {
+	0% { opacity: 0; }
+	50% { opacity: 0.4; }
+	100% { opacity: 0; }
+}
+  
+.c-glow-yellow {
+	position: relative;
+}
+
+.c-glow-yellow::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: gold;
+	border-radius: var(--var-border-radius, inherit);
+	animation: a-opacity 3s infinite;
 }
