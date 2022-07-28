@@ -19,8 +19,7 @@ const recipes = [{
 const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
 
 function getConsumption(machine) {
-	return recipesByInput[machine.inputResource || "none"].input.amount
-		* machine.upgrades.improve.effect[0];
+	return recipesByInput[machine.inputResource || "none"].input.amount * machine.upgrades.improve.effect[0];
 }
 
 function getFuelusage(machine) {
