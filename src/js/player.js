@@ -48,9 +48,10 @@ export const Player = {
 		for (const town of Object.values(player.towns)) {
 			for (const machine of Object.values(town.machines)) {
 				const type = MachineTypes[machine.type];
-				if (type.upgrades && type.upgrades.length) {
+				if (type.upgrades && Object.keys(type.upgrades).length) {
+					console.log("deez");
 					if (!machine.upgrades) machine.upgrades = [];
-					for (let i = 0; i < type.upgrades.length; i++) {
+					for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
 						if (!(i in machine.upgrades)) machine.upgrades[i] = 0;
 					}
 				}

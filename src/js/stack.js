@@ -9,7 +9,10 @@ export const Stack = {
 		if (stack[0] && stack[0].resource === item.resource) {
 			stack[0].amount += amount;
 		} else {
-			stack.unshift({ ...item });
+			stack.unshift({
+				resource: item.resource,
+				amount
+			});
 		}
 		return amount;
 	},

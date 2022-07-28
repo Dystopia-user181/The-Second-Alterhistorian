@@ -40,11 +40,13 @@ export default {
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
 			this.inputData = this.inputs.map(x => ({
 				stack: x.data,
+				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
 				amount: Stack.volumeOfStack(x.data),
 				capacity: x.config.capacity
 			}));
 			this.outputData = this.outputs.map(x => ({
 				stack: x.data,
+				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
 				amount: Stack.volumeOfStack(x.data),
 				capacity: x.config.capacity
 			}));
@@ -115,7 +117,13 @@ export default {
 			}, input.config.capacity);
 		},
 		inputClassObject(input) {
-			return player.holding.amount === 0 ? "c-cursor-default" : (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
+			return player.holding.amount === 0 ? "c-cursor-default"
+				: (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
+		},
+		outputClassObject(output) {
+			return output.data.length
+				? (player.holding.resource === last(output.data).resource || !player.holding.amount ? "" : "c-cursor-notallowed")
+				: "c-cursor-default";
 		}
 	}
 };
@@ -134,7 +142,6 @@ export default {
 				class="c-machine__input"
 				:class="inputClassObject(input)"
 				@mousedown="registerInputHold(id, $event)"
-				@contextmenu="$event.preventDefault()"
 			>
 				<resource-stack
 					:stack="inputData[id].stack"
@@ -143,6 +150,8 @@ export default {
 					{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
 					<br>
 					Input {{ id + 1}}
+					<br>
+					{{ inputData[id].resource }}
 				</resource-stack>
 			</div>
 			<div
@@ -153,8 +162,8 @@ export default {
 				v-for="(output, id) in outputs"
 				:key="id"
 				class="c-machine__output"
+				:class="outputClassObject(output)"
 				@mousedown="registerOutputHold(id, $event)"
-				@contextmenu="$event.preventDefault()"
 			>
 				<resource-stack
 					:stack="outputData[id].stack"
@@ -163,6 +172,8 @@ export default {
 					{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
 					<br>
 					Output {{ id + 1}}
+					<br>
+					{{ outputData[id].resource }}
 				</resource-stack>
 			</div>
 			<span

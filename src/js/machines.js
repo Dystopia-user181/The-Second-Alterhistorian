@@ -171,6 +171,10 @@ class MachineUpgrade {
 		return run(this.config.description, this);
 	}
 
+	get isUnlocked() {
+		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this.parentMachine);
+	}
+
 	get canAfford() {
 		if (this.maxed) return false;
 		if (!this.currencyType) return player.money >= this.cost;

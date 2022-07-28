@@ -30,8 +30,8 @@ window.EventHub = class EventHub {
   
 	// eslint-disable-next-line max-params
 	static dispatch(event, ...args) {
-	  EventHub.logic.dispatch(event, args);
-	  GameUI.dispatch(event, args);
+	  EventHub.logic.dispatch(event, ...args);
+	  GameUI.dispatch(event, ...args);
 	}
 };
   
@@ -45,4 +45,8 @@ window.GAME_EVENTS = {
 
 	// UI Events
 	UPDATE: "UPDATE",
+
+	// Keyboard Events
+	ARROW_KEYDOWN: "ARROW_KEYDOWN",
+	ARROW_KEYUP: "ARROW_KEYUP"
 };

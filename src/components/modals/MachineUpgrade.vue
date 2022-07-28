@@ -15,7 +15,7 @@ export default {
 			description: "",
 			maxed: false,
 			canAfford: false,
-			currencyDisplay: ""
+			currencyType: ""
 		}
 	},
 	methods: {
@@ -26,7 +26,7 @@ export default {
 			this.description = this.upgrade.description;
 			this.maxed = this.upgrade.maxed;
 			this.canAfford = this.upgrade.canAfford;
-			this.currencyDisplay = this.upgrade.currencyDisplay || "";
+			this.currencyType = this.upgrade.currencyType || "";
 		}
 	},
 };
@@ -44,20 +44,24 @@ export default {
 		<span class="c-emphasise-text"> {{ title }} </span>
 		<br>
 		{{ description }}
-		<br>
-		Currently: {{ effect }}
+		<span v-if="effect">
+			<br>
+			Currently: {{ effect }}
+		</span>
 		<span v-if="!maxed">
 			<br>
-			Cost: {{ !currencyDisplay ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyDisplay }}
+			Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
 		</span>
 	</button>
 </template>
 
 <style scoped>
 .c-machine-upgrade {
-	width: 180px;
-	height: 100px;
+	width: 190px;
+	height: 110px;
 	margin: 3px;
+	padding: 0 15px;
+	font-size: 0.95em;
 	transition: all 0.2s;
 	vertical-align: top;
 }

@@ -20,23 +20,26 @@ GameDatabase.machines.cistern = {
 		title: "Unlock",
 		description: "Unlock the cistern",
 		effect: count => Boolean(count),
-		formatEffect: effect => effect ? "Unlocked" : "Not unlocked"
+		formatEffect: () => "",
+		isUnlocked: machine => !machine.upgrades.unlock.effect
 	},
 	{
 		name: "capacity",
-		cost: count => Math.pow(3, count) * 30,
-		max: 1,
+		cost: count => Math.pow(5, count) * 30,
+		max: 2,
 		title: "Capacity",
-		effect: count => count * 2 + 1,
-		description: "Incrcease capacity"
+		description: "Incrcease Water capacity",
+		effect: count => Math.pow(2, count - 1) + count + 0.5,
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	},
 	{
 		name: "velocity",
 		cost: count => Math.pow(4, count) * 30,
 		max: 2,
 		title: "Velocity",
+		description: "Increase Water production",
 		effect: count => Math.pow(1.5, count) + 1.5 * count,
-		description: "Increase production"
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	}]),
 	description: `Produces Water.`
 };

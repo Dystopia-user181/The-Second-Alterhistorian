@@ -8,19 +8,29 @@ GameDatabase.machines.quarry = {
 	outputs: [{
 		capacity: () => 10,
 		produces: {
+			resource: "stone",
+			amount: 0.15
+		},
+		isUnlocked: machine => machine.upgrades.unlock.maxed
+	},
+	{
+		capacity: () => 5,
+		produces: {
 			resource: "coal",
-			amount: 0.05
+			amount: 0.04
 		},
 		isUnlocked: machine => machine.upgrades.unlock.maxed
 	}],
 	upgrades: machineUpg([{
 		name: "unlock",
-		cost: 2.34e100,
+		cost: 55,
+		currencyType: "bricks",
 		max: 1,
-		title: "Unlock",
-		description: "Unlock the quarry.",
+		title: "Build",
+		description: "Build the quarry.",
 		effect: count => Boolean(count),
-		formatEffect: effect => effect ? "Unlocked" : "Not unlocked"
+		formatEffect: () => "",
+		isUnlocked: machine => !machine.upgrades.unlock.effect
 	}]),
-	description: `Produces Coal.`
+	description: `Produces Stone and Coal.`
 };

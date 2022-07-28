@@ -19,22 +19,46 @@ export default {
 			width: 0,
 			height: 0,
 			ctx: null,
-			holdingFunction: null
+			holdingFunction: null,
+			holdingKeyFunction: null
 		}
 	},
 	computed: {
 		maxOffsetX: () => 2998,
 		maxOffsetY: () => 1998
 	},
-	created() {
-		this.offsetX = player.display.offset.x;
-		this.offsetY = player.display.offset.y;
+	mounted() {
+		this.on$(GAME_EVENTS.ARROW_KEYDOWN, key => {
+			switch(key) {
+				case "up":
+					this.registerOffsetKey([0, -1]);
+					break;
+				case "right":
+					this.registerOffsetKey([1, 0]);
+					break;
+				case "down":
+					this.registerOffsetKey([0, 1]);
+					break;
+				case "left":
+					this.registerOffsetKey([-1, 0]);
+					break;
+			}
+		});
+		this.on$(GAME_EVENTS.ARROW_KEYUP, () => {
+			this.deregisterOffsetKey();
+		});
 	},
 	beforeUnmount() {
 		if (this.beforeDestroy) this.beforeDestroy();
 	},
 	methods: {
 		update() {
+			this.width = this.$refs.machineTab.offsetWidth;
+			this.height = this.$refs.machineTab.offsetHeight;
+			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
+			player.display.offset.y = Math.min(player.display.offset.y, this.maxOffsetY - this.height);
+			this.offsetX = player.display.offset.x;
+			this.offsetY = player.display.offset.y;
 			this.machines = Machines[player.currentlyIn].map(machine => ({
 				position: {
 					top: machine.data.y - this.offsetY,
@@ -44,12 +68,7 @@ export default {
 				machineData: machine
 			}));
 			if (this.holdingFunction) this.holdingFunction();
-			this.width = this.$refs.machineTab.offsetWidth;
-			this.offsetX = Math.min(this.offsetX, this.maxOffsetX - this.width);
-			player.display.offset.x = this.offsetX;
-			this.height = this.$refs.machineTab.offsetHeight;
-			this.offsetY = Math.min(this.offsetY, this.maxOffsetY - this.height);
-			player.display.offset.y = this.offsetY;
+			if (this.holdingKeyFunction) this.holdingKeyFunction();
 			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");;
 			this.ctx.clearRect(0, 0, this.width, this.height);
 			this.ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
@@ -93,8 +112,8 @@ export default {
 			if (!this.holding) {
 				this.holding = true;
 				this.holdingFunction = function() {
-					this.offsetX = Math.max(Math.min(this.offsetX + offset[0] * 15, this.maxOffsetX - this.width), 0);
-					this.offsetY = Math.max(Math.min(this.offsetY + offset[1] * 15, this.maxOffsetY - this.height), 0);
+					player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15, this.maxOffsetX - this.width), 0);
+					player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15, this.maxOffsetY - this.height), 0);
 				}.bind(this);
 				const stopHolding = function() {
 					this.holding = false;
@@ -107,6 +126,15 @@ export default {
 				document.addEventListener("mouseleave", stopHolding);
 				this.beforeDestroy = stopHolding;
 			}
+		},
+		registerOffsetKey(offset) {
+			this.holdingKeyFunction = function() {
+				player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15, this.maxOffsetX - this.width), 0);
+				player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15, this.maxOffsetY - this.height), 0);
+			}.bind(this)
+		},
+		deregisterOffsetKey() {
+			this.holdingKeyFunction = null;
 		},
 		deleteMachine(machine) {
 			if (shiftDown) {
@@ -218,6 +246,11 @@ export default {
 	background-color: #333333;
 	border-radius: 5px 0 0 5px;
 	font-size: 1.1em;
+	transition: text-shadow 0.3s;
+}
+
+.c-machine-sidebar .fas:hover {
+	text-shadow: 0 0 5px;
 }
 
 .c-machine-sidebar .fas:nth-child(even) {

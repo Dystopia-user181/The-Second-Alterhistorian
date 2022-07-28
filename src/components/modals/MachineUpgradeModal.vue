@@ -21,7 +21,7 @@ export default {
 	},
 	methods: {
 		update() {
-			this.upgrades = Object.values(this.machine.upgrades);
+			this.upgrades = Object.values(this.machine.upgrades).filter(x => x.isUnlocked);
 		}
 	},
 };
@@ -44,6 +44,7 @@ export default {
 <style scoped>
 .c-machine-upgrade-modal {
 	min-width: 400px;
+	max-width: 600px;
 	min-height: 250px;
 }
 </style>

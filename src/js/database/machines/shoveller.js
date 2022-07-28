@@ -11,22 +11,38 @@ GameDatabase.machines.shoveller = {
 			resource: "earth",
 			amount: 0.3 * machine.upgrades.velocity.effect
 		})
+	}, {
+		capacity: 10,
+		produces: machine => ({
+			resource: "wood",
+			amount: 0.2 * machine.upgrades.wood.effect
+		}),
+		isUnlocked: machine => machine.upgrades.wood.effect
 	}],
 	upgrades: machineUpg([{
 		name: "capacity",
-		cost: 10,
-		max: 1,
+		cost: count => Math.pow(5, count) * 10,
+		max: 2,
 		title: "Capacity",
-		effect: count => count * 2 + 1,
-		description: "Incrcease capacity"
+		description: "Incrcease Earth capacity",
+		effect: count => Math.pow(2, count - 1) + count + 0.5
 	},
 	{
 		name: "velocity",
 		cost: count => Math.pow(4, count) * 10,
 		max: 2,
 		title: "Velocity",
-		effect: count => Math.pow(1.5, count) + count,
-		description: "Increase production"
+		description: "Increase Earth production",
+		effect: count => Math.pow(1.5, count) + count
+	},
+	{
+		name: "wood",
+		cost: count => 125 * Math.pow(3.2, count),
+		max: 2,
+		title: upg => upg.count ? "Persistence" : "Wood",
+		description: upg => upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees",
+		effect: count => (Math.pow(1.4, count) - 1) * 2.5,
+		formatEffect: effect => effect ? formatX(effect, 2, 1) : "Not unlocked"
 	}]),
 	description: `Produces Earth.`
 };

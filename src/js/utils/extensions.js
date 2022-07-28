@@ -27,7 +27,7 @@ window.last = function last(array) {
 	return array[array.length - 1];
 }
 
-window.deepAssign = function deepAssign(target, source) {
+window.deepAssign = function deepAssign(target, source, debugStack = []) {
 	for (const prop of Object.keys(source)) {
 		if (typeof source[prop] === "object" && typeof target[prop] === "object") deepAssign(target[prop], source[prop]);
 		else target[prop] = deepClone(source[prop]);
@@ -39,7 +39,7 @@ window.mergeUnique = function mergeUnique(a, b) {
 }
 
 window.deepClone = function(object) {
-	if (typeof object !== "object") return object;
+	if (typeof object !== "object" || object === null) return object;
 	let fillObject;
 	if (object.constructor === Array) fillObject = [];
 	else fillObject = {};

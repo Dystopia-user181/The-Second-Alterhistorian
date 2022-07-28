@@ -18,6 +18,11 @@ GameDatabase.towns.home = {
 		{
 			type: "waterMixer",
 			cost: 15
+		},
+		{
+			type: "furnaceBasic",
+			cost: 12,
+			currencyType: "wood"
 		}
 	]
 };
