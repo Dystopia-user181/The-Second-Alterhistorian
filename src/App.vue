@@ -10,12 +10,14 @@ import PopupModal from "./components/modals/PopupModal.vue";
 const holding = reactive({ resource: "", amount: 0 }),
 	mouseX = ref(0),
 	mouseY = ref(0),
-	modal = shallowRef({});
+	modal = shallowRef({}),
+	showModal = ref(false);
 
 function update() {
 	holding.resource = player.holding.resource;
 	holding.amount = player.holding.amount;
 	modal.value = Modal.current;
+	showModal.value = Modal.isOpen;
 }
 function currencyColour(curr) {
 	return Currencies[curr].colour;
@@ -47,7 +49,7 @@ function updateMousePos(event) {
 		>
 			{{ format(holding.amount, 2, 1) }}
 		</div>
-		<popup-modal v-if="modal" :modal="modal" />
+		<popup-modal v-if="showModal" :modal="modal" />
 	</div>
 </template>
 
