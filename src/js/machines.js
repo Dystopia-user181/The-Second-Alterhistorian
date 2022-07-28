@@ -1,6 +1,6 @@
 import { GameDatabase } from "./database/game-database";
 import { Stack } from "./stack";
-import { Modal } from "./ui/modals";
+import { Modals } from "./ui/modals";
 
 function MachineType(data) {
 	const returnValue = class {
@@ -85,11 +85,11 @@ function MachineType(data) {
 				${this.type.inputs.map(x => x.accepts.map(x => x.capitalize()))
 					.map((x, id) => `Input ${id + 1} accepts: ${x.join(", ")}`).join("<br>")}
 			</div>` : "";
-			Modal.message.show(`${this.type.description}${acceptsTable}`);
+			Modals.message.show(`${this.type.description}${acceptsTable}`);
 		}
 
 		showProduction() {
-			Modal.machineProduction.show({ machine: this });
+			Modals.machineProduction.show({ machine: this });
 		}
 
 		static name = data.name;
@@ -253,7 +253,7 @@ export const Machine = {
 	},
 	add(townName, type, x, y) {
 		const machines = player.towns[townName].machines;
-		if (Object.values(machines).length > 50) return Modal.message.show("Reached machine cap in this town!");
+		if (Object.values(machines).length > 50) return Modals.message.show("Reached machine cap in this town!");
 		const newMach = MachineTypes[type].newMachine(x, y);
 		let i = 0;
 		while (true) {

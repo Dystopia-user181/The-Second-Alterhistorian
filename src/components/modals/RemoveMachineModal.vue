@@ -1,5 +1,5 @@
 <script>
-import { Modal } from "./../../js/ui/modals";
+import { Modals } from "./../../js/ui/modals";
 
 import ModalWrapper from "./ModalWrapper.vue";
 
@@ -17,10 +17,10 @@ export default {
 	methods: {
 		confirm() {
 			Machine.remove(player.currentlyIn, this.machine);
-			Modal.hide();
+			Modals.hide();
 		},
 		cancel() {
-			Modal.hide();
+			Modals.hide();
 		}
 	}
 };

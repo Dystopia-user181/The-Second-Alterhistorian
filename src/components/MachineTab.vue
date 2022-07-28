@@ -1,6 +1,6 @@
 <script>
 import { Machines } from "./../js/machines";
-import { Modal } from "./../js/ui/modals";
+import { Modals } from "./../js/ui/modals";
 
 import MachineVue from "./Machine.vue";
 
@@ -106,7 +106,7 @@ export default {
 			}
 		},
 		openUpgrades(machine) {
-			Modal.machineUpgrades.show({ machine });
+			Modals.machineUpgrades.show({ machine });
 		},
 		registerOffsetHold(offset) {
 			if (!this.holding) {
@@ -142,7 +142,7 @@ export default {
 				this.update();
 			}
 			else {
-				Modal.removeMachine.show({ machine }).then(() => this.update());
+				Modals.removeMachine.show({ machine }).then(() => this.update());
 			}
 		}
 	}

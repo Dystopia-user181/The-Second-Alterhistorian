@@ -1,5 +1,5 @@
 <script>
-import { Modal } from "./../../js/ui/modals";
+import { Modals } from "./../../js/ui/modals";
 
 export default {
 	name: "PopupModal",
@@ -14,9 +14,9 @@ export default {
 	},
 	methods: {
 		hide() {
-			if (!this.modal.isOpen) return;
-			if (this.modal.hide) this.modal.hide();
-			else Modal.hide();
+			if (!this.Modals.isOpen) return;
+			if (this.Modals.hide) this.Modals.hide();
+			else Modals.hide();
 		}
 	},
 };

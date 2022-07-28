@@ -1,19 +1,13 @@
 <script setup>
 import { ref } from "vue";
-import { Modal } from "./../../js/ui/modals";
+import { Modals } from "./../../js/ui/modals";
 
 import ModalWrapper from "./ModalWrapper.vue";
 
-const message = ref("");
-
-function update() {
-	message.value = Modal.message.text;
-}
-
 function hide() {
-	if (!Modal.isOpen) return;
-	if (Modal.current.hide) Modal.current.hide();
-	else Modal.hide();
+	if (!Modals.isOpen) return;
+	if (Modals.current.hide) Modals.current.hide();
+	else Modals.hide();
 }
 </script>
 
@@ -23,7 +17,7 @@ function hide() {
 		<br>
 		<span
 			class="c-message-modal__text"
-			v-html="message"
+			v-html="Modals.message.text"
 		/>
 		<br><br>
 		<button @click="hide">Okay</button>

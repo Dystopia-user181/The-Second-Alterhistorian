@@ -1,5 +1,6 @@
 import { initializeMachines, MachineTypes } from "./machines";
 import { Towns } from "./towns";
+import { toRaw, reactive } from "vue";
 
 export const Player = {
 	defaultStart() {
@@ -42,14 +43,13 @@ export const Player = {
 		return fillObject;
 	},
 	savePlayer() {
-		localStorage.setItem(this.storageKey, JSON.stringify(player));
+		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
 		for (const town of Object.values(player.towns)) {
 			for (const machine of Object.values(town.machines)) {
 				const type = MachineTypes[machine.type];
 				if (type.upgrades && Object.keys(type.upgrades).length) {
-					console.log("deez");
 					if (!machine.upgrades) machine.upgrades = [];
 					for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
 						if (!(i in machine.upgrades)) machine.upgrades[i] = 0;
@@ -72,7 +72,8 @@ export const Player = {
 	}
 };
 
-window.player = Player.defaultStart();
+export const player = reactive(Player.defaultStart());
+window.player = player;
 
 Player.load();
 

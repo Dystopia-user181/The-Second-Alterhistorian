@@ -1,24 +1,15 @@
 <script setup>
-import { ref, shallowRef, reactive } from "vue";
+import { ref } from "vue";
 import { Currencies } from "./js/database/currencies";
-import { Modal } from "./js/ui/modals";
+import { Modals } from "./js/ui/modals";
+import { player } from "./js/player";
 
 import MachineTab from "./components/MachineTab.vue";
 import Sidebar from "./components/Sidebar.vue";
 import PopupModal from "./components/modals/PopupModal.vue";
 
-const holding = reactive({ resource: "", amount: 0 }),
-	mouseX = ref(0),
-	mouseY = ref(0),
-	modal = shallowRef({}),
-	showModal = ref(false);
+const mouseX = ref(0), mouseY = ref(0);
 
-function update() {
-	holding.resource = player.holding.resource;
-	holding.amount = player.holding.amount;
-	modal.value = Modal.current;
-	showModal.value = Modal.isOpen;
-}
 function currencyColour(curr) {
 	return Currencies[curr].colour;
 }
@@ -39,17 +30,17 @@ function updateMousePos(event) {
 			<sidebar />
 		</div>
 		<div
-			v-if="holding.amount > 0"
+			v-if="player.holding.amount > 0"
 			class="c-held-item"
 			:style="{
 				top: `${mouseY}px`,
 				left: `${mouseX}px`,
-				'background-color': currencyColour(holding.resource)
+				'background-color': currencyColour(player.holding.resource)
 			}"
 		>
-			{{ format(holding.amount, 2, 1) }}
+			{{ format(player.holding.amount, 2, 1) }}
 		</div>
-		<popup-modal v-if="showModal" :modal="modal" />
+		<popup-modal v-if="Modals.current" :modal="Modals.current" />
 	</div>
 </template>
 

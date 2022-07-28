@@ -1,9 +1,11 @@
+import { reactive } from "vue";
+
 import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
 import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
 import MessageModal from "./../../components/modals/MessageModal.vue";
 import RemoveMachineModal from "./../../components/modals/RemoveMachineModal.vue";
 
-export class Modal {
+class Modal {
 	constructor(component, priority = 0) {
 		this._component = component;
 		this._modalConfig = {};
@@ -13,10 +15,10 @@ export class Modal {
 	show(modalConfig) {
 		this._props = Object.assign({}, modalConfig || {});
 	
-		const modalQueue = Modal.queue;
+		const modalQueue = Modals.queue;
 		// Add this modal to the front of the queue and sort based on priority to ensure priority is maintained.
 		modalQueue.unshift(this);
-		Modal.sortModalQueue();
+		Modals.sortModalQueue();
 		return {
 			then: (func) => {
 				this.afterHide = func;
@@ -25,7 +27,7 @@ export class Modal {
 	}
 	
 	get isOpen() {
-		return Modal.current === this;
+		return Modals.current === this;
 	}
 	
 	get component() {
@@ -39,48 +41,47 @@ export class Modal {
 	get priority() {
 		return this._priority;
 	}
-	
-	static sortModalQueue() {
-		const modalQueue = Modal.queue;
-		modalQueue.sort((x, y) => y.priority - x.priority);
-		// Filter out multiple instances of the same modal.
-		const singleQueue = [...new Set(modalQueue)];
-		Modal.queue = singleQueue;
-		Modal.current = singleQueue[0];
-	}
-	
-	static hide() {
-		const closed = Modal.queue.shift();
+}
+
+export const Modals = reactive({
+	current: undefined,
+	queue: [],
+	hide() {
+		const closed = Modals.queue.shift();
 		if (closed) {
 			if (closed.afterHide) closed.afterHide();
 			delete closed.afterHide;
 		}
-		if (Modal.queue.length === 0) Modal.current = undefined;
-		else Modal.current = Modal.queue[0];
-	}
-	
-	static hideAll() {
-		while (Modal.queue.length) {
-			if (Modal.queue[0].hide) {
-				Modal.queue[0].hide();
+		if (Modals.queue.length === 0) Modals.current = undefined;
+		else Modals.current = Modals.queue[0];
+	},
+	hideAll() {
+		while (Modals.queue.length) {
+			if (Modals.queue[0].hide) {
+				Modals.queue[0].hide();
 			} else {
-				Modal.hide();
+				Modals.hide();
 			}
 		}
-		Modal.current = undefined;
+		Modals.current = undefined;
+	},
+	sortModalQueue() {
+		const modalQueue = Modals.queue;
+		modalQueue.sort((x, y) => y.priority - x.priority);
+		// Filter out multiple instances of the same Modals.
+		const singleQueue = [...new Set(modalQueue)];
+		Modals.queue = singleQueue;
+		Modals.current = singleQueue[0];
+	},
+	get isOpen() {
+		return Modals.current !== undefined;
 	}
-	
-	static get isOpen() {
-		return Modal.current instanceof this;
-	}
+});
 
-	static queue = []
-}
-
-Modal.machineUpgrades = new Modal(MachineUpgradeModal);
-Modal.machineProduction = new Modal(MachineProductionModal);
-Modal.removeMachine = new Modal(RemoveMachineModal);
-Modal.message = new class extends Modal {
+Modals.machineUpgrades = new Modal(MachineUpgradeModal);
+Modals.machineProduction = new Modal(MachineProductionModal);
+Modals.removeMachine = new Modal(RemoveMachineModal);
+Modals.message = new class extends Modal {
 	show(text) {
 		if (!this.queue) this.queue = [];
 		if (!this.queue.length) this.text = text;
@@ -90,7 +91,7 @@ Modal.message = new class extends Modal {
   
 	hide() {
 		if (this.queue.length <= 1) {
-			Modal.hide();
+			Modals.hide();
 		}
 		this.queue.shift();
 		if (this.queue && this.queue.length === 0) this.text = undefined;
