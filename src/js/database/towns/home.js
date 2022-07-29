@@ -13,6 +13,10 @@ GameDatabase.towns.home = {
 		type: "quarry",
 		x: 50,
 		y: 650
+	}, {
+		type: "essencePurifier",
+		x: 350,
+		y: 50
 	}],
 	sidebarShop: [
 		{
@@ -26,7 +30,8 @@ GameDatabase.towns.home = {
 		},
 		{
 			type: "steamEngine",
-			cost: 800
+			cost: 800,
+			isUnlocked: () => player.unlockedCurrencies.coal
 		}
 	]
 };

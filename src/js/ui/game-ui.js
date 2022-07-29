@@ -18,8 +18,8 @@ vueApp.mixin({
 		on$(event, fn) {
 			EventHub.ui.on(event, fn, this);
 		},
-		format(value, places, placesUnder1000) {
-			return format(value, places, placesUnder1000);
+		format(value, places, placesUnder1000, small) {
+			return format(value, places, placesUnder1000, small);
 		},
 		formatInt(value) {
 			return formatInt(value);

@@ -269,9 +269,9 @@ export const Machine = {
 			i++;
 		}
 	},
-	remove(townName, machine) {
-		delete player.towns[townName].machines[machine.id];
-		Machines[townName].splice(Machines[townName].findIndex(x => x.id === machine.id), 1);
+	remove(machine) {
+		delete player.towns[machine.town].machines[machine.id];
+		Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	}
 };
 window.Machine = Machine;

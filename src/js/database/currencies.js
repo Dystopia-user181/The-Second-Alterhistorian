@@ -33,6 +33,14 @@ export const Currencies = {
 	},
 	energy: {
 		colour: "#10c9d0",
-		value: 2
+		value: 2.5
+	},
+	fire: {
+		colour: "#ff8000",
+		value: 12
+	},
+	essence: {
+		colour: "#966fcf",
+		value: 15
 	}
 }

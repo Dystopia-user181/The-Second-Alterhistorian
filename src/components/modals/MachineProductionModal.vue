@@ -15,7 +15,8 @@ export default {
 	data() {
 		return {
 			inputs: [],
-			outputs: []
+			outputs: [],
+			console
 		}
 	},
 	methods: {
@@ -46,7 +47,7 @@ export default {
 				v-for="input in inputs"
 				:key="input.id"
 			>
-				Input {{ input.id + 1 }}: Consumes {{ format(input.amount, 2, 2) }} {{ input.resource.capitalize() }}/s
+				Input {{ input.id + 1 }}: Consumes {{ format(input.amount, 2, 2, true) }} {{ input.resource.capitalize() }}/s
 				<br>
 			</span>
 		</template>
@@ -57,7 +58,7 @@ export default {
 				v-for="output in outputs"
 				:key="output.id"
 			>
-				Output {{ output.id + 1 }}: Produces {{ format(output.amount, 2, 2) }} {{ output.resource.capitalize() }}/s
+				Output {{ output.id + 1 }}: Produces {{ format(output.amount, 2, 2, true) }} {{ output.resource.capitalize() }}/s
 				<br>
 			</span>
 		</template>

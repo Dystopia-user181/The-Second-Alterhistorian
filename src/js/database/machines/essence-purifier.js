@@ -2,55 +2,85 @@ import { GameDatabase } from "../game-database";
 
 import { machineUpg } from "./init";
 
+const recipes = [{
+	input: { resource: "coal", amount: 0.3 },
+	output: { resource: "fire", amount: 0.2 },
+	energyUsage: 0.4
+}, {
+	input: { resource: "energy", amount: 0.2 },
+	output: { resource: "essence", amount: 0.02 },
+	energyUsage: 0.2
+}, {
+	input: { resource: "none", amount: 0 },
+	output: { resource: "earth", amount: 0 },
+	energyUsage: 0
+}];
+
+const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+
+function getConsumption(machine) {
+	return recipesByInput[machine.inputResource || "none"].input.amount;
+}
+
+function getEnergyUsage(machine) {
+	return recipesByInput[machine.inputResource || "none"].energyUsage;
+}
+
+function getProduction(machine) {
+	const out = recipesByInput[machine.inputResource || "none"].output;
+	return {
+		resource: out.resource,
+		amount: out.amount
+	}
+}
 GameDatabase.machines.essencePurifier = {
 	name: "essencePurifier",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),
-		capacity: () => 10,
+		capacity: () => 5,
 		consumes: machine => {
 			const prod = getConsumption(machine);
 			return {
 				amount: prod,
 				maximum: machine.outputDiffs.main * prod
 			};
-		}
-	}, {
-		accepts: machine => {
-			const accepts = ["wood"];
-			if (machine.upgrades.improve.count) accepts.push("coal");
-			return accepts;
 		},
-		capacity: () => 10,
-		consumes: machine => machine.outputDiffs.main === 0 ? 0 : getFuelusage(machine)
+		isUnlocked: machine => machine.upgrades.unlock.effect
+	}, {
+		accepts: ["energy"],
+		capacity: () => 5,
+		consumes: machine => machine.outputDiffs.main === 0 ? 0 : getEnergyUsage(machine),
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	}],
 	outputs: [{
 		id: "main",
-		capacity: () => 10,
+		capacity: () => 5,
 		produces: machine => getProduction(machine),
 		requiresList: machine => [{
 			resource: machine.inputResource || "none",
 			amount: getConsumption(machine),
 			inputId: 0,
 		}, {
-			resource: machine.inputFuel || "none",
-			amount: getFuelusage(machine),
+			resource: "energy",
+			amount: getEnergyUsage(machine),
 			inputId: 1,
-		}]
+		}],
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	}],
 	upgrades: machineUpg([{
-		name: "improve",
-		cost: 15,
-		currencyType: "stone",
+		name: "unlock",
+		cost: 25,
+		currencyType: () => player.unlockedCurrencies.energy ? "energy" : "????",
 		max: 1,
-		title: "Improve",
-		description: upgrade => `Increase speed and fuel efficiency.${upgrade.count > 0 ? "" : " Unlocks ability to use coal as fuel."}`,
-		effect: count => [ Math.pow(1.5, count) + count * 0.5, Math.pow(1.1, count) + count * 0.2 ],
-		formatEffect: () => ""
+		title: "Power",
+		description: "Supply Power to the EssencePurifier.",
+		effect: count => Boolean(count),
+		formatEffect: () => "",
+		isUnlocked: machine => !machine.upgrades.unlock.effect
 	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
-		this.inputFuel = this.inputItem(1) ? this.inputItem(1).resource : "none";
 		Machine.tickThisMachine(this, diff);
 	},
-	description: `Basic furnace. Takes in a fuel and the item to be heated.`
+	description: `Extracts Basic Essences from raw materials.`
 };

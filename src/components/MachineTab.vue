@@ -138,7 +138,7 @@ export default {
 		},
 		deleteMachine(machine) {
 			if (shiftDown) {
-				Machine.remove(player.currentlyIn, machine);
+				Machine.remove(machine);
 				this.update();
 			}
 			else {

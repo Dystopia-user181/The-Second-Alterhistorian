@@ -16,7 +16,7 @@ export default {
 	},
 	methods: {
 		confirm() {
-			Machine.remove(player.currentlyIn, this.machine);
+			Machine.remove(this.machine);
 			Modals.hide();
 		},
 		cancel() {
