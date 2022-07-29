@@ -8,6 +8,7 @@ class Town {
 	}
 
 	get defaultMachines() {
+		console.log(this.config.defaultMachines.map(x => x.type), MachineTypes);
 		const machines = mapToObject(this.config.defaultMachines.map(x => MachineTypes[x.type].newMachine(x.x, x.y)), (_, id) => id, x => x);
 		for (const machine of Object.values(machines)) {
 			machine.isDefault = true;

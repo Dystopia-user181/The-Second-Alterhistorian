@@ -21,12 +21,6 @@ export default {
 				case "sell1":
 					this.gainedMoney = Currencies[this.holdingResource].value * (player.holding.amount >= 1);
 					break;
-				case "sell10":
-					this.gainedMoney = Currencies[this.holdingResource].value * 10 * (player.holding.amount >= 10);
-					break;
-				case "sell0.1":
-					this.gainedMoney = Currencies[this.holdingResource].value * this.holdingAmount * 0.1;
-					break;
 				case "sellall":
 					this.gainedMoney = Currencies[this.holdingResource].value * this.holdingAmount;
 					break;
@@ -70,25 +64,6 @@ export default {
 		</button>
 		<button
 			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount < 10 }"
-			@mouseenter="showMode = 'sell10'"
-			@mouseleave="showMode = ''"
-			@click="sellStatic(10)"
-		>
-			Sell 10
-		</button>
-		<br>
-		<button
-			class="c-sidebar-sell-button"
-			:class="{ disabled: holdingAmount <= 0 }"
-			@mouseenter="showMode = 'sell0.1'"
-			@mouseleave="showMode = ''"
-			@click="sellDynamic(0.1)"
-		>
-			Sell 10%
-		</button>
-		<button
-			class="c-sidebar-sell-button"
 			:class="{ disabled: holdingAmount <= 0 }"
 			@mouseenter="showMode = 'sellall'"
 			@mouseleave="showMode = ''"
@@ -102,6 +77,7 @@ export default {
 <style scoped>
 .c-money-display {
 	color: #dddd00;
+	margin-bottom: 0;
 }
 
 .c-sidebar-sell-button {

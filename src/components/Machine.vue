@@ -42,13 +42,15 @@ export default {
 				stack: x.data,
 				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
 				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity
+				capacity: x.config.capacity,
+				label: x.config.label
 			}));
 			this.outputData = this.outputs.map(x => ({
 				stack: x.data,
 				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
 				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity
+				capacity: x.config.capacity,
+				label: x.config.label
 			}));
 			if (this.holdFunction) this.holdFunction();
 		},
@@ -57,6 +59,7 @@ export default {
 			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
 			else if (player.holding.resource !== last(output.data).resource) return;
 			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
+			if (player.holding.amount < 0.001) player.holding.amount = 0;
 		},
 		registerOutputHold(id, e) {
 			if (e.button === 2) {
@@ -82,6 +85,7 @@ export default {
 			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
 			else if (player.holding.resource !== last(output.data).resource) return;
 			player.holding.amount += Stack.removeFromStack(output.data, last(output.data).amount);
+			if (player.holding.amount < 0.001) player.holding.amount = 0;
 		},
 		transferFromHoldingToInput(input) {
 			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
@@ -149,9 +153,13 @@ export default {
 				>
 					{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
 					<br>
-					Input {{ id + 1}}
+					Input {{ id + 1 }}
 					<br>
 					{{ inputData[id].resource }}
+					<template v-if="inputData[id].label">
+						<br>
+						{{ inputData[id].label }}
+					</template>
 				</resource-stack>
 			</div>
 			<div
@@ -174,6 +182,10 @@ export default {
 					Output {{ id + 1}}
 					<br>
 					{{ outputData[id].resource }}
+					<template v-if="outputData[id].label">
+						<br>
+						{{ outputData[id].label }}
+					</template>
 				</resource-stack>
 			</div>
 			<span

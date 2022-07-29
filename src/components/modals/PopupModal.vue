@@ -1,6 +1,4 @@
 <script>
-import { Modals } from "./../../js/ui/modals";
-
 export default {
 	name: "PopupModal",
 	props: {
@@ -11,13 +9,6 @@ export default {
 	},
 	destroyed() {
 		document.activeElement.blur();
-	},
-	methods: {
-		hide() {
-			if (!this.Modals.isOpen) return;
-			if (this.Modals.hide) this.Modals.hide();
-			else Modals.hide();
-		}
 	},
 };
 </script>
@@ -31,7 +22,6 @@ export default {
 			<component
 				:is="modal.component"
 				v-bind="modal.props"
-				@close="hide"
 			/>
 		</div>
 	</div>

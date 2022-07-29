@@ -40,7 +40,7 @@ function updateMousePos(event) {
 		>
 			{{ format(player.holding.amount, 2, 1) }}
 		</div>
-		<popup-modal v-if="Modals.current" :modal="Modals.current" />
+		<popup-modal v-if="Modals.current.value" :modal="Modals.current.value" />
 	</div>
 </template>
 

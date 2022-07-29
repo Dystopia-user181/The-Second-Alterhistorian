@@ -23,6 +23,10 @@ GameDatabase.towns.home = {
 			type: "furnaceBasic",
 			cost: 12,
 			currencyType: "wood"
+		},
+		{
+			type: "steamEngine",
+			cost: 800
 		}
 	]
 };

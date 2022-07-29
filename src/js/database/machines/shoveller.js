@@ -22,7 +22,7 @@ GameDatabase.machines.shoveller = {
 	upgrades: machineUpg([{
 		name: "capacity",
 		cost: count => Math.pow(5, count) * 10,
-		max: 2,
+		max: 3,
 		title: "Capacity",
 		description: "Incrcease Earth capacity",
 		effect: count => Math.pow(2, count - 1) + count + 0.5

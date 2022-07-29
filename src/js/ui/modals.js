@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { shallowRef, ref } from "vue";
 
 import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
 import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
@@ -43,8 +43,8 @@ class Modal {
 	}
 }
 
-export const Modals = reactive({
-	current: undefined,
+export const Modals = {
+	current: shallowRef(undefined),
 	queue: [],
 	hide() {
 		const closed = Modals.queue.shift();
@@ -52,8 +52,8 @@ export const Modals = reactive({
 			if (closed.afterHide) closed.afterHide();
 			delete closed.afterHide;
 		}
-		if (Modals.queue.length === 0) Modals.current = undefined;
-		else Modals.current = Modals.queue[0];
+		if (Modals.queue.length === 0) Modals.current.value = undefined;
+		else Modals.current.value = Modals.queue[0];
 	},
 	hideAll() {
 		while (Modals.queue.length) {
@@ -71,12 +71,12 @@ export const Modals = reactive({
 		// Filter out multiple instances of the same Modals.
 		const singleQueue = [...new Set(modalQueue)];
 		Modals.queue = singleQueue;
-		Modals.current = singleQueue[0];
+		Modals.current.value = singleQueue[0];
 	},
 	get isOpen() {
-		return Modals.current !== undefined;
+		return Modals.current.value !== undefined;
 	}
-});
+};
 
 Modals.machineUpgrades = new Modal(MachineUpgradeModal);
 Modals.machineProduction = new Modal(MachineProductionModal);
@@ -84,7 +84,7 @@ Modals.removeMachine = new Modal(RemoveMachineModal);
 Modals.message = new class extends Modal {
 	show(text) {
 		if (!this.queue) this.queue = [];
-		if (!this.queue.length) this.text = text;
+		if (!this.queue.length) this.text.value = text;
 		this.queue.push(text);
 		return super.show();
 	}
@@ -94,7 +94,11 @@ Modals.message = new class extends Modal {
 			Modals.hide();
 		}
 		this.queue.shift();
-		if (this.queue && this.queue.length === 0) this.text = undefined;
-		else this.text = this.queue[0];
+		if (this.queue && this.queue.length === 0) this.text.value = undefined;
+		else this.text.value = this.queue[0];
 	}
+
+	text = ref("");
 }(MessageModal, 2);
+
+window.Modals = Modals;

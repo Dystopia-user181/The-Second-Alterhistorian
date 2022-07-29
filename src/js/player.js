@@ -1,5 +1,6 @@
 import { initializeMachines, MachineTypes } from "./machines";
 import { Towns } from "./towns";
+import { Currencies } from "./database/currencies";
 import { toRaw, reactive } from "vue";
 
 export const Player = {
@@ -18,7 +19,8 @@ export const Player = {
 			},
 			display: {
 				offset: { x: 0, y: 0 }
-			}
+			},
+			unlockedCurrencies: objectMap(Currencies, x => x, () => false)
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
@@ -46,8 +48,8 @@ export const Player = {
 		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
-		for (const town of Object.values(player.towns)) {
-			for (const machine of Object.values(town.machines)) {
+		for (const town of Object.keys(player.towns)) {
+			for (const machine of Object.values(player.towns[town].machines)) {
 				const type = MachineTypes[machine.type];
 				if (type.upgrades && Object.keys(type.upgrades).length) {
 					if (!machine.upgrades) machine.upgrades = [];
@@ -65,6 +67,19 @@ export const Player = {
 					if (!machine.outputs) machine.outputs = [];
 					for (let i = 0; i < type.outputs.length; i++) {
 						if (!(i in machine.outputs)) machine.outputs[i] = [];
+					}
+				}
+			}
+			const defaultMachines = Towns[town].defaultMachines;
+			for (const defaultMachine of Object.values(defaultMachines)) {
+				if (!Object.values(player.towns[town].machines).find(x => x.type === defaultMachine.type && x.isDefault)) {
+					let i = 0;
+					while (true) {
+						if (!player.towns[town].machines[i]) {
+							player.towns[town].machines[i] = defaultMachine;
+							break;
+						}
+						i++;
 					}
 				}
 			}

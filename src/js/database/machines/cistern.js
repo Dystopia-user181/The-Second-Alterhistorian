@@ -15,7 +15,7 @@ GameDatabase.machines.cistern = {
 	}],
 	upgrades: machineUpg([{
 		name: "unlock",
-		cost: 2,
+		cost: 1.4,
 		max: 1,
 		title: "Unlock",
 		description: "Unlock the cistern",
@@ -25,8 +25,8 @@ GameDatabase.machines.cistern = {
 	},
 	{
 		name: "capacity",
-		cost: count => Math.pow(5, count) * 30,
-		max: 2,
+		cost: count => Math.pow(5, count) * 25,
+		max: 3,
 		title: "Capacity",
 		description: "Incrcease Water capacity",
 		effect: count => Math.pow(2, count - 1) + count + 0.5,

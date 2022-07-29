@@ -6,7 +6,7 @@ import ModalWrapper from "./ModalWrapper.vue";
 
 function hide() {
 	if (!Modals.isOpen) return;
-	if (Modals.current.hide) Modals.current.hide();
+	if (Modals.current.value.hide) Modals.current.value.hide();
 	else Modals.hide();
 }
 </script>
@@ -17,7 +17,7 @@ function hide() {
 		<br>
 		<span
 			class="c-message-modal__text"
-			v-html="Modals.message.text"
+			v-html="Modals.message.text.value"
 		/>
 		<br><br>
 		<button @click="hide">Okay</button>

@@ -12,7 +12,7 @@ export const Currencies = {
 		value: 0.4
 	},
 	clay: {
-		colour: "#93a070",
+		colour: "#6e7379",
 		value: 1
 	},
 	bricks: {
@@ -30,5 +30,9 @@ export const Currencies = {
 	stone: {
 		colour: "#888c8d",
 		value: 1.5
+	},
+	energy: {
+		colour: "#10c9d0",
+		value: 2
 	}
 }

@@ -8,6 +8,50 @@ function MachineType(data) {
 			this.town = town;
 			this.id = id;
 			this.outputDiffs = mapToObject(data.outputs, (x, id) => x.id === undefined ? id : x.id, () => 0);
+			const machine = this;
+			const player = this.data;
+			this.inputs = this.type.inputs.map((x, id) => ({
+				get config() {
+					return objectMap(x, y => y, (item, propName) => {
+						switch(propName) {
+							case "capacity": case "consumes": case "accepts": case "label":
+								return run(item, machine);
+							default:
+								return item;
+						}
+					})
+				},
+				get isUnlocked() {
+					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine)
+				},
+				get data() {
+					return player.inputs[id]
+				},
+				set data(x) {
+					player.inputs[id] = x;
+				}
+			}))
+			this.outputs = this.type.outputs.map((x, id) => ({
+				get config() {
+					return objectMap(x, y => y, (item, propName) => {
+						switch(propName) {
+							case "capacity": case "produces": case "requires": case "requiresList": case "label":
+								return run(item, machine);
+							default:
+								return item;
+						}
+					})
+				},
+				get isUnlocked() {
+					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine)
+				},
+				get data() {
+					return player.outputs[id]
+				},
+				set data(x) {
+					player.outputs[id] = x;
+				}
+			}));
 		}
 
 		get data() {
@@ -30,50 +74,8 @@ function MachineType(data) {
 			return this.data.params;
 		}
 
-		get inputs() {
-			const data = this.data;
-			return this.type.inputs.map((x, id) => ({
-				config: objectMap(x, y => y, (item, propName) => {
-					switch(propName) {
-						case "capacity": case "consumes":
-							return run(item, this);
-						default:
-							return item;
-					}
-				}),
-				isUnlocked: x.isUnlocked === undefined ? true : run(x.isUnlocked, this),
-				get data() {
-					return data.inputs[id]
-				},
-				set data(x) {
-					data.inputs[id] = x;
-				}
-			}));
-		}
-
 		inputItem(id) {
 			return last(this.inputs[id].data);
-		}
-
-		get outputs() {
-			const data = this.data;
-			return this.type.outputs.map((x, id) => ({
-				config: objectMap(x, y => y, (item, propName) => {
-					switch(propName) {
-						case "capacity": case "produces": case "requires": case "requiresList":
-							return run(item, this);
-						default:
-							return item;
-					}
-				}),
-				isUnlocked: x.isUnlocked === undefined ? true : run(x.isUnlocked, this),
-				get data() {
-					return data.outputs[id]
-				},
-				set data(x) {
-					data.outputs[id] = x;
-				}
-			}));
 		}
 
 		get type() {
@@ -81,8 +83,8 @@ function MachineType(data) {
 		}
 
 		showDescription() {
-			const acceptsTable = this.type.inputs.length ? `<br><div style="display: inline-block; text-align: left;">
-				${this.type.inputs.map(x => x.accepts.map(x => x.capitalize()))
+			const acceptsTable = this.inputs.find(x => x.isUnlocked) ? `<br><div style="display: inline-block; text-align: left;">
+				${this.inputs.map(x => x.config.accepts.map(x => x.capitalize()))
 					.map((x, id) => `Input ${id + 1} accepts: ${x.join(", ")}`).join("<br>")}
 			</div>` : "";
 			Modals.message.show(`${this.type.description}${acceptsTable}`);
@@ -194,7 +196,7 @@ class MachineUpgrade {
 }
 
 export const MachineTypes = objectMap(GameDatabase.machines, x => x, x => MachineType(x));
-window.MachineTypes = MachineTypes;
+window.MachineTypes = MachineTypes
 
 export const Machines = {};
 window.Machines = Machines;
@@ -239,6 +241,7 @@ export const Machine = {
 				resource: conf.produces.resource,
 				amount: conf.produces.amount * Math.min(x.maxDiff, diff)
 			};
+			if (produces.amount) player.unlockedCurrencies[produces.resource] = true;
 			Stack.addToStack(x.data, produces);
 			machine.outputDiffs[conf.id !== undefined ? conf.id : id] = Math.min(x.maxDiff, diff);
 		});
