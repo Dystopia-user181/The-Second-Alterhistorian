@@ -11,9 +11,9 @@ const recipes = [{
 	output: { resource: "steam", amount: 0.3 },
 	fuelUsage: 0.15
 }, {
-	input: { resource: "sand", amount: 0.2 },
-	output: { resource: "glass", amount: 0.15 },
-	fuelUsage: 0.2,
+	input: { resource: "sand", amount: 0.5 },
+	output: { resource: "glass", amount: 0.32 },
+	fuelUsage: 0.4,
 	isUnlocked: () => player.unlockedCurrencies.energy
 }, {
 	input: { resource: "none", amount: 0 },

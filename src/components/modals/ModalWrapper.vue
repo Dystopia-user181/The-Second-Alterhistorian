@@ -5,7 +5,9 @@ export default {
 	name: "ModalWrapper",
 	methods: {
 		closeModal() {
-			Modals.hide();
+			if (!Modals.isOpen) return;
+			if (Modals.current.value.hide) Modals.current.value.hide();
+			else Modals.hide();
 		}
 	}
 };
