@@ -44,7 +44,7 @@ export default {
 </script>
 
 <template>
-	<div>
+	<div class="c-sidebar__shop">
 		<h2 class="c-money-display">
 			${{format(money, 2, 2)}}
 			<br>
@@ -54,7 +54,7 @@ export default {
 			<br v-else>
 		</h2>
 		<button
-			class="c-sidebar-sell-button"
+			class="c-sidebar-shop__sell-button"
 			:class="{ disabled: holdingAmount < 1 }"
 			@mouseenter="showMode = 'sell1'"
 			@mouseleave="showMode = ''"
@@ -63,7 +63,7 @@ export default {
 			Sell 1
 		</button>
 		<button
-			class="c-sidebar-sell-button"
+			class="c-sidebar-shop__sell-button"
 			:class="{ disabled: holdingAmount <= 0 }"
 			@mouseenter="showMode = 'sellall'"
 			@mouseleave="showMode = ''"
@@ -75,13 +75,16 @@ export default {
 </template>
 
 <style scoped>
+.c-sidebar-shop {
+	text-align: center;
+}
 .c-money-display {
 	color: #dddd00;
 	margin-bottom: 0;
 }
 
-.c-sidebar-sell-button {
-	width: 108px;
+.c-sidebar-shop__sell-button {
+	width: 130px;
 	margin: 3px;
 }
 </style>

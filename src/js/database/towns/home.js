@@ -32,6 +32,12 @@ GameDatabase.towns.home = {
 			type: "steamEngine",
 			cost: 800,
 			isUnlocked: () => player.unlockedCurrencies.coal
+		},
+		{
+			type: "pulverizer",
+			cost: 15,
+			currencyType: "energy",
+			isUnlocked: () => player.unlockedCurrencies.energy
 		}
 	]
 };

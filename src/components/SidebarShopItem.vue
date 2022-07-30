@@ -51,5 +51,6 @@ export default {
 	margin: 3px;
 	text-align: left;
 	align-self: center;
+	flex-shrink: 0;
 }
 </style>

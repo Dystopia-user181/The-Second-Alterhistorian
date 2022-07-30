@@ -38,6 +38,7 @@ export default {
 .c-sidebar__shop {
 	width: 100%;
 	flex: 1 0 auto;
+	flex-basis: 0;
 	overflow-y: auto;
 	overflow-x: hidden;
 	display: flex;

@@ -34,7 +34,7 @@ GameDatabase.machines.quarry = {
 	},
 	{
 		name: "capacity",
-		cost: count => Math.pow(5, count) * 10,
+		cost: count => Math.pow(4, count) * 10,
 		currencyType: "energy",
 		max: 2,
 		title: "Capacity",
@@ -43,7 +43,7 @@ GameDatabase.machines.quarry = {
 	},
 	{
 		name: "velocity",
-		cost: count => Math.pow(4, count) * 10,
+		cost: count => Math.pow(3, count) * 10,
 		currencyType: "energy",
 		max: 2,
 		title: "Velocity",

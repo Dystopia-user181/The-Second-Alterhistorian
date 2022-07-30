@@ -25,15 +25,27 @@ export const Currencies = {
 	},
 	coal: {
 		colour: "#060302",
-		value: 3
+		value: 2.5
 	},
 	stone: {
 		colour: "#888c8d",
 		value: 1.5
 	},
+	stonePowder: {
+		colour: "#8f806b",
+		value: 1.5
+	},
+	sand: {
+		colour: "#93a070",
+		value: 1.1
+	},
+	glass: {
+		colour: "#41919b",
+		value: 3
+	},
 	energy: {
 		colour: "#10c9d0",
-		value: 2.5
+		value: 3
 	},
 	fire: {
 		colour: "#ff8000",

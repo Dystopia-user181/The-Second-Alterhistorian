@@ -20,7 +20,7 @@ export default {
 
 <style scoped>
 .c-sidebar {
-	width: 250px;
+	width: 300px;
 	padding: 10px;
 	display: flex;
 	flex-direction: column;

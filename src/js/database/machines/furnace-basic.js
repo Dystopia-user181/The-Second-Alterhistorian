@@ -11,6 +11,11 @@ const recipes = [{
 	output: { resource: "steam", amount: 0.3 },
 	fuelUsage: 0.15
 }, {
+	input: { resource: "sand", amount: 0.2 },
+	output: { resource: "glass", amount: 0.15 },
+	fuelUsage: 0.2,
+	isUnlocked: () => player.unlockedCurrencies.energy
+}, {
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	fuelUsage: 0
@@ -28,7 +33,7 @@ function getConsumption(machine) {
 	return recipesByInput[machine.inputResource || "none"].input.amount * machine.upgrades.improve.effect[0];
 }
 
-function getFuelusage(machine) {
+function getFuelUsage(machine) {
 	return recipesByInput[machine.inputResource || "none"].fuelUsage * machine.upgrades.improve.effect[0]
 		/ machine.upgrades.improve.effect[1] / fuels[machine.inputFuel || "none"];
 }
@@ -44,8 +49,8 @@ function getProduction(machine) {
 GameDatabase.machines.furnaceBasic = {
 	name: "furnaceBasic",
 	inputs: [{
-		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),
-		capacity: () => 10,
+		accepts: () => recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked)).map(x => x.input.resource).filter(x => x !== "none"),
+		capacity: machine => 10 * machine.upgrades.capacity.effect,
 		consumes: machine => {
 			const prod = getConsumption(machine);
 			return {
@@ -59,12 +64,18 @@ GameDatabase.machines.furnaceBasic = {
 			if (machine.upgrades.improve.count) accepts.push("coal");
 			return accepts;
 		},
-		capacity: () => 10,
-		consumes: machine => machine.outputDiffs.main === 0 ? 0 : getFuelusage(machine)
+		capacity: machine => 10 * machine.upgrades.capacity.effect,
+		consumes: machine => {
+			const prod = getFuelUsage(machine);
+			return {
+				amount: prod,
+				maximum: machine.outputDiffs.main * prod
+			};
+		}
 	}],
 	outputs: [{
 		id: "main",
-		capacity: () => 10,
+		capacity: machine => 10 * machine.upgrades.capacity.effect,
 		produces: machine => getProduction(machine),
 		requiresList: machine => [{
 			resource: machine.inputResource || "none",
@@ -72,7 +83,7 @@ GameDatabase.machines.furnaceBasic = {
 			inputId: 0,
 		}, {
 			resource: machine.inputFuel || "none",
-			amount: getFuelusage(machine),
+			amount: getFuelUsage(machine),
 			inputId: 1,
 		}]
 	}],
@@ -85,6 +96,15 @@ GameDatabase.machines.furnaceBasic = {
 		description: upgrade => `Increase speed and fuel efficiency.${upgrade.count > 0 ? "" : " Unlocks ability to use coal as fuel."}`,
 		effect: count => [ Math.pow(1.5, count) + count * 0.5, Math.pow(1.1, count) + count * 0.2 ],
 		formatEffect: () => ""
+	},
+	{
+		name: "capacity",
+		cost: 3,
+		currencyType: count => count >= 1 ? "essence" : "energy",
+		max: 2,
+		title: "Capacity",
+		description: "Increase capacity.",
+		effect: count => Math.pow(2, count) + count * 0.4
 	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
