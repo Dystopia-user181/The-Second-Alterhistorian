@@ -1,6 +1,7 @@
 import { initializeMachines, MachineTypes } from "./machines";
 import { Towns } from "./towns";
 import { Currencies } from "./database/currencies";
+import { migrations } from "./migrations";
 import { toRaw, reactive } from "vue";
 
 export const Player = {
@@ -9,7 +10,8 @@ export const Player = {
 			money: 0,
 			towns: {
 				home: {
-					machines: Towns.home.defaultMachines
+					machines: Towns.home.defaultMachines,
+					upgrades: 0
 				}
 			},
 			currentlyIn: "home",
@@ -20,13 +22,22 @@ export const Player = {
 			display: {
 				offset: { x: 0, y: 0 }
 			},
-			unlockedCurrencies: objectMap(Currencies, x => x, () => false)
+			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
+			fastTime: 0,
+			migrations: migrations.length
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
 	load() {
 		let tempPlayer = JSON.parse(localStorage.getItem(this.storageKey));
-		if (tempPlayer) deepAssign(player, this.coercePlayer(tempPlayer, this.defaultStart()));
+		if (tempPlayer) {
+			const beforeMigrations = !tempPlayer.migrations;
+			deepAssign(player, this.coercePlayer(tempPlayer, this.defaultStart()));
+			if (beforeMigrations) player.migrations = 0;
+			for (; player.migrations < migrations.length; player.migrations++) {
+				migrations[player.migrations](player);
+			}
+		}
 		this.fixMachines();
 		initializeMachines();
 	},
@@ -65,8 +76,10 @@ export const Player = {
 				}
 				if (type.outputs.length) {
 					if (!machine.outputs) machine.outputs = [];
+					if (!machine.pipes) machine.pipes = [];
 					for (let i = 0; i < type.outputs.length; i++) {
 						if (!(i in machine.outputs)) machine.outputs[i] = [];
+						if (!(i in machine.pipes)) machine.pipes[i] = [];
 					}
 				}
 			}

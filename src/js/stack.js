@@ -5,6 +5,7 @@ export const Stack = {
 	addToStack(stack, item, capacity = Infinity) {
 		const spaceLeft = capacity - Stack.volumeOfStack(stack);
 		if (item.amount <= 0) return 0;
+		if (spaceLeft <= 0) return 0;
 		const amount = Math.min(spaceLeft, item.amount);
 		if (stack[0] && stack[0].resource === item.resource) {
 			stack[0].amount += amount;
@@ -24,6 +25,7 @@ export const Stack = {
 			return removed.amount;
 		} else {
 			removed.amount -= amount;
+			if (last(stack).amount < 1e-100) isBottom ? stack.pop() : stack.shift();
 			return amount;
 		}
 	}

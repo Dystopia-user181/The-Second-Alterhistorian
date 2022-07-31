@@ -22,7 +22,8 @@ export default {
 			outputData: [],
 			holdFunction: null,
 			beforeDestroy: null,
-			animation: false
+			animation: false,
+			unlockedPipes: false
 		}
 	},
 	mounted() {
@@ -36,6 +37,7 @@ export default {
 	},
 	methods: {
 		update() {
+			this.unlockedPipes = Pipe.isUnlocked;
 			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
 			this.inputData = this.inputs.map(x => ({
@@ -128,7 +130,38 @@ export default {
 			return output.data.length
 				? (player.holding.resource === last(output.data).resource || !player.holding.amount ? "" : "c-cursor-notallowed")
 				: "c-cursor-default";
-		}
+		},
+		emitInputPipeDrag(id) {
+			Pipe.removeAllInputPipesTo(this.machine, id);
+			this.$emit("input-pipe-drag-start", this.machine, id);
+			const stopHolding = function() {
+				document.removeEventListener("mouseup", stopHolding);
+				document.removeEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = null;
+				this.$emit("input-pipe-drag-end", this.machine, id);
+			}.bind(this);
+			document.addEventListener("mouseup", stopHolding);
+			document.addEventListener("mouseleave", stopHolding);
+			this.beforeDestroy = stopHolding;
+		},
+		emitInputPipeHover(id) {
+			this.$emit("input-pipe-hover", this.machine, id);
+		},
+		emitOutputPipeDrag(id) {
+			this.$emit("output-pipe-drag-start", this.machine, id);
+			const stopHolding = function() {
+				document.removeEventListener("mouseup", stopHolding);
+				document.removeEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = null;
+				this.$emit("output-pipe-drag-end", this.machine, id);
+			}.bind(this);
+			document.addEventListener("mouseup", stopHolding);
+			document.addEventListener("mouseleave", stopHolding);
+			this.beforeDestroy = stopHolding;
+		},
+		emitOutputPipeHover(id) {
+			this.$emit("output-pipe-hover", this.machine, id);
+		},
 	}
 };
 </script>
@@ -138,6 +171,23 @@ export default {
 		class="c-machine-container"
 		:class="{ 'c-machine-container--new': animation }"
 	>
+		<div
+			v-if="unlockedPipes && inputs.length"
+			class="c-pipe-container c-pipe-container--top"
+		>
+			Input Pipes
+			<div
+				v-for="input in inputs"
+				:key="input.id"
+				class="c-machine__input-pipe"
+				:style="{ left: `${input.id * 30 + 15}px`}"
+				@mouseenter="emitInputPipeHover(input.id)"
+				@mouseleave="$emit('pipe-stop-hover')"
+				@mousedown="emitInputPipeDrag(input.id)"
+			>
+				{{ input.id + 1 }}
+			</div>
+		</div>
 		<span class="c-emphasise-text">{{ machine.type.name.capitalize() }}</span>
 		<div class="l-machine__inner">
 			<div
@@ -193,6 +243,23 @@ export default {
 				class="fas fa-lock"
 			/>
 		</div>
+		<div
+			v-if="unlockedPipes && outputs.length"
+			class="c-pipe-container"
+		>
+			Output Pipes
+			<div
+				v-for="output in outputs"
+				:key="output.id"
+				class="c-machine__output-pipe"
+				:style="{ left: `${output.id * 30 + 15}px`}"
+				@mouseenter="emitOutputPipeHover(output.id)"
+				@mouseleave="$emit('pipe-stop-hover')"
+				@mousedown="emitOutputPipeDrag(output.id)"
+			>
+				{{ output.id + 1 }}
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -243,6 +310,45 @@ export default {
 
 .l-machine-input-output-separator {
 	width: 5px;
+}
+
+.c-pipe-container {
+	font-size: 0.7em;
+	align-self: flex-start;
+	margin-left: 5px;
+}
+
+.c-pipe-container--top {
+	height: 0;
+}
+
+.c-machine__input-pipe {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	position: absolute;
+	bottom: 100%;
+	transform: translateX(-50%);
+	background-color: #333333;
+	width: 24px;
+	height: 16px;
+	border-radius: 4px 4px 0 0;
+	cursor: pointer;
+}
+
+.c-machine__output-pipe {
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	position: absolute;
+	top: 100%;
+	/* Hide border radius of container */
+	transform: translateX(-50%) translateY(-4px);
+	background-color: #333333;
+	width: 24px;
+	height: 20px;
+	border-radius: 0 0 4px 4px;
+	cursor: pointer;
 }
 
 hr {

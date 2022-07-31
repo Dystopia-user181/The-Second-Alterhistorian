@@ -1,6 +1,6 @@
 <script>
 export default {
-	name: "SidebarShopItem",
+	name: "SidebarShopMachineItem",
 	props: {
 		shopItem: {
 			type: Object,

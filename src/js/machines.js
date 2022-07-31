@@ -11,6 +11,7 @@ function MachineType(data) {
 			const machine = this;
 			const player = this.data;
 			this.inputs = this.type.inputs.map((x, id) => ({
+				id,
 				get config() {
 					return objectMap(x, y => y, (item, propName) => {
 						switch(propName) {
@@ -32,6 +33,7 @@ function MachineType(data) {
 				}
 			}))
 			this.outputs = this.type.outputs.map((x, id) => ({
+				id,
 				get config() {
 					return objectMap(x, y => y, (item, propName) => {
 						switch(propName) {
@@ -58,10 +60,6 @@ function MachineType(data) {
 			return player.towns[this.town].machines[this.id];
 		}
 
-		/* get connections() {
-			return this.data.connections;
-		} */
-
 		get upgrades() {
 			return !this.type.upgrades ? {} : objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
 		}
@@ -74,12 +72,50 @@ function MachineType(data) {
 			return this.data.params;
 		}
 
-		inputItem(id) {
-			return last(this.inputs[id].data);
+		get pipes() {
+			return this.data.pipes.map(p => p.map(x => {
+				const ExpendableMachines = [ ...Machines[this.town] ];
+				const machine = expendableFind(ExpendableMachines, y => y.id.toString() === x[0].toString());
+				return [machine, machine.inputs[x[1]]];
+			}));
 		}
 
 		get type() {
 			return MachineTypes[data.name];
+		}
+
+		addPipe(machine, inputId, outputId) {
+			this.data.pipes[outputId].push([machine.id, inputId]);
+		}
+
+		removePipe(machine, inputId) {
+			for (let i = 0; i < this.data.pipes.length; i++) {
+				for (let j = 0; j < this.data.pipes[i].length; j++) {
+					if (this.data.pipes[i][j][0].toString() === machine.id.toString() && this.data.pipes[i][j][1] === inputId) {
+						this.data.pipes[i].splice(j, 1);
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		removeAllPipes(machine) {
+			for (let i = 0; i < this.data.pipes.length; i++) {
+				for (let j = 0; j < this.data.pipes[i].length; j++) {
+					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
+						this.data.pipes[i].splice(j, 1);
+					}
+				}
+			}
+		}
+
+		inputItem(id) {
+			return last(this.inputs[id].data);
+		}
+
+		outputItem(id) {
+			return last(this.outputs[id].data);
 		}
 
 		showDescription() {
@@ -101,7 +137,7 @@ function MachineType(data) {
 				x,
 				y,
 				type: this.name,
-				connections: [],
+				pipes: Array.from(Array(this.outputs ? this.outputs.length : 0), () => []),
 			};
 			if (this.inputs.length) {
 				returnObj.inputs = Array.from(Array(this.inputs.length), () => []);
@@ -184,7 +220,7 @@ class MachineUpgrade {
 	}
 
 	buy() {
-		if (!this.canAfford) return;
+		if (!this.canAfford || this.maxed) return;
 		if (!this.currencyType) {
 			player.money -= this.cost;
 			this.count++;
@@ -204,6 +240,12 @@ window.Machines = Machines;
 export const Machine = {
 	gameLoop(realDiff) {
 		const diff = Math.min(realDiff, 1);
+		if (diff === 1) player.fastTime += diff - 1;
+		if (player.fastTime) {
+			const add = Math.min(player.fastTime, diff)
+			diff += add;
+			player.fastTime -= add;
+		}
 		for (const machine of Object.values(Machines).flat()) {
 			if (machine.type.customLoop) {
 				machine.type.customLoop.bind(machine)(diff);
@@ -213,6 +255,10 @@ export const Machine = {
 		}
 	},
 	tickThisMachine(machine, diff) {
+		Machine.tickMachineProcesses(machine, diff);
+		Pipe.tickPipes(machine, diff);
+	},
+	tickMachineProcesses(machine, diff) {
 		machine.outputDiffs = {};
 		const outputs = machine.outputs.filter(x => x.isUnlocked);
 		let inputs = machine.inputs.filter(x => x.isUnlocked);
@@ -256,7 +302,10 @@ export const Machine = {
 	},
 	add(townName, type, x, y) {
 		const machines = player.towns[townName].machines;
-		if (Object.values(machines).length > 50) return Modals.message.show("Reached machine cap in this town!");
+		if (Object.values(machines).length > 50) {
+			Modals.message.show("Reached machine cap in this town!");
+			return false;
+		}
 		const newMach = MachineTypes[type].newMachine(x, y);
 		let i = 0;
 		while (true) {
@@ -264,17 +313,70 @@ export const Machine = {
 				machines[i] = newMach;
 				Machines[townName].push(new MachineTypes[type](townName, i));
 				last(Machines[townName]).isNew = true;
-				break;
+				return true;
 			}
 			i++;
 		}
 	},
 	remove(machine) {
+		Pipe.removeAllInputPipesTo(machine);
+		requestAnimationFrame(() => Pipe.removeAllInputPipesTo(machine));
+		window.removeThisMachineTest = machine;
 		delete player.towns[machine.town].machines[machine.id];
 		Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	}
 };
 window.Machine = Machine;
+
+export const Pipe = {
+	get isUnlocked() {
+		return Towns.home.upgrades.pipesBasic.isBought;
+	},
+	get capacityPerSecond() {
+		return this.isUnlocked ? Towns.home.upgrades.pipesSpeed1.effectOrDefault(1) * 0.02 : 0;
+	},
+	tickPipes(machine, diff) {
+		if (!this.isUnlocked) return;
+		for (const outputId in machine.pipes) {
+			const output = machine.outputs[outputId];
+			if (!output.data.length) continue;
+			let ratios = [], whole = 0;
+			const outputLast = last(output.data);
+			for (const pipe of machine.pipes[outputId]) {
+				const input = pipe[1];
+				if (!input.config.accepts.includes(outputLast.resource)) continue;
+				ratios.push(Stack.volumeOfStack(input.data) >= input.config.capacity ? 0
+					: input.config.capacity * this.capacityPerSecond * diff);
+				whole += input.config.capacity * this.capacityPerSecond * diff;
+			}
+			const amtLeftMultiplier = Math.min(outputLast.amount / whole, 1);
+			for (const pipe of machine.pipes[outputId]) {
+				const input = pipe[1];
+				if (!input.config.accepts.includes(outputLast.resource)) continue;
+				const amount = amtLeftMultiplier * ratios.shift();
+				Stack.removeFromStack(output.data,
+					Stack.addToStack(input.data, {
+						resource: outputLast.resource,
+						amount
+					}, input.config.capacity)
+				);
+			}
+		}
+	},
+	removeAllInputPipesTo(machine, inputId) {
+		const town = machine.town;
+		if (inputId !== undefined) {
+			for (const otherMachine of Machines[town]) {
+				if (otherMachine.removePipe(machine, inputId)) return;
+			}
+		} else {
+			for (const otherMachine of Machines[town]) {
+				otherMachine.removeAllPipes(machine);
+			}
+		}
+	}
+};
+window.Pipe = Pipe;
 
 export function initializeMachines() {
 	for (const town of Object.keys(GameDatabase.towns)) {

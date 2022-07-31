@@ -76,7 +76,7 @@ GameDatabase.machines.essencePurifier = {
 	}],
 	upgrades: machineUpg([{
 		name: "unlock",
-		cost: 25,
+		cost: 25000,
 		currencyType: () => player.unlockedCurrencies.energy ? "energy" : "????",
 		max: 1,
 		title: "Power",

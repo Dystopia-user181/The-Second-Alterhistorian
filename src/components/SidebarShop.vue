@@ -1,36 +1,62 @@
 <script>
 import { SidebarShop } from "./../js/towns";
-import SidebarShopItem from "./SidebarShopItem.vue";
+import SidebarShopMachineItem from "./SidebarShopMachineItem.vue";
+import SidebarShopUpgradeItem from "./SidebarShopUpgradeItem.vue";
 
 export default {
 	name: "SidebarShop",
 	components: {
-		SidebarShopItem
+		SidebarShopMachineItem,
+		SidebarShopUpgradeItem
 	},
 	data() {
 		return {
-			currentShop: []
+			tab: "machines",
+			currentMachines: [],
+			currentUpgrades: []
 		};
 	},
 	methods: {
 		update() {
-			this.currentShop = SidebarShop.current;
+			this.currentMachines = SidebarShop.currentMachines.filter(x => x.isUnlocked);
+			this.currentUpgrades = Object.values(SidebarShop.currentUpgrades).filter(x => x.isUnlocked);
 		}
 	}
 };
 </script>
 
 <template>
+	<div class="c-sidebar__shop-tabs">
+		<button
+			class="c-emphasise-text c-sidebar__shop-label"
+			:class="{ 'c-current-tab': tab === 'machines' }"
+			@click="tab = 'machines'"
+		>
+			Machines
+		</button>
+		<button
+			class="c-emphasise-text c-sidebar__shop-label"
+			:class="{ 'c-current-tab': tab === 'upgrades' }"
+			@click="tab = 'upgrades'"
+		>
+			Upgrades
+		</button>
+	</div>
 	<div class="c-sidebar__shop">
-		<span class="c-emphasise-text c-sidebar__shop-label">
-			Purchase Machines
-			<hr>
-		</span>
-		<sidebar-shop-item
-			v-for="(shopItem, id) of currentShop"
-			:key="id"
-			:shop-item="shopItem"
-		/>
+		<template v-if="tab === 'machines'">
+			<sidebar-shop-machine-item
+				v-for="(shopItem, id) of currentMachines"
+				:key="id"
+				:shop-item="shopItem"
+			/>
+		</template>
+		<template v-else-if="tab == 'upgrades'">
+			<sidebar-shop-upgrade-item
+				v-for="(shopItem, id) of currentUpgrades"
+				:key="id"
+				:shop-item="shopItem"
+			/>
+		</template>
 	</div>
 </template>
 
@@ -46,9 +72,21 @@ export default {
 	align-items: flex-start;
 }
 
+.c-sidebar__shop-tabs {
+	display: flex;
+	width: 100%;
+}
+
 .c-sidebar__shop-label {
 	padding: 0 10px;
 	width: 100%;
-	margin-top: 20px;
+	margin: 5px;
+	margin-top: 10px;
+	text-align: center;
+	padding: 10px 5px;
+}
+
+.c-current-tab {
+	background-color: #ffffff33;
 }
 </style>

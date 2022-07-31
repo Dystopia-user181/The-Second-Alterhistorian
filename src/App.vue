@@ -9,11 +9,14 @@ import Sidebar from "./components/Sidebar.vue";
 import PopupModal from "./components/modals/PopupModal.vue";
 
 const mouseX = ref(0), mouseY = ref(0);
+window.mouseX = 0, window.mouseY = 0;
 
 function currencyColour(curr) {
 	return Currencies[curr].colour;
 }
 function updateMousePos(event) {
+	window.mouseX = event.clientX;
+	window.mouseY = event.clientY;
 	mouseX.value = event.clientX;
 	mouseY.value = event.clientY;
 }

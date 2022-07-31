@@ -68,5 +68,6 @@ export default {
 
 .c-machine-upgrade--bought {
 	background-color: #216f44;
+	cursor: default;
 }
 </style>

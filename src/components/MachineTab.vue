@@ -1,4 +1,5 @@
 <script>
+import { Currencies } from "./../js/database/currencies";
 import { Machines } from "./../js/machines";
 import { Modals } from "./../js/ui/modals";
 
@@ -20,7 +21,17 @@ export default {
 			height: 0,
 			ctx: null,
 			holdingFunction: null,
-			holdingKeyFunction: null
+			holdingKeyFunction: null,
+			draggingPipe: {
+				type: "",
+				machine: null,
+				id: 0
+			},
+			hoveringPipe: {
+				type: "",
+				machine: null,
+				id: 0
+			},
 		}
 	},
 	computed: {
@@ -69,15 +80,56 @@ export default {
 			}));
 			if (this.holdingFunction) this.holdingFunction();
 			if (this.holdingKeyFunction) this.holdingKeyFunction();
-			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");;
-			this.ctx.clearRect(0, 0, this.width, this.height);
-			this.ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-			for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
-				this.ctx.fillRect(i - 1, 0, 2, this.height);
-			}
-			for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
-				this.ctx.fillRect(0, i - 1, this.width, 2);
-			}
+			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");
+			this.$nextTick(() => {
+				const ctx = this.ctx;
+				ctx.clearRect(0, 0, this.width, this.height);
+				ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+				for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
+					ctx.fillRect(i - 1, 0, 2, this.height);
+				}
+				for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
+					ctx.fillRect(0, i - 1, this.width, 2);
+				}
+				ctx.globalAlpha = 0.8;
+				for (const machine of Machines[player.currentlyIn]) {
+					for (let i = 0; i < machine.pipes.length; i++) {
+						const pipes = machine.pipes[i];
+						for (const pipe of pipes) {
+							ctx.lineWidth = 9;
+							ctx.strokeStyle = "#ffffff";
+							ctx.beginPath();
+							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + 260 - this.offsetY);
+							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
+								pipe[0].data.y - 10 - this.offsetY);
+							ctx.stroke();
+							ctx.lineWidth = 5;
+							const currency = machine.outputs[i].data.length ? machine.outputItem(i).resource
+								: (pipe[1].data.length ? pipe[1].data[0].resource: "");
+							ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
+							ctx.beginPath();
+							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + 260 - this.offsetY);
+							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
+								pipe[0].data.y - 10 - this.offsetY);
+							ctx.stroke();
+						}
+					}
+				}
+				ctx.globalAlpha = 1;
+				ctx.lineWidth = 5;
+				if (this.draggingPipe.type) {
+					ctx.strokeStyle = "#ffffff";
+					ctx.beginPath();
+					ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
+						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10 : 260) - this.offsetY);
+					if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
+						ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
+							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10 : 260) - this.offsetY);
+					else
+						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
+					ctx.stroke();
+				}
+			})
 		},
 		registerMoveHold(machine) {
 			if (!this.holding) {
@@ -112,8 +164,10 @@ export default {
 			if (!this.holding) {
 				this.holding = true;
 				this.holdingFunction = function() {
-					player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15, this.maxOffsetX - this.width), 0);
-					player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15, this.maxOffsetY - this.height), 0);
+					player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
+						this.maxOffsetX - this.width), 0);
+					player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
+						this.maxOffsetY - this.height), 0);
 				}.bind(this);
 				const stopHolding = function() {
 					this.holding = false;
@@ -129,8 +183,10 @@ export default {
 		},
 		registerOffsetKey(offset) {
 			this.holdingKeyFunction = function() {
-				player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15, this.maxOffsetX - this.width), 0);
-				player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15, this.maxOffsetY - this.height), 0);
+				player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
+					this.maxOffsetX - this.width), 0);
+				player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
+					this.maxOffsetY - this.height), 0);
 			}.bind(this)
 		},
 		deregisterOffsetKey() {
@@ -144,6 +200,35 @@ export default {
 			else {
 				Modals.removeMachine.show({ machine }).then(() => this.update());
 			}
+		},
+		handlePipeDrag(type, machine, id) {
+			this.draggingPipe.type = type;
+			this.draggingPipe.machine = machine;
+			this.draggingPipe.id = id;
+		},
+		handlePipeStopDrag() {
+			if (this.draggingPipe.type === "output") {
+				if (this.hoveringPipe.type === "input") {
+					Pipe.removeAllInputPipesTo(this.hoveringPipe.machine, this.hoveringPipe.id);
+					this.draggingPipe.machine.addPipe(this.hoveringPipe.machine, this.hoveringPipe.id, this.draggingPipe.id);
+				}
+			} else if (this.draggingPipe.type === "input") {
+				if (this.hoveringPipe.type === "output") {
+					Pipe.removeAllInputPipesTo(this.draggingPipe.machine, this.draggingPipe.id);
+					this.hoveringPipe.machine.addPipe(this.draggingPipe.machine, this.draggingPipe.id, this.hoveringPipe.id);
+				}
+			}
+			this.draggingPipe.type = "";
+			this.draggingPipe.machine = null;
+		},
+		handlePipeHover(type, machine, id) {
+			this.hoveringPipe.type = type;
+			this.hoveringPipe.machine = machine;
+			this.hoveringPipe.id = id;
+		},
+		handlePipeStopHover() {
+			this.hoveringPipe.type = "";
+			this.hoveringPipe.machine = null;
 		}
 	}
 }
@@ -167,6 +252,13 @@ export default {
 			<machine-vue
 				:machine="machine.machineData"
 				:style="objectMap(machine.position, x => x, x => `${x}px`)"
+				@input-pipe-drag-start="(machine, id) => handlePipeDrag('input', machine, id)"
+				@output-pipe-drag-start="(machine, id) => handlePipeDrag('output', machine, id)"
+				@input-pipe-drag-end="handlePipeStopDrag"
+				@output-pipe-drag-end="handlePipeStopDrag"
+				@input-pipe-hover="(machine, id) => handlePipeHover('input', machine, id)"
+				@output-pipe-hover="(machine, id) => handlePipeHover('output', machine, id)"
+				@pipe-stop-hover="handlePipeStopHover"
 			/>
 			<div
 				class="c-machine-sidebar"

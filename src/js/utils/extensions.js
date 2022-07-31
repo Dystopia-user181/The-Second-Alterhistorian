@@ -48,3 +48,11 @@ window.deepClone = function(object) {
 	}
 	return fillObject;
 }
+
+window.expendableFind = function expendableFind(array, func) {
+	for (let i = 0; i < array.length; i++) {
+		if (func(array[i], i)) {
+			return array.splice(i, 1)[0];
+		}
+	}
+}
