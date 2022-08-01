@@ -40,20 +40,26 @@ export default {
 			this.unlockedPipes = Pipe.isUnlocked;
 			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
-			this.inputData = this.inputs.map(x => ({
-				stack: x.data,
-				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
-				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity,
-				label: x.config.label
-			}));
-			this.outputData = this.outputs.map(x => ({
-				stack: x.data,
-				resource: x.data.length ? last(x.data).resource.capitalize() : "None",
-				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity,
-				label: x.config.label
-			}));
+			this.inputData = this.inputs.map(x => {
+				const intermediate = findLast(this.machine.inputHistories, y => y[x.id].length);
+				return {
+					stack: x.data,
+					resource: intermediate ? last(intermediate[x.id]).resource.capitalize() : "None",
+					amount: Stack.volumeOfStack(x.data),
+					capacity: x.config.capacity,
+					label: x.config.label
+				};
+			});
+			this.outputData = this.outputs.map(x => {
+				const intermediate = findLast(this.machine.outputHistories, y => y[x.id].length);
+				return {
+					stack: x.data,
+					resource: intermediate ? last(intermediate[x.id]).resource.capitalize() : "None",
+					amount: Stack.volumeOfStack(x.data),
+					capacity: x.config.capacity,
+					label: x.config.label
+				};
+			});
 			if (this.holdFunction) this.holdFunction();
 		},
 		transferFromOutputToHolding(output) {
@@ -206,10 +212,10 @@ export default {
 					Input {{ id + 1 }}
 					<br>
 					{{ inputData[id].resource }}
-					<template v-if="inputData[id].label">
+					<span v-if="inputData[id].label">
 						<br>
 						{{ inputData[id].label }}
-					</template>
+					</span>
 				</resource-stack>
 			</div>
 			<div
@@ -232,10 +238,10 @@ export default {
 					Output {{ id + 1}}
 					<br>
 					{{ outputData[id].resource }}
-					<template v-if="outputData[id].label">
+					<span v-if="outputData[id].label">
 						<br>
 						{{ outputData[id].label }}
-					</template>
+					</span>
 				</resource-stack>
 			</div>
 			<span

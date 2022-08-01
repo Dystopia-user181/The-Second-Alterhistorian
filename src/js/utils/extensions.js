@@ -56,3 +56,34 @@ window.expendableFind = function expendableFind(array, func) {
 		}
 	}
 }
+
+window.findLast = function findLast(array, predicate) {
+	for (let i = array.length; i > 0; i--) {
+		if (predicate(array[i - 1], i - 1)) return array[i - 1];
+	}
+}
+
+
+window.areArraysEqualSets = function areArraysEqualSets(a1, a2) {
+	const superSet = {};
+	for (const i of a1) {
+		const e = i + typeof i;
+		superSet[e] = 1;
+	}
+  
+	for (const i of a2) {
+		const e = i + typeof i;
+		if (!superSet[e]) {
+			return false;
+		}
+		superSet[e] = 2;
+	}
+  
+	for (let e in superSet) {
+		if (superSet[e] === 1) {
+			return false;
+		}
+	}
+  
+	return true;
+}

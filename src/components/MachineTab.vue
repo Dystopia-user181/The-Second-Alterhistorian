@@ -13,7 +13,9 @@ export default {
 	data() {
 		return {
 			machines: [],
+			fastTime: 0,
 			holding: false,
+			holdingMachine: null,
 			beforeDestroy: null,
 			offsetX: 0,
 			offsetY: 0,
@@ -35,8 +37,8 @@ export default {
 		}
 	},
 	computed: {
-		maxOffsetX: () => 2998,
-		maxOffsetY: () => 1998
+		maxOffsetX: () => 5998,
+		maxOffsetY: () => 2998
 	},
 	mounted() {
 		this.on$(GAME_EVENTS.ARROW_KEYDOWN, key => {
@@ -64,6 +66,7 @@ export default {
 	},
 	methods: {
 		update() {
+			this.fastTime = player.fastTime;
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.height = this.$refs.machineTab.offsetHeight;
 			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
@@ -77,7 +80,10 @@ export default {
 				},
 				notifyUpgrade: machine.hasUpgradeAvailable,
 				machineData: machine
-			}));
+			})).filter(x => (
+				x.position.top > - 250 && x.position.left > - 600
+				&& x.position.top < this.height && x.position.left < this.width
+			));
 			if (this.holdingFunction) this.holdingFunction();
 			if (this.holdingKeyFunction) this.holdingKeyFunction();
 			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");
@@ -104,8 +110,8 @@ export default {
 								pipe[0].data.y - 10 - this.offsetY);
 							ctx.stroke();
 							ctx.lineWidth = 5;
-							const currency = machine.outputs[i].data.length ? machine.outputItem(i).resource
-								: (pipe[1].data.length ? pipe[1].data[0].resource: "");
+							const intermediate = findLast(machine.outputHistories, x => x[i].length);
+							const currency = intermediate ? last(intermediate[i]).resource : "";
 							ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
 							ctx.beginPath();
 							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + 260 - this.offsetY);
@@ -129,11 +135,12 @@ export default {
 						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
 					ctx.stroke();
 				}
-			})
+			});
 		},
 		registerMoveHold(machine) {
 			if (!this.holding) {
 				this.holding = true;
+				this.holdingMachine = machine;
 				const followMouse = function(event) {
 					machine.machineData.data.x = Math.min(
 						Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + this.offsetX, 20),
@@ -151,6 +158,7 @@ export default {
 					document.removeEventListener("mouseup", stopHolding);
 					document.removeEventListener("mouseleave", stopHolding);
 					this.beforeDestroy = null;
+					this.holdingMachine = null;
 				}.bind(this);
 				document.addEventListener("mouseup", stopHolding);
 				document.addEventListener("mouseleave", stopHolding);
@@ -183,11 +191,16 @@ export default {
 		},
 		registerOffsetKey(offset) {
 			this.holdingKeyFunction = function() {
+				const { x, y } = player.display.offset;
 				player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
 					this.maxOffsetX - this.width), 0);
 				player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
 					this.maxOffsetY - this.height), 0);
-			}.bind(this)
+				if (this.holdingMachine) {
+					this.holdingMachine.machineData.data.x += (player.display.offset.x - x);
+					this.holdingMachine.machineData.data.y += (player.display.offset.y - y);
+				}
+			}.bind(this);
 		},
 		deregisterOffsetKey() {
 			this.holdingKeyFunction = null;
@@ -239,6 +252,9 @@ export default {
 		class="c-machine-tab"
 		ref="machineTab"
 	>
+		<span class="c-machine-tab__fast-time-display">
+			Fast Time: {{ format(fastTime, 2, 2) }}s
+		</span>
 		<canvas
 			ref="canvas"
 			class="c-machine-tab__canvas"
@@ -246,8 +262,8 @@ export default {
 			:height="height"
 		/>
 		<span
-			v-for="(machine, machineId) in machines"
-			:key="machineId"
+			v-for="machine in machines"
+			:key="machine.machineData.id"
 		>
 			<machine-vue
 				:machine="machine.machineData"
@@ -411,5 +427,16 @@ export default {
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.c-machine-tab__fast-time-display {
+	pointer-events: none;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 3;
+	padding: 5px;
+	background-color: #24242488;
+	border-bottom-right-radius: 5px;
 }
 </style>

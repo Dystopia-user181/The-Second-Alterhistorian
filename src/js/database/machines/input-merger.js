@@ -1,25 +1,25 @@
 import { GameDatabase } from "../game-database";
 import { Stack } from "./../../stack";
+import { Currencies } from "./../currencies";
 
 // import { machineUpg } from "./init";
 
 GameDatabase.machines.inputMerger = {
 	name: "inputMerger",
 	inputs: [{
-		accepts: () => Object.keys(player.unlockedCurrencies).filter(x => player.unlockedCurrencies[x]),
+		accepts: Object.keys(Currencies),
 		capacity: () => 20,
-		consumes: machine => machine.consumes0
+		consumes: machine => machine.consumes0 / machine.lastDiff
 	}, {
-		accepts: () => Object.keys(player.unlockedCurrencies).filter(x => player.unlockedCurrencies[x]),
+		accepts: Object.keys(Currencies),
 		capacity: () => 20,
-		consumes: machine => machine.consumes1
+		consumes: machine => machine.consumes1 / machine.lastDiff
 	}, {
-		accepts: () => Object.keys(player.unlockedCurrencies).filter(x => player.unlockedCurrencies[x]),
+		accepts: Object.keys(Currencies),
 		capacity: () => 20,
-		consumes: machine => machine.consumes2
+		consumes: machine => machine.consumes2 / machine.lastDiff
 	}],
 	outputs: [{
-		id: "main",
 		capacity: () => 60,
 		produces: machine => ({
 			resource: machine.inputResource,
@@ -35,6 +35,7 @@ GameDatabase.machines.inputMerger = {
 		this.inputResource = inputResource;
 		const production = 4 * diff, maximum = this.outputs[0].config.capacity - Stack.volumeOfStack(this.outputs[0].data);
 		let amt = 0;
+		this.lastDiff = diff;
 	
 		if (this.inputItem(0)) this.consumes0 = Stack.removeFromStack(this.inputs[0].data, Math.min(production, maximum));
 		else this.consumes0 = 0;
@@ -55,8 +56,11 @@ GameDatabase.machines.inputMerger = {
 		this.produces0 = Stack.addToStack(this.outputs[0].data, {
 			resource: inputResource,
 			amount: amt
-		}, this.outputs[0].config.capacity);
+		}, this.outputs[0].config.capacity) / diff;
+		this.outputDiffs[0] = diff;
+		this.outputs[0].otherwiseDiff = diff;
 
+		Machine.addHistory(this);
 		Pipe.tickPipes(this, diff);
 	},
 	description: `Merges inputs into one stream. Prioritizes smaller Inputs if there are different resources.`

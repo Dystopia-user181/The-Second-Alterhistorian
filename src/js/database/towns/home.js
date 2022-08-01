@@ -40,6 +40,12 @@ GameDatabase.towns.home = {
 			isUnlocked: () => player.unlockedCurrencies.energy
 		},
 		{
+			type: "arcFurnace",
+			cost: 30,
+			currencyType: "fire",
+			isUnlocked: () => player.unlockedCurrencies.essence || player.unlockedCurrencies.fire
+		},
+		{
 			type: "inputMerger",
 			cost: 10,
 			currencyType: "stone",

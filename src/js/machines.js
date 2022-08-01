@@ -1,15 +1,23 @@
 import { GameDatabase } from "./database/game-database";
 import { Stack } from "./stack";
 import { Modals } from "./ui/modals";
+import { Currencies } from "./database/currencies";
 
+function acceptsAll(accepts) {
+	return areArraysEqualSets(accepts, Object.keys(Currencies));
+}
 function MachineType(data) {
 	const returnValue = class {
 		constructor(town, id) {
 			this.town = town;
 			this.id = id;
+			this.data = player.towns[this.town].machines[this.id];
+			this.outputHistories = [];
+			this.inputHistories = [];
+			this.outputConfHistories = [];
+			this.inputConfHistories = [];
 			this.outputDiffs = mapToObject(data.outputs, (x, id) => x.id === undefined ? id : x.id, () => 0);
 			const machine = this;
-			const player = this.data;
 			this.inputs = this.type.inputs.map((x, id) => ({
 				id,
 				get config() {
@@ -25,12 +33,7 @@ function MachineType(data) {
 				get isUnlocked() {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine)
 				},
-				get data() {
-					return player.inputs[id]
-				},
-				set data(x) {
-					player.inputs[id] = x;
-				}
+				data: this.data.inputs[id]
 			}))
 			this.outputs = this.type.outputs.map((x, id) => ({
 				id,
@@ -47,25 +50,13 @@ function MachineType(data) {
 				get isUnlocked() {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine)
 				},
-				get data() {
-					return player.outputs[id]
-				},
-				set data(x) {
-					player.outputs[id] = x;
-				}
+				data: this.data.outputs[id]
 			}));
-		}
-
-		get data() {
-			return player.towns[this.town].machines[this.id];
-		}
-
-		get upgrades() {
-			return !this.type.upgrades ? {} : objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
+			if (this.type.upgrades) this.upgrades = objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
 		}
 
 		get hasUpgradeAvailable() {
-			return Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
+			return this.upgrades && Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
 		}
 
 		get params() {
@@ -74,8 +65,7 @@ function MachineType(data) {
 
 		get pipes() {
 			return this.data.pipes.map(p => p.map(x => {
-				const ExpendableMachines = [ ...Machines[this.town] ];
-				const machine = expendableFind(ExpendableMachines, y => y.id.toString() === x[0].toString());
+				const machine = MachinesById[this.town][x[0]];
 				return [machine, machine.inputs[x[1]]];
 			}));
 		}
@@ -120,8 +110,8 @@ function MachineType(data) {
 
 		showDescription() {
 			const acceptsTable = this.inputs.find(x => x.isUnlocked) ? `<br><div style="display: inline-block; text-align: left;">
-				${this.inputs.map(x => x.config.accepts.map(x => x.capitalize()))
-					.map((x, id) => `Input ${id + 1} accepts: ${x.join(", ")}`).join("<br>")}
+				${this.inputs.map(x => x.config.accepts)
+					.map((x, id) => `Input ${id + 1} accepts: ${acceptsAll(x) ? "All" : x.map(x => x.capitalize()).join(", ")}`).join("<br>")}
 			</div>` : "";
 			Modals.message.show(`${this.type.description}${acceptsTable}`);
 		}
@@ -236,11 +226,12 @@ window.MachineTypes = MachineTypes
 
 export const Machines = {};
 window.Machines = Machines;
+const MachinesById = {};
 
 export const Machine = {
 	gameLoop(realDiff) {
-		const diff = Math.min(realDiff, 1);
-		if (diff === 1) player.fastTime += diff - 1;
+		let diff = Math.min(realDiff, 1);
+		if (diff === 1) player.fastTime += realDiff - 1;
 		if (player.fastTime) {
 			const add = Math.min(player.fastTime, diff)
 			diff += add;
@@ -254,16 +245,29 @@ export const Machine = {
 			Machine.tickThisMachine(machine, diff);
 		}
 	},
+	addHistory(machine) {
+		machine.inputHistories.push(deepClone(machine.data.inputs));
+		if (machine.inputHistories.length > 10) machine.inputHistories.shift();
+		machine.outputHistories.push(deepClone(machine.data.outputs));
+		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
+		machine.inputConfHistories.push(deepClone(machine.inputs.map(x => x.config)));
+		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
+		machine.outputConfHistories.push(deepClone(machine.outputs.map(x => x.config)));
+		if (machine.outputConfHistories.length > 10) {machine.outputConfHistories.shift();
+		}
+	},
 	tickThisMachine(machine, diff) {
 		Machine.tickMachineProcesses(machine, diff);
+		Machine.addHistory(machine);
 		Pipe.tickPipes(machine, diff);
 	},
 	tickMachineProcesses(machine, diff) {
 		machine.outputDiffs = {};
 		const outputs = machine.outputs.filter(x => x.isUnlocked);
-		let inputs = machine.inputs.filter(x => x.isUnlocked);
+		let inputs = deepClone(machine.inputs.filter(x => x.isUnlocked));
 		outputs.forEach(x => {
 			const conf = x.config;
+			x.otherwiseDiff = diff;
 			x.maxDiff = (conf.capacity - Stack.volumeOfStack(x.data)) / conf.produces.amount;
 			if (isNaN(x.maxDiff)) return x.maxDiff = 0;
 			if (!conf.requires && !conf.requiresList) return;
@@ -295,6 +299,7 @@ export const Machine = {
 		// Re-calculate inputs
 		inputs = machine.inputs.filter(x => x.isUnlocked);
 		inputs.forEach(x => {
+			x.otherwiseDiff = diff;
 			const conf = x.config;
 			const amount = typeof conf.consumes === "object" ? Math.min(conf.consumes.amount * diff, conf.consumes.maximum)
 				: conf.consumes * diff;
@@ -312,7 +317,9 @@ export const Machine = {
 		while (true) {
 			if (!machines[i]) {
 				machines[i] = newMach;
-				Machines[townName].push(new MachineTypes[type](townName, i));
+				const constructed = new MachineTypes[type](townName, i);
+				Machines[townName].push(constructed);
+				MachinesById[townName][i] = constructed;
 				last(Machines[townName]).isNew = true;
 				return true;
 			}
@@ -382,9 +389,12 @@ window.Pipe = Pipe;
 export function initializeMachines() {
 	for (const town of Object.keys(GameDatabase.towns)) {
 		if (!Machines[town]) Machines[town] = [];
+		if (!MachinesById[town]) MachinesById[town] = {};
 		for (const machineId of Object.keys(player.towns[town].machines)) {
 			const machine = player.towns[town].machines[machineId];
-			Machines[town].push(new MachineTypes[machine.type](town, machineId));
+			const newMach = new MachineTypes[machine.type](town, machineId);
+			Machines[town].push(newMach);
+			MachinesById[town][machineId] = newMach;
 		}
 	}
 }

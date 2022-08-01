@@ -16,19 +16,27 @@ export default {
 		return {
 			inputs: [],
 			outputs: [],
-			console
 		}
 	},
 	methods: {
 		update() {
-			this.inputs = this.machine.inputs.map((x, id) => (!x.data.length ? null : {
+			const getConsumes = (function(consumes, diff) {
+				// *1.1 to account for some errors
+				return typeof consumes === "object" ? Math.min(consumes.amount, consumes.maximum / diff * 1.1) : consumes;
+			}).bind(this);
+			const getProduces = (function (x, id, diff) {
+				return this.machine.outputDiffs[x.id !== undefined ? x.id : id] * x.produces.amount / diff
+			}).bind(this);
+			this.inputs = this.machine.inputs.map((x, id) => (!x.data.length || !x.isUnlocked ? null : {
 				resource: last(x.data).resource,
-				amount: typeof x.config.consumes === "object" ? Math.min(x.config.consumes.amount, x.config.consumes.maximum * 1e10) : x.config.consumes,
+				amount: this.machine.inputConfHistories.map(x => x[id]).reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0)
+					/ this.machine.inputConfHistories.length,
 				id
 			})).filter(x => x && x.amount > 0);
-			this.outputs = this.machine.outputs.map((x, id) => (!x.data.length ? null : {
+			this.outputs = this.machine.outputs.map((x, id) => (!x.isUnlocked ? null : {
 				resource: x.config.produces.resource,
-				amount: this.machine.outputDiffs[x.config.id !== undefined ? x.config.id : id]  === 0 ? 0 : x.config.produces.amount,
+				amount: this.machine.outputConfHistories.map(x => x[id]).reduce((a, v) => a + getProduces(v, id, x.otherwiseDiff), 0)
+					/ this.machine.outputConfHistories.length,
 				id
 			})).filter(x => x && x.amount > 0);
 		}

@@ -99,7 +99,7 @@ GameDatabase.machines.furnaceBasic = {
 	},
 	{
 		name: "capacity",
-		cost: 3,
+		cost: count => count >= 1 ? 1 : 3,
 		currencyType: count => count >= 1 ? "essence" : "energy",
 		max: 2,
 		title: "Capacity",
