@@ -265,6 +265,7 @@ export const Machine = {
 		outputs.forEach(x => {
 			const conf = x.config;
 			x.maxDiff = (conf.capacity - Stack.volumeOfStack(x.data)) / conf.produces.amount;
+			if (isNaN(x.maxDiff)) return x.maxDiff = 0;
 			if (!conf.requires && !conf.requiresList) return;
 			if (!inputs.length) return;
 			const requiresList = conf.requiresList ? conf.requiresList : [conf.requires];
