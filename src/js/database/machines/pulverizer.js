@@ -8,7 +8,7 @@ const recipes = [{
 	energyUsage: 0.1
 }, {
 	input: { resource: "stone", amount: 0.6 },
-	output: { resource: "stonePowder", amount: 0.6 },
+	output: { resource: "stoneDust", amount: 0.6 },
 	energyUsage: 0.1
 }, {
 	input: { resource: "none", amount: 0 },

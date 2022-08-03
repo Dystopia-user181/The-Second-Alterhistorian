@@ -25,7 +25,7 @@ export const Stack = {
 			return removed.amount;
 		} else {
 			removed.amount -= amount;
-			if (last(stack).amount < 1e-100) isBottom ? stack.pop() : stack.shift();
+			if (last(stack).amount < Number.EPSILON) isBottom ? stack.pop() : stack.shift();
 			return amount;
 		}
 	}

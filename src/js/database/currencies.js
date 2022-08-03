@@ -31,7 +31,7 @@ export const Currencies = {
 		colour: "#888c8d",
 		value: 1.5
 	},
-	stonePowder: {
+	stoneDust: {
 		colour: "#8f806b",
 		value: 1.5
 	},
@@ -53,6 +53,38 @@ export const Currencies = {
 	},
 	essence: {
 		colour: "#966fcf",
+		value: 20
+	},
+	lava: {
+		colour: "#c83400",
 		value: 15
+	},
+	vitriol: {
+		colour: "#b3ab57",
+		value: 20
+	},
+	iron: {
+		colour: "#696B5e",
+		value: 10
+	},
+	lead: {
+		colour: "#525a63",
+		value: 20
+	},
+	copper: {
+		colour: "#cb6d41",
+		value: 35
+	},
+	silver: {
+		colour: "#a0a8ac",
+		value: 60
+	},
+	gold: {
+		colour: "#debc35",
+		value: 100
+	},
+	quicksilver: {
+		colour: "#876874",
+		value: 200
 	}
 }

@@ -2,7 +2,7 @@ import { GameDatabase } from "../game-database";
 
 import { Stack } from "../../stack";
 
-// import { machineUpg } from "./init";
+import { machineUpg } from "./init";
 
 GameDatabase.machines.steamEngine = {
 	name: "steamEngine",
@@ -10,20 +10,20 @@ GameDatabase.machines.steamEngine = {
 		accepts: ["steam"],
 		capacity: () => 20,
 		consumes: machine => ({
-			amount: 0.6,
-			maximum: machine.outputDiffs.main * 0.6
+			amount: 0.6 * machine.upgrades.harness.effect,
+			maximum: machine.outputDiffs.main * 0.6 * machine.upgrades.harness.effect / machine.upgrades.yield.effect
 		})
 	}],
 	outputs: [{
 		id: "main",
 		capacity: () => 10,
-		produces: () => ({
+		produces: machine => ({
 			resource: "energy",
-			amount: 0.1
+			amount: 0.1 * machine.upgrades.harness.effect
 		}),
-		requires: () => ({
+		requires: machine => ({
 			resource: "steam",
-			amount: 0.6,
+			amount: 0.6 * machine.upgrades.harness.effect / machine.upgrades.yield.effect,
 			inputId: 0,
 		})
 	},
@@ -31,13 +31,32 @@ GameDatabase.machines.steamEngine = {
 		capacity: () => 10,
 		produces: machine => ({
 			resource: "water",
-			amount: Stack.volumeOfStack(machine.outputs[0].data) >= machine.outputs[0].config.capacity ? 0 : 0.3
+			amount: Stack.volumeOfStack(machine.outputs[0].data) >= machine.outputs[0].config.capacity ? 0
+				: 0.3 * machine.upgrades.harness.effect / machine.upgrades.yield.effect
 		}),
-		requires: () => ({
+		requires: machine => ({
 			resource: "steam",
-			amount: 0.6,
+			amount: 0.6 * machine.upgrades.harness.effect / machine.upgrades.yield.effect,
 			inputId: 0,
 		})
 	}],
+	upgrades: machineUpg([{
+		name: "harness",
+		cost: count => Math.pow(4, count) * 10,
+		currencyType: () => player.unlockedCurrencies.fire ? "lava" : "???",
+		max: 2,
+		title: "Harness",
+		description: "Increase operation speed",
+		effect: count => Math.pow(1.6, count) + count * 0.3,
+	},
+	{
+		name: "yield",
+		cost: count => Math.pow(4, count),
+		currencyType: "essence",
+		max: 2,
+		title: "Yielding",
+		description: "Decrease steam usage and water byproduct",
+		effect: count => Math.pow(1.2, count) + count * 0.3,
+	}]),
 	description: `Converts Steam into Energy. James Watt would be proud.`
 };

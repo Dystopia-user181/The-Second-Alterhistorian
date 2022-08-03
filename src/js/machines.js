@@ -128,6 +128,7 @@ function MachineType(data) {
 				y,
 				type: this.name,
 				pipes: Array.from(Array(this.outputs ? this.outputs.length : 0), () => []),
+				isDefault: false
 			};
 			if (this.inputs.length) {
 				returnObj.inputs = Array.from(Array(this.inputs.length), () => []);
@@ -233,7 +234,7 @@ export const Machine = {
 		let diff = Math.min(realDiff, 1);
 		if (diff === 1) player.fastTime += realDiff - 1;
 		if (player.fastTime) {
-			const add = Math.min(player.fastTime, diff)
+			const add = Math.min(player.fastTime, diff * 2);
 			diff += add;
 			player.fastTime -= add;
 		}
@@ -245,20 +246,20 @@ export const Machine = {
 			Machine.tickThisMachine(machine, diff);
 		}
 	},
-	addHistory(machine) {
+	addInputHistory(machine) {
 		machine.inputHistories.push(deepClone(machine.data.inputs));
 		if (machine.inputHistories.length > 10) machine.inputHistories.shift();
-		machine.outputHistories.push(deepClone(machine.data.outputs));
-		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
 		machine.inputConfHistories.push(deepClone(machine.inputs.map(x => x.config)));
 		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
+	},
+	addOutputHistory(machine) {
+		machine.outputHistories.push(deepClone(machine.data.outputs));
+		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
 		machine.outputConfHistories.push(deepClone(machine.outputs.map(x => x.config)));
-		if (machine.outputConfHistories.length > 10) {machine.outputConfHistories.shift();
-		}
+		if (machine.outputConfHistories.length > 10) machine.outputConfHistories.shift();
 	},
 	tickThisMachine(machine, diff) {
 		Machine.tickMachineProcesses(machine, diff);
-		Machine.addHistory(machine);
 		Pipe.tickPipes(machine, diff);
 	},
 	tickMachineProcesses(machine, diff) {
@@ -296,6 +297,8 @@ export const Machine = {
 			Stack.addToStack(x.data, produces);
 			machine.outputDiffs[conf.id !== undefined ? conf.id : id] = Math.min(x.maxDiff, diff);
 		});
+		Machine.addInputHistory(machine);
+		Machine.addOutputHistory(machine);
 		// Re-calculate inputs
 		inputs = machine.inputs.filter(x => x.isUnlocked);
 		inputs.forEach(x => {
@@ -341,7 +344,9 @@ export const Pipe = {
 		return Towns.home.upgrades.pipesBasic.isBought;
 	},
 	get capacityPerSecond() {
-		return this.isUnlocked ? Towns.home.upgrades.pipesSpeed1.effectOrDefault(1) * 0.02 : 0;
+		return this.isUnlocked ? Towns.home.upgrades.pipesSpeed1.effectOrDefault(1) * 
+			Towns.home.upgrades.pipesSpeed2.effectOrDefault(1) * 0.02
+			: 0;
 	},
 	tickPipes(machine, diff) {
 		if (!this.isUnlocked) return;

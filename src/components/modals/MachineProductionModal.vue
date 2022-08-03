@@ -27,12 +27,15 @@ export default {
 			const getProduces = (function (x, id, diff) {
 				return this.machine.outputDiffs[x.id !== undefined ? x.id : id] * x.produces.amount / diff
 			}).bind(this);
-			this.inputs = this.machine.inputs.map((x, id) => (!x.data.length || !x.isUnlocked ? null : {
-				resource: last(x.data).resource,
-				amount: this.machine.inputConfHistories.map(x => x[id]).reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0)
-					/ this.machine.inputConfHistories.length,
-				id
-			})).filter(x => x && x.amount > 0);
+			this.inputs = this.machine.inputs.map((x, id) => {
+				const input = findLast(this.machine.inputHistories.map(x => x[id]), x => x.length);
+				return !x.isUnlocked ? null : {
+					resource: input ? last(input).resource : "",
+					amount: this.machine.inputConfHistories.map(x => x[id]).reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0)
+						/ this.machine.inputConfHistories.length,
+					id
+				}
+			}).filter(x => x && x.amount > 0);
 			this.outputs = this.machine.outputs.map((x, id) => (!x.isUnlocked ? null : {
 				resource: x.config.produces.resource,
 				amount: this.machine.outputConfHistories.map(x => x[id]).reduce((a, v) => a + getProduces(v, id, x.otherwiseDiff), 0)

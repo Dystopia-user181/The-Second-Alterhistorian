@@ -2,18 +2,24 @@ import { GameDatabase } from "../game-database";
 
 import { machineUpg } from "./init";
 
+const metals = ["iron", "lead", "copper", "silver", "gold", "quicksilver"];
+
 const recipes = [{
-	input: { resource: "clay", amount: 0.7 },
-	output: { resource: "bricks", amount: 0.7 },
-	energyUsage: 0.07
+	input: { resource: "clay", amount: 1 },
+	output: { resource: "bricks", amount: 1 },
+	energyUsage: 0.08
 }, {
-	input: { resource: "water", amount: 0.8 },
-	output: { resource: "steam", amount: 0.8 },
-	energyUsage: 0.05
+	input: { resource: "water", amount: 1.5 },
+	output: { resource: "steam", amount: 1.5 },
+	energyUsage: 0.08
 }, {
 	input: { resource: "sand", amount: 1 },
 	output: { resource: "glass", amount: 0.7 },
 	energyUsage: 0.15
+}, {
+	input: { resource: "stone", amount: 0.5 },
+	output: { resource: "lava", amount: 0.1 },
+	energyUsage: 0.5
 }, {
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
@@ -23,18 +29,18 @@ const recipes = [{
 const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
 
 function getConsumption(machine) {
-	return recipesByInput[machine.inputResource || "none"].input.amount;
+	return recipesByInput[machine.inputResource || "none"].input.amount * (machine.catalystActive ? 1.6 : 1) * machine.upgrades.velocity.effect;
 }
 
 function getEnergyUsage(machine) {
-	return recipesByInput[machine.inputResource || "none"].energyUsage;
+	return recipesByInput[machine.inputResource || "none"].energyUsage * Math.sqrt(machine.upgrades.velocity.effect);
 }
 
 function getProduction(machine) {
 	const out = recipesByInput[machine.inputResource || "none"].output;
 	return {
 		resource: out.resource,
-		amount: out.amount
+		amount: out.amount * (machine.catalystActive ? 1.6 : 1) * machine.upgrades.velocity.effect
 	}
 }
 
@@ -50,7 +56,8 @@ GameDatabase.machines.arcFurnace = {
 				maximum: machine.outputDiffs.main * prod
 			};
 		}
-	}, {
+	},
+	{
 		accepts: ["energy"],
 		capacity: machine => 40,
 		consumes: machine => {
@@ -60,6 +67,13 @@ GameDatabase.machines.arcFurnace = {
 				maximum: machine.outputDiffs.main * prod
 			};
 		}
+	},
+	{
+		accepts: ["fire"],
+		capacity: machine => 20,
+		consumes: machine => 0.02,
+		label: "Catalyst\n(5 Fire)",
+		isUnlocked: machine => machine.upgrades.cat.effect
 	}],
 	outputs: [{
 		id: "main",
@@ -75,9 +89,28 @@ GameDatabase.machines.arcFurnace = {
 			inputId: 1,
 		}]
 	}],
-	upgrades: machineUpg([]),
+	upgrades: machineUpg([{
+		name: "cat",
+		cost: 15,
+		currencyType: "lava",
+		max: 1,
+		title: "Catalysis",
+		description: "Allows insertion of Fire for increased efficiency.",
+		effect: count => Boolean(count),
+		formatEffect: () => ""
+	},
+	{
+		name: "velocity",
+		cost: 4,
+		currencyType: count => metals[count],
+		max: 5,
+		title: "Plater",
+		description: "Increase operation speed but only increases Energy usage at sqrt the rate",
+		effect: count => Math.pow(1.3, count),
+	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.catalystActive = this.inputItem(2) && this.inputItem(2).amount >= 5;
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Arc furnace. Takes in Energy and the item to be heated.`

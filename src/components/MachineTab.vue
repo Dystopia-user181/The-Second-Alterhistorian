@@ -218,6 +218,13 @@ export default {
 			this.draggingPipe.type = type;
 			this.draggingPipe.machine = machine;
 			this.draggingPipe.id = id;
+			const stopHolding = function() {
+				document.removeEventListener("mouseup", stopHolding);
+				document.removeEventListener("mouseleave", stopHolding);
+				this.handlePipeStopDrag();
+			}.bind(this);
+			document.addEventListener("mouseup", stopHolding);
+			document.addEventListener("mouseleave", stopHolding);
 		},
 		handlePipeStopDrag() {
 			if (this.draggingPipe.type === "output") {

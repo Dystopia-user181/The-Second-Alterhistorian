@@ -10,3 +10,5 @@ import "./essence-purifier";
 import "./pulverizer";
 import "./input-merger";
 import "./arc-furnace";
+import "./auto-seller";
+import "./transmuter";

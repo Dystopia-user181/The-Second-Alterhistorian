@@ -16,6 +16,10 @@ class Town {
 		}
 		return machines;
 	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked);
+	}
 }
 
 class SidebarShopItem {

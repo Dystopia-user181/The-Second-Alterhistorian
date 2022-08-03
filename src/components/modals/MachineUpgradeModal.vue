@@ -21,7 +21,7 @@ export default {
 	},
 	methods: {
 		update() {
-			this.upgrades = Object.values(this.machine.upgrades).filter(x => x.isUnlocked);
+			this.upgrades = Object.values(this.machine.upgrades || {}).filter(x => x.isUnlocked);
 		}
 	},
 };

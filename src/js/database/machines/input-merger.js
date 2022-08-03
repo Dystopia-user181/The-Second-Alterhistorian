@@ -36,11 +36,12 @@ GameDatabase.machines.inputMerger = {
 		const production = 4 * diff, maximum = this.outputs[0].config.capacity - Stack.volumeOfStack(this.outputs[0].data);
 		let amt = 0;
 		this.lastDiff = diff;
-	
+
+		Machine.addInputHistory(this);
 		if (this.inputItem(0)) this.consumes0 = Stack.removeFromStack(this.inputs[0].data, Math.min(production, maximum));
 		else this.consumes0 = 0;
 		amt += this.consumes0;
-	
+
 		if (this.inputItem(1) && this.inputItem(1).resource === inputResource)
 			this.consumes1 = Stack.removeFromStack(this.inputs[1].data, Math.min(production, maximum - amt));
 		else
@@ -52,7 +53,7 @@ GameDatabase.machines.inputMerger = {
 		else
 			this.consumes2 = 0;
 		amt += this.consumes2;
-	
+
 		this.produces0 = Stack.addToStack(this.outputs[0].data, {
 			resource: inputResource,
 			amount: amt
@@ -60,7 +61,7 @@ GameDatabase.machines.inputMerger = {
 		this.outputDiffs[0] = diff;
 		this.outputs[0].otherwiseDiff = diff;
 
-		Machine.addHistory(this);
+		Machine.addOutputHistory(this);
 		Pipe.tickPipes(this, diff);
 	},
 	description: `Merges inputs into one stream. Prioritizes smaller Inputs if there are different resources.`

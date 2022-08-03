@@ -36,19 +36,19 @@ GameDatabase.machines.quarry = {
 		name: "capacity",
 		cost: count => Math.pow(4, count) * 10,
 		currencyType: "energy",
-		max: 3,
+		max: 4,
 		title: "Capacity",
 		description: "Increase Stone and Coal capacity",
 		effect: count => Math.pow(2, count)
 	},
 	{
 		name: "velocity",
-		cost: count => Math.pow(3, count) * 10,
-		currencyType: "energy",
-		max: 3,
+		cost: count => count > 4 ? Math.pow(4, count - 5) * 10 : Math.pow(3, count) * 10,
+		currencyType: count => count > 4 ? "vitriol" : "energy",
+		max: 8,
 		title: "Velocity",
 		description: "Increase Stone and Coal production",
-		effect: count => Math.pow(1.5, count) + count * 0.1
-	},]),
+		effect: count => Math.pow(1.55, count) + count * 0.1
+	}]),
 	description: `Produces Stone and Coal.`
 };

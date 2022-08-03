@@ -133,37 +133,19 @@ export default {
 				: (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
 		},
 		outputClassObject(output) {
-			return output.data.length
-				? (player.holding.resource === last(output.data).resource || !player.holding.amount ? "" : "c-cursor-notallowed")
-				: "c-cursor-default";
+			if (!output.data.length) return "c-cursor-default";
+			return (player.holding.resource !== last(output.data).resource && player.holding.amount)
+				? "c-cursor-default" : "";
 		},
 		emitInputPipeDrag(id) {
 			Pipe.removeAllInputPipesTo(this.machine, id);
 			this.$emit("input-pipe-drag-start", this.machine, id);
-			const stopHolding = function() {
-				document.removeEventListener("mouseup", stopHolding);
-				document.removeEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = null;
-				this.$emit("input-pipe-drag-end", this.machine, id);
-			}.bind(this);
-			document.addEventListener("mouseup", stopHolding);
-			document.addEventListener("mouseleave", stopHolding);
-			this.beforeDestroy = stopHolding;
 		},
 		emitInputPipeHover(id) {
 			this.$emit("input-pipe-hover", this.machine, id);
 		},
 		emitOutputPipeDrag(id) {
 			this.$emit("output-pipe-drag-start", this.machine, id);
-			const stopHolding = function() {
-				document.removeEventListener("mouseup", stopHolding);
-				document.removeEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = null;
-				this.$emit("output-pipe-drag-end", this.machine, id);
-			}.bind(this);
-			document.addEventListener("mouseup", stopHolding);
-			document.addEventListener("mouseleave", stopHolding);
-			this.beforeDestroy = stopHolding;
 		},
 		emitOutputPipeHover(id) {
 			this.$emit("output-pipe-hover", this.machine, id);
@@ -307,7 +289,7 @@ export default {
 	cursor: pointer;
 	border-radius: 10px;
 	overflow: hidden;
-	text-overflow: initial;
+	white-space: pre-wrap;
 }
 
 .c-machine__input:active, .c-machine__output:active {
