@@ -37,7 +37,7 @@ GameDatabase.machines.shoveller = {
 	},
 	{
 		name: "wood",
-		cost: count => 40 * Math.pow(10, count),
+		cost: count => 40 * Math.pow(5, count),
 		max: 2,
 		title: upg => upg.count ? "Persistence" : "Wood",
 		description: upg => upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees",

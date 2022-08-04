@@ -215,6 +215,7 @@ export default {
 			}
 		},
 		handlePipeDrag(type, machine, id) {
+			this.holding = true;
 			this.draggingPipe.type = type;
 			this.draggingPipe.machine = machine;
 			this.draggingPipe.id = id;
@@ -227,6 +228,7 @@ export default {
 			document.addEventListener("mouseleave", stopHolding);
 		},
 		handlePipeStopDrag() {
+			this.holding = false;
 			if (this.draggingPipe.type === "output") {
 				if (this.hoveringPipe.type === "input") {
 					Pipe.removeAllInputPipesTo(this.hoveringPipe.machine, this.hoveringPipe.id);
@@ -249,6 +251,33 @@ export default {
 		handlePipeStopHover() {
 			this.hoveringPipe.type = "";
 			this.hoveringPipe.machine = null;
+		},
+		attemptUseDrag(event) {
+			if (!this.holding) {
+				this.holding = true;
+				let { x, y } = player.display.offset;
+				const followMouse = function(event2) {
+					// Move board position with edge handling, then move reference point if it hits the edge
+					player.display.offset.x = Math.max(Math.min(x + event.clientX - event2.clientX,
+						this.maxOffsetX - this.width), 0);
+					x = player.display.offset.x + event2.clientX - event.clientX;
+					player.display.offset.y = Math.max(Math.min(y + event.clientY - event2.clientY,
+						this.maxOffsetY - this.height), 0);
+					y = player.display.offset.y + event2.clientY - event.clientY;
+				}.bind(this);
+				document.addEventListener("mousemove", followMouse);
+				const stopHolding = function() {
+					this.holding = false;
+					document.removeEventListener("mousemove", followMouse);
+					document.removeEventListener("mouseup", stopHolding);
+					document.removeEventListener("mouseleave", stopHolding);
+					this.beforeDestroy = null;
+					this.holdingMachine = null;
+				}.bind(this);
+				document.addEventListener("mouseup", stopHolding);
+				document.addEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = stopHolding;
+			}
 		}
 	}
 }
@@ -258,6 +287,7 @@ export default {
 	<div
 		class="c-machine-tab"
 		ref="machineTab"
+		@mousedown="attemptUseDrag"
 	>
 		<span class="c-machine-tab__fast-time-display">
 			Fast Time: {{ format(fastTime, 2, 2) }}s
