@@ -232,7 +232,7 @@ const MachinesById = {};
 export const Machine = {
 	gameLoop(realDiff) {
 		let diff = Math.min(realDiff, 1);
-		if (diff === 1) player.fastTime += realDiff - 1;
+		// if (diff === 1) player.fastTime += realDiff - 1;
 		if (player.fastTime) {
 			const add = Math.min(player.fastTime, diff * 2);
 			diff += add;

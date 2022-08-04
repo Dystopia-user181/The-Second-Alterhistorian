@@ -39,7 +39,8 @@ GameDatabase.machines.quarry = {
 		max: 4,
 		title: "Capacity",
 		description: "Increase Stone and Coal capacity",
-		effect: count => Math.pow(2, count)
+		effect: count => Math.pow(2, count),
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	},
 	{
 		name: "velocity",
@@ -48,7 +49,8 @@ GameDatabase.machines.quarry = {
 		max: 8,
 		title: "Velocity",
 		description: "Increase Stone and Coal production",
-		effect: count => Math.pow(1.55, count) + count * 0.1
+		effect: count => Math.pow(1.55, count) + count * 0.1,
+		isUnlocked: machine => machine.upgrades.unlock.effect
 	}]),
 	description: `Produces Stone and Coal.`
 };

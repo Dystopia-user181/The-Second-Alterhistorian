@@ -9,13 +9,13 @@ GameDatabase.machines.cistern = {
 		capacity: machine => 5 * machine.upgrades.capacity.effect,
 		produces: machine => ({
 			resource: "water",
-			amount: 0.15 * machine.upgrades.velocity.effect
+			amount: 0.2 * machine.upgrades.velocity.effect
 		}),
 		isUnlocked: machine => machine.upgrades.unlock.maxed
 	}],
 	upgrades: machineUpg([{
 		name: "unlock",
-		cost: 1.4,
+		cost: 1,
 		max: 1,
 		title: "Unlock",
 		description: "Unlock the cistern",

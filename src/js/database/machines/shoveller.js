@@ -21,7 +21,7 @@ GameDatabase.machines.shoveller = {
 	}],
 	upgrades: machineUpg([{
 		name: "capacity",
-		cost: count => Math.pow(5, count) * 10,
+		cost: count => Math.pow(6, count) * 5,
 		max: 6,
 		title: "Capacity",
 		description: "Increase Earth capacity",
@@ -29,7 +29,7 @@ GameDatabase.machines.shoveller = {
 	},
 	{
 		name: "velocity",
-		cost: count => Math.pow(4, count) * 10,
+		cost: count => Math.pow(4, count) * 5,
 		max: 7,
 		title: "Velocity",
 		description: "Increase Earth production",
@@ -37,7 +37,7 @@ GameDatabase.machines.shoveller = {
 	},
 	{
 		name: "wood",
-		cost: count => 125 * Math.pow(3.2, count),
+		cost: count => 40 * Math.pow(10, count),
 		max: 2,
 		title: upg => upg.count ? "Persistence" : "Wood",
 		description: upg => upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees",
