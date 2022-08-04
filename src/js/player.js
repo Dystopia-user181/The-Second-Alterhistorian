@@ -32,7 +32,11 @@ export const Player = {
 		let tempPlayer = JSON.parse(localStorage.getItem(this.storageKey));
 		if (tempPlayer) {
 			const beforeMigrations = !tempPlayer.migrations;
-			deepAssign(player, this.coercePlayer(tempPlayer, this.defaultStart()));
+			const savedPlayer = this.coercePlayer(tempPlayer, this.defaultStart());
+			deepAssign(player, savedPlayer);
+			for (const town in Towns) {
+				player.towns[town].machines = savedPlayer.towns[town].machines;
+			}
 			if (beforeMigrations) player.migrations = 0;
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
@@ -51,8 +55,11 @@ export const Player = {
 			fillObject[prop] = deepClone(target[prop]);
 		}
 		for (const prop of Object.keys(source)) {
-			fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
+			// I LOVE HARDCODING THINGS!!!!!!!!!!
+			if (prop === "machines") fillObject[prop] = deepClone(target[prop]);
+			else fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
 		}
+		if (fillObject.machines) console.log(fillObject.machines[3], target.machines[3])
 		return fillObject;
 	},
 	savePlayer() {
@@ -97,6 +104,11 @@ export const Player = {
 				}
 			}
 		}
+	},
+	reset() {
+		clearInterval(window.saveInterval);
+		localStorage.removeItem(this.storageKey);
+		location.reload();
 	}
 };
 

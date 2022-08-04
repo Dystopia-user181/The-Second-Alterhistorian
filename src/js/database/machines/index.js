@@ -12,3 +12,4 @@ import "./input-merger";
 import "./arc-furnace";
 import "./auto-seller";
 import "./transmuter";
+import "./elixir-maker";

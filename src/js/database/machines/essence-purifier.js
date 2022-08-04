@@ -13,7 +13,13 @@ const recipes = [{
 }, {
 	input: { resource: "lava", amount: 0.2 },
 	output: { resource: "vitriol", amount: 0.08 },
-	energyUsage: 0.5
+	energyUsage: 0.5,
+	isUnlocked: machine => machine.upgrades.power.count > 0
+}, {
+	input: { resource: "glass", amount: 1 },
+	output: { resource: "purity", amount: 0.01 },
+	energyUsage: 0.5,
+	isUnlocked: machine => machine.upgrades.power.count > 1
 }, {
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
@@ -41,7 +47,8 @@ function getProduction(machine) {
 GameDatabase.machines.essencePurifier = {
 	name: "essencePurifier",
 	inputs: [{
-		accepts: recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked)).map(x => x.input.resource).filter(x => x !== "none"),
+		accepts: machine => recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked, machine))
+			.map(x => x.input.resource).filter(x => x !== "none"),
 		capacity: machine => 5 * machine.upgrades.capacity.effect,
 		consumes: machine => {
 			const prod = getConsumption(machine);
@@ -101,9 +108,9 @@ GameDatabase.machines.essencePurifier = {
 	},
 	{
 		name: "power",
-		cost: 40,
+		cost: count => Math.pow(2, count) * 40,
 		currencyType: "essence",
-		max: 1,
+		max: 2,
 		title: "Power",
 		description: "Increase the power level to extract essences from 1 more raw material",
 		effect: count => count,
@@ -118,7 +125,7 @@ GameDatabase.machines.essencePurifier = {
 		title: "Capacity",
 		description: "Increase capacity",
 		effect: count => Math.pow(2, count - 1) + count + 0.5,
-		isUnlocked: machine => machine.upgrades.power.count
+		isUnlocked: machine => machine.upgrades.power.count || player.unlockedCurrencies.vitriol
 	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";

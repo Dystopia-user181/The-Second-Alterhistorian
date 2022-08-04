@@ -4,27 +4,27 @@ import { machineUpg } from "./init";
 
 const recipes = [{
 	input: { resource: "stone", amount: 0.5 },
-	output: { resource: "iron", amount: 0.05 },
+	output: { resource: "iron", amount: 0.08 },
 	vitriolUsage: 0.4
 }, {
 	input: { resource: "stoneDust", amount: 0.5 },
-	output: { resource: "iron", amount: 0.1 },
+	output: { resource: "iron", amount: 0.15 },
 	vitriolUsage: 0.4
 }, {
 	input: { resource: "iron", amount: 0.5 },
-	output: { resource: "lead", amount: 0.35 },
+	output: { resource: "lead", amount: 0.4 },
 	vitriolUsage: 0.3
 }, {
 	input: { resource: "lead", amount: 0.5 },
-	output: { resource: "copper", amount: 0.28 },
+	output: { resource: "copper", amount: 0.3 },
 	vitriolUsage: 0.4
 }, {
 	input: { resource: "copper", amount: 0.5 },
-	output: { resource: "silver", amount: 0.2 },
+	output: { resource: "silver", amount: 0.25 },
 	vitriolUsage: 0.5
 }, {
 	input: { resource: "silver", amount: 0.5 },
-	output: { resource: "gold", amount: 0.15 },
+	output: { resource: "gold", amount: 0.2 },
 	vitriolUsage: 0.6
 }, {
 	input: { resource: "gold", amount: 0.5 },

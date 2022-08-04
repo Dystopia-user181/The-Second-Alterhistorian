@@ -43,6 +43,10 @@ export const Currencies = {
 		colour: "#41919b",
 		value: 3
 	},
+	purity: {
+		colour: "#ffffff88",
+		value: 0
+	},
 	energy: {
 		colour: "#10c9d0",
 		value: 3
@@ -86,5 +90,9 @@ export const Currencies = {
 	quicksilver: {
 		colour: "#876874",
 		value: 200
+	},
+	elixir: {
+		colour: "#6f2eb0",
+		value: 0
 	}
 }

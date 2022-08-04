@@ -7,6 +7,7 @@ import { player } from "./js/player";
 import MachineTab from "./components/MachineTab.vue";
 import Sidebar from "./components/Sidebar.vue";
 import PopupModal from "./components/modals/PopupModal.vue";
+import EndCutscene from "./components/EndCutscene.vue";
 
 const mouseX = ref(0), mouseY = ref(0);
 window.mouseX = 0, window.mouseY = 0;
@@ -24,6 +25,7 @@ function updateMousePos(event) {
 
 <template>
 	<div
+		v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'"
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
@@ -45,6 +47,7 @@ function updateMousePos(event) {
 		</div>
 		<popup-modal v-if="Modals.current.value" :modal="Modals.current.value" />
 	</div>
+	<end-cutscene v-else />
 </template>
 
 <style scoped>

@@ -5,15 +5,18 @@ GameDatabase.towns.home = {
 		type: "shoveller",
 		x: 50,
 		y: 50
-	}, {
+	},
+	{
 		type: "cistern",
 		x: 50,
 		y: 350
-	}, {
+	},
+	{
 		type: "quarry",
 		x: 50,
 		y: 650
-	}, {
+	},
+	{
 		type: "essencePurifier",
 		x: 350,
 		y: 50
@@ -50,6 +53,18 @@ GameDatabase.towns.home = {
 			cost: 20,
 			currencyType: "essence",
 			isUnlocked: () => player.unlockedCurrencies.vitriol
+		},
+		{
+			type: "essencePurifier",
+			cost: 5,
+			currencyType: "gold",
+			isUnlocked: () => player.unlockedCurrencies.gold
+		},
+		{
+			type: "elixirMaker",
+			cost: 25,
+			currencyType: "gold",
+			isUnlocked: () => player.unlockedCurrencies.gold
 		},
 		{
 			type: "inputMerger",

@@ -6,7 +6,7 @@ export function gameLoop(diff) {
 		lastTick = Date.now();
 	}
 	EventHub.dispatch(GAME_EVENTS.GAME_TICK_BEFORE);
-	Machine.gameLoop(diff);
+	if (player.holding.amount < 0.5 || player.holding.resource !== "elixir") Machine.gameLoop(diff);
 	GameUI.update();
 	EventHub.dispatch(GAME_EVENTS.GAME_TICK_AFTER);
 }
