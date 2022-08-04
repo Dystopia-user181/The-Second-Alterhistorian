@@ -7,6 +7,13 @@ export default {
 			required: true,
 		}
 	},
+	mounted() {
+		this.on$(GAME_EVENTS.ESCAPE_PRESSED, () => {
+			if (!Modals.isOpen) return;
+			if (Modals.current.value.hide) Modals.current.value.hide();
+			else Modals.hide();
+		});
+	},
 	destroyed() {
 		document.activeElement.blur();
 	},
