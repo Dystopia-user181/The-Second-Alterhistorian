@@ -53,6 +53,8 @@ function MachineType(data) {
 				data: this.data.outputs[id]
 			}));
 			if (this.type.upgrades) this.upgrades = objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
+			this.pipes = [];
+			requestAnimationFrame(() => this.updatePipes());
 		}
 
 		get hasUpgradeAvailable() {
@@ -63,19 +65,13 @@ function MachineType(data) {
 			return this.data.params;
 		}
 
-		get pipes() {
-			return this.data.pipes.map(p => p.map(x => {
-				const machine = MachinesById[this.town][x[0]];
-				return [machine, machine.inputs[x[1]]];
-			}));
-		}
-
 		get type() {
 			return MachineTypes[data.name];
 		}
 
 		addPipe(machine, inputId, outputId) {
 			this.data.pipes[outputId].push([machine.id, inputId]);
+			this.updatePipes();
 		}
 
 		removePipe(machine, inputId) {
@@ -100,6 +96,13 @@ function MachineType(data) {
 			}
 		}
 
+		updatePipes() {
+			this.pipes = this.data.pipes.map(p => p.map(x => {
+				const machine = MachinesById[this.town][x[0]];
+				return [machine, machine.inputs[x[1]]];
+			}));
+		}
+
 		inputItem(id) {
 			return last(this.inputs[id].data);
 		}
@@ -110,7 +113,7 @@ function MachineType(data) {
 
 		showDescription() {
 			const acceptsTable = this.inputs.find(x => x.isUnlocked) ? `<br><div style="display: inline-block; text-align: left;">
-				${this.inputs.map(x => x.config.accepts)
+				${this.inputs.filter(x => x.isUnlocked).map(x => x.config.accepts)
 					.map((x, id) => `Input ${id + 1} accepts: ${acceptsAll(x) ? "All" : x.map(x => x.capitalize()).join(", ")}`).join("<br>")}
 			</div>` : "";
 			Modals.message.show(`${this.type.description}${acceptsTable}`);
@@ -247,13 +250,13 @@ export const Machine = {
 		}
 	},
 	addInputHistory(machine) {
-		machine.inputHistories.push(deepClone(machine.data.inputs));
+		machine.inputHistories.push(deepClone((machine.data.inputs || []).map(x => x.slice(-20))));
 		if (machine.inputHistories.length > 10) machine.inputHistories.shift();
 		machine.inputConfHistories.push(deepClone(machine.inputs.map(x => x.config)));
 		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
 	},
 	addOutputHistory(machine) {
-		machine.outputHistories.push(deepClone(machine.data.outputs));
+		machine.outputHistories.push(deepClone((machine.data.outputs || []).map(x => x.slice(-20))));
 		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
 		machine.outputConfHistories.push(deepClone(machine.outputs.map(x => x.config)));
 		if (machine.outputConfHistories.length > 10) machine.outputConfHistories.shift();

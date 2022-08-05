@@ -313,13 +313,13 @@ export default {
 .c-machine__input-pipe {
 	display: flex;
 	justify-content: center;
-	align-items: flex-start;
+	align-items: center;
 	position: absolute;
 	bottom: 100%;
 	transform: translateX(-50%);
-	background-color: #333333;
+	background-color: #333333bb;
 	width: 24px;
-	height: 16px;
+	height: 20px;
 	border-radius: 4px 4px 0 0;
 	cursor: pointer;
 }
@@ -327,14 +327,15 @@ export default {
 .c-machine__output-pipe {
 	display: flex;
 	justify-content: center;
-	align-items: flex-end;
+	align-items: center;
 	position: absolute;
 	top: 100%;
 	/* Hide border radius of container */
 	transform: translateX(-50%) translateY(-4px);
-	background-color: #333333;
+	background-color: #333333bb;
 	width: 24px;
-	height: 20px;
+	height: 24px;
+	padding-top: 4px;
 	border-radius: 0 0 4px 4px;
 	cursor: pointer;
 }

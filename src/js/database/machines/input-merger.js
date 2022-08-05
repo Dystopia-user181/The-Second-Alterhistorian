@@ -27,9 +27,10 @@ GameDatabase.machines.inputMerger = {
 		})
 	}],
 	customLoop(diff) {
-		const inputResource = this.inputItem(0) ? this.inputItem(0).resource : (
-			this.inputItem(1) ? this.inputItem(1).resource : (
-				this.inputItem(2) ? this.inputItem(2).resource : ""
+		const cycle = [Math.floor(Date.now() / 1000) % 3, Math.floor(Date.now() / 1000 + 1) % 3, Math.floor(Date.now() / 1000 + 2) % 3];
+		const inputResource = this.inputItem(cycle[0]) ? this.inputItem(cycle[0]).resource : (
+			this.inputItem(cycle[1]) ? this.inputItem(cycle[1]).resource : (
+				this.inputItem(cycle[2]) ? this.inputItem(cycle[2]).resource : ""
 			)
 		);
 		this.inputResource = inputResource;
@@ -38,8 +39,10 @@ GameDatabase.machines.inputMerger = {
 		this.lastDiff = diff;
 
 		Machine.addInputHistory(this);
-		if (this.inputItem(0)) this.consumes0 = Stack.removeFromStack(this.inputs[0].data, Math.min(production, maximum));
-		else this.consumes0 = 0;
+		if (this.inputItem(0) && this.inputItem(0).resource === inputResource)
+			this.consumes0 = Stack.removeFromStack(this.inputs[0].data, Math.min(production, maximum));
+		else
+			this.consumes0 = 0;
 		amt += this.consumes0;
 
 		if (this.inputItem(1) && this.inputItem(1).resource === inputResource)
@@ -64,5 +67,5 @@ GameDatabase.machines.inputMerger = {
 		Machine.addOutputHistory(this);
 		Pipe.tickPipes(this, diff);
 	},
-	description: `Merges inputs into one stream. Prioritizes smaller Inputs if there are different resources.`
+	description: `Merges three inputs into one single stream.`
 };

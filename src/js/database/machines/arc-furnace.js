@@ -91,7 +91,7 @@ GameDatabase.machines.arcFurnace = {
 	}],
 	upgrades: machineUpg([{
 		name: "cat",
-		cost: 15,
+		cost: 12,
 		currencyType: "lava",
 		max: 1,
 		title: "Catalysis",

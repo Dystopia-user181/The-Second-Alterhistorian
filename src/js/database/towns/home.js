@@ -44,7 +44,7 @@ GameDatabase.towns.home = {
 		},
 		{
 			type: "arcFurnace",
-			cost: 30,
+			cost: 15,
 			currencyType: "fire",
 			isUnlocked: () => player.unlockedCurrencies.essence || player.unlockedCurrencies.fire
 		},

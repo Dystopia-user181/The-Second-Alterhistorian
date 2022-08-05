@@ -42,7 +42,7 @@ GameDatabase.machines.steamEngine = {
 	}],
 	upgrades: machineUpg([{
 		name: "harness",
-		cost: count => Math.pow(4, count) * 10,
+		cost: count => Math.pow(5, count) * 6,
 		currencyType: () => player.unlockedCurrencies.fire ? "lava" : "???",
 		max: 3,
 		title: "Harness",

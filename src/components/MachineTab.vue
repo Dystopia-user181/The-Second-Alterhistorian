@@ -97,6 +97,7 @@ export default {
 				for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
 					ctx.fillRect(0, i - 1, this.width, 2);
 				}
+				ctx.lineCap = "round";
 				ctx.globalAlpha = 0.8;
 				for (const machine of Machines[player.currentlyIn]) {
 					for (let i = 0; i < machine.pipes.length; i++) {
@@ -291,6 +292,10 @@ export default {
 	>
 		<span class="c-machine-tab__fast-time-display">
 			Fast Time: {{ format(fastTime, 2, 2) }}s
+			<template v-if="fastTime > 0">
+				<br>
+				Time speedup: {{ formatX(4, 2, 1) }}
+			</template>
 		</span>
 		<canvas
 			ref="canvas"

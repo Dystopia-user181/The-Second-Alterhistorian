@@ -15,18 +15,26 @@ export default {
 	},
 	data() {
 		return {
-			display: []
+			display: [],
+			ctx: null
 		}
 	},
 	methods: {
 		update() {
-			this.display = this.stack.map(x => ({
-				height: `${x.amount / this.capacity * 100}%`,
-				'background-color': this.currencyColour(x.resource)
+			const display = this.stack.map(x => ({
+				height: x.amount / this.capacity * 400,
+				colour: Currencies[x.resource].colour
 			}));
-		},
-		currencyColour(currency) {
-			return Currencies[currency].colour;
+			if (!this.ctx) this.ctx = this.$refs.canvas.getContext("2d");
+			const ctx = this.ctx;
+			ctx.clearRect(0, 0, 1, 400);
+			let height = 0;
+			for (let i = display.length - 1; i >= 0; i--) {
+				const resource = display[i];
+				height += resource.height;
+				ctx.fillStyle = resource.colour;
+				ctx.fillRect(0, 400 - height, 1, resource.height);
+			}
 		}
 	}
 };
@@ -37,13 +45,12 @@ export default {
 		<span class="c-resources-container--text">
 			<slot />
 		</span>
-		<div class="c-resources-stack">
-			<div
-				v-for="(style, id) in display"
-				:key="id"
-				:style="style"
-			/>
-		</div>
+		<canvas
+			class="c-resources-stack__canvas"
+			ref="canvas"
+			height="400"
+			width="1"
+		/>
 	</div>
 </template>
 
@@ -65,13 +72,10 @@ export default {
 	font-size: 0.9em;
 }
 
-.c-resources-stack {
+.c-resources-stack__canvas {
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	inset: 0;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
 }
 </style>
