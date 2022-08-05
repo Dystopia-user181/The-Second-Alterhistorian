@@ -18,19 +18,19 @@ GameDatabase.machines.waterMixer = {
 	name: "waterMixer",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),
-		capacity: machine => 10 * machine.upgrades.capacity.effect,
+		capacity: machine => 15 * machine.upgrades.capacity.effect,
 		consumes: machine => ({
 			amount: recipesByInput[machine.inputResource || "none"].input.amount,
 			maximum: machine.outputDiffs.main * recipesByInput[machine.inputResource || "none"].input.amount
 		})
 	}, {
 		accepts: ["water"],
-		capacity: machine => 10 * machine.upgrades.capacity.effect,
+		capacity: machine => 15 * machine.upgrades.capacity.effect,
 		consumes: machine => machine.outputDiffs.main === 0 ? 0.1 : recipesByInput[machine.inputResource || "none"].waterUsage
 	}],
 	outputs: [{
 		id: "main",
-		capacity: machine => 10 * machine.upgrades.capacity.effect,
+		capacity: machine => 15 * machine.upgrades.capacity.effect,
 		produces: machine => ({
 			resource: recipesByInput[machine.inputResource || "none"].output.resource,
 			amount: recipesByInput[machine.inputResource || "none"].output.amount

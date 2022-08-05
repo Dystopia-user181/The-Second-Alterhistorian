@@ -24,7 +24,7 @@ GameDatabase.towns.home = {
 	sidebarShop: [
 		{
 			type: "waterMixer",
-			cost: 10
+			cost: 8
 		},
 		{
 			type: "furnaceBasic",

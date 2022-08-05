@@ -6,7 +6,7 @@ GameDatabase.machines.shoveller = {
 	name: "shoveller",
 	inputs: [],
 	outputs: [{
-		capacity: machine => 10 * machine.upgrades.capacity.effect,
+		capacity: machine => 16 * machine.upgrades.capacity.effect,
 		produces: machine => ({
 			resource: "earth",
 			amount: 0.3 * machine.upgrades.velocity.effect

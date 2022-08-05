@@ -6,7 +6,7 @@ GameDatabase.machines.cistern = {
 	name: "cistern",
 	inputs: [],
 	outputs: [{
-		capacity: machine => 5 * machine.upgrades.capacity.effect,
+		capacity: machine => 8 * machine.upgrades.capacity.effect,
 		produces: machine => ({
 			resource: "water",
 			amount: 0.2 * machine.upgrades.velocity.effect
