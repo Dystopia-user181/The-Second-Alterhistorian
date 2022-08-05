@@ -1,15 +1,13 @@
 import { GameDatabase } from "../game-database";
 
-import { machineUpg } from "./init";
-
 const recipes = [{
 	input: { resource: "stone", amount: 0.5 },
 	output: { resource: "iron", amount: 0.08 },
 	vitriolUsage: 0.4
 }, {
 	input: { resource: "stoneDust", amount: 0.5 },
-	output: { resource: "iron", amount: 0.15 },
-	vitriolUsage: 0.4
+	output: { resource: "iron", amount: 0.2 },
+	vitriolUsage: 0.2
 }, {
 	input: { resource: "iron", amount: 0.5 },
 	output: { resource: "lead", amount: 0.4 },

@@ -48,7 +48,7 @@ GameDatabase.machines.arcFurnace = {
 	name: "arcFurnace",
 	inputs: [{
 		accepts: () => recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked)).map(x => x.input.resource).filter(x => x !== "none"),
-		capacity: machine => 40,
+		capacity: () => 40,
 		consumes: machine => {
 			const prod = getConsumption(machine);
 			return {
@@ -59,7 +59,7 @@ GameDatabase.machines.arcFurnace = {
 	},
 	{
 		accepts: ["energy"],
-		capacity: machine => 40,
+		capacity: () => 40,
 		consumes: machine => {
 			const prod = getEnergyUsage(machine);
 			return {
@@ -70,14 +70,14 @@ GameDatabase.machines.arcFurnace = {
 	},
 	{
 		accepts: ["fire"],
-		capacity: machine => 20,
-		consumes: machine => 0.02,
+		capacity: () => 20,
+		consumes: () => 0.02,
 		label: "Catalyst\n(5 Fire)",
 		isUnlocked: machine => machine.upgrades.cat.effect
 	}],
 	outputs: [{
 		id: "main",
-		capacity: machine => 40,
+		capacity: () => 40,
 		produces: machine => getProduction(machine),
 		requiresList: machine => [{
 			resource: machine.inputResource || "none",

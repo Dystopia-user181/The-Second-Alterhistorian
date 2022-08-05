@@ -23,7 +23,8 @@ export default {
 			holdFunction: null,
 			beforeDestroy: null,
 			animation: false,
-			unlockedPipes: false
+			unlockedPipes: false,
+			isMin: false
 		}
 	},
 	mounted() {
@@ -38,6 +39,7 @@ export default {
 	methods: {
 		update() {
 			this.unlockedPipes = Pipe.isUnlocked;
+			this.isMin = this.machine.data.min;
 			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
 			this.inputData = this.inputs.map(x => {
@@ -157,7 +159,7 @@ export default {
 <template>
 	<div
 		class="c-machine-container"
-		:class="{ 'c-machine-container--new': animation }"
+		:class="{ 'c-machine-container--new': animation, 'c-machine-container--min': isMin }"
 	>
 		<div
 			v-if="unlockedPipes && inputs.length"
@@ -178,58 +180,63 @@ export default {
 		</div>
 		<span class="c-emphasise-text">{{ machine.type.name.capitalize() }}</span>
 		<div class="l-machine__inner">
-			<div
-				v-for="(input, id) in inputs"
-				:key="id"
-				class="c-machine__input"
-				:class="inputClassObject(input)"
-				@mousedown="registerInputHold(id, $event)"
-			>
-				<resource-stack
-					:stack="inputData[id].stack"
-					:capacity="inputData[id].capacity"
+			<span v-if="isMin">
+				Collapsed
+			</span>
+			<template v-else>
+				<div
+					v-for="(input, id) in inputs"
+					:key="id"
+					class="c-machine__input"
+					:class="inputClassObject(input)"
+					@mousedown="registerInputHold(id, $event)"
 				>
-					{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
-					<br>
-					Input {{ id + 1 }}
-					<br>
-					{{ inputData[id].resource }}
-					<span v-if="inputData[id].label">
+					<resource-stack
+						:stack="inputData[id].stack"
+						:capacity="inputData[id].capacity"
+					>
+						{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
 						<br>
-						{{ inputData[id].label }}
-					</span>
-				</resource-stack>
-			</div>
-			<div
-				v-if="inputs.length && outputs.length"
-				class="l-machine-input-output-separator"
-			/>
-			<div
-				v-for="(output, id) in outputs"
-				:key="id"
-				class="c-machine__output"
-				:class="outputClassObject(output)"
-				@mousedown="registerOutputHold(id, $event)"
-			>
-				<resource-stack
-					:stack="outputData[id].stack"
-					:capacity="outputData[id].capacity"
+						Input {{ id + 1 }}
+						<br>
+						{{ inputData[id].resource }}
+						<span v-if="inputData[id].label">
+							<br>
+							{{ inputData[id].label }}
+						</span>
+					</resource-stack>
+				</div>
+				<div
+					v-if="inputs.length && outputs.length"
+					class="l-machine-input-output-separator"
+				/>
+				<div
+					v-for="(output, id) in outputs"
+					:key="id"
+					class="c-machine__output"
+					:class="outputClassObject(output)"
+					@mousedown="registerOutputHold(id, $event)"
 				>
-					{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
-					<br>
-					Output {{ id + 1}}
-					<br>
-					{{ outputData[id].resource }}
-					<span v-if="outputData[id].label">
+					<resource-stack
+						:stack="outputData[id].stack"
+						:capacity="outputData[id].capacity"
+					>
+						{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
 						<br>
-						{{ outputData[id].label }}
-					</span>
-				</resource-stack>
-			</div>
-			<span
-				v-if="!inputs.length && !outputs.length"
-				class="fas fa-lock"
-			/>
+						Output {{ id + 1}}
+						<br>
+						{{ outputData[id].resource }}
+						<span v-if="outputData[id].label">
+							<br>
+							{{ outputData[id].label }}
+						</span>
+					</resource-stack>
+				</div>
+				<span
+					v-if="!inputs.length && !outputs.length"
+					class="fas fa-lock"
+				/>
+			</template>
 		</div>
 		<div
 			v-if="unlockedPipes && outputs.length"
@@ -271,6 +278,10 @@ export default {
 	display: flex;
 	align-items: stretch;
 	justify-content: center;
+}
+
+.l-machine__inner > span {
+	align-self: center;
 }
 
 .c-machine__input {
@@ -359,6 +370,11 @@ hr {
 
 .c-machine-container--new {
 	animation: a-just-bought 3s;
+}
+
+.c-machine-container--min {
+	height: 160px;
+	width: 250px;
 }
 
 @keyframes a-just-bought {

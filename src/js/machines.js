@@ -69,6 +69,10 @@ function MachineType(data) {
 			return MachineTypes[data.name];
 		}
 
+		get height() {
+			return this.data.min ? 160 : 250;
+		}
+
 		addPipe(machine, inputId, outputId) {
 			this.data.pipes[outputId].push([machine.id, inputId]);
 			this.updatePipes();
@@ -131,7 +135,8 @@ function MachineType(data) {
 				y,
 				type: this.name,
 				pipes: Array.from(Array(this.outputs ? this.outputs.length : 0), () => []),
-				isDefault: false
+				isDefault: false,
+				min: false
 			};
 			if (this.inputs.length) {
 				returnObj.inputs = Array.from(Array(this.inputs.length), () => []);

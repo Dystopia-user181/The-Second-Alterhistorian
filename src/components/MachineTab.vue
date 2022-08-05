@@ -106,7 +106,7 @@ export default {
 							ctx.lineWidth = 9;
 							ctx.strokeStyle = "#ffffff";
 							ctx.beginPath();
-							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + 260 - this.offsetY);
+							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + machine.height + 10 - this.offsetY);
 							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
 								pipe[0].data.y - 10 - this.offsetY);
 							ctx.stroke();
@@ -115,7 +115,7 @@ export default {
 							const currency = intermediate ? last(intermediate[i]).resource : "";
 							ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
 							ctx.beginPath();
-							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + 260 - this.offsetY);
+							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + machine.height + 10 - this.offsetY);
 							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
 								pipe[0].data.y - 10 - this.offsetY);
 							ctx.stroke();
@@ -128,10 +128,10 @@ export default {
 					ctx.strokeStyle = "#ffffff";
 					ctx.beginPath();
 					ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
-						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10 : 260) - this.offsetY);
+						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10 : machine.height + 10 ) - this.offsetY);
 					if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
 						ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
-							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10 : 260) - this.offsetY);
+							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10 : machine.height + 10 ) - this.offsetY);
 					else
 						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
 					ctx.stroke();
@@ -340,6 +340,11 @@ export default {
 					@mousedown="machine.machineData.showProduction()"
 				/>
 				<div
+					class="fas"
+					:class="machine.machineData.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
+					@mousedown="machine.machineData.data.min = !machine.machineData.data.min"
+				/>
+				<div
 					v-if="!machine.machineData.data.isDefault"
 					class="fas fa-trash"
 					@mousedown="deleteMachine(machine.machineData)"
@@ -411,7 +416,9 @@ export default {
 	cursor: move;
 }
 
-.c-machine-sidebar .fa-arrow-up {
+.c-machine-sidebar .fa-arrow-up,
+.c-machine-sidebar .fa-expand-arrows-alt,
+.c-machine-sidebar .fa-compress-arrows-alt {
 	cursor: pointer;
 }
 
