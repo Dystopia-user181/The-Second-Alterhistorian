@@ -83,6 +83,7 @@ function MachineType(data) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					if (this.data.pipes[i][j][0].toString() === machine.id.toString() && this.data.pipes[i][j][1] === inputId) {
 						this.data.pipes[i].splice(j, 1);
+						this.updatePipes();
 						return true;
 					}
 				}
@@ -98,6 +99,7 @@ function MachineType(data) {
 					}
 				}
 			}
+			this.updatePipes();
 		}
 
 		updatePipes() {

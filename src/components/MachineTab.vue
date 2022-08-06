@@ -128,10 +128,12 @@ export default {
 					ctx.strokeStyle = "#ffffff";
 					ctx.beginPath();
 					ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
-						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10 : machine.height + 10 ) - this.offsetY);
+						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10
+							: this.draggingPipe.machine.height + 10 ) - this.offsetY);
 					if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
 						ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
-							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10 : machine.height + 10 ) - this.offsetY);
+							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10
+								: this.hoveringPipe.machine.height + 10 ) - this.offsetY);
 					else
 						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
 					ctx.stroke();
