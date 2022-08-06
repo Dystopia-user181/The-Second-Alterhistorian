@@ -16,6 +16,11 @@ export default {
 		return {
 			inputs: [],
 			outputs: [],
+			avg: {
+				inputs: [],
+				outputs: []
+			},
+			takingAvg: false
 		}
 	},
 	methods: {
@@ -35,13 +40,58 @@ export default {
 						/ this.machine.inputConfHistories.length,
 					id
 				}
-			}).filter(x => x && x.amount > 0);
+			}).filter(x => x);
 			this.outputs = this.machine.outputs.map((x, id) => (!x.isUnlocked ? null : {
 				resource: x.config.produces.resource,
 				amount: this.machine.outputConfHistories.map(x => x[id]).reduce((a, v) => a + getProduces(v, id, x.otherwiseDiff), 0)
 					/ this.machine.outputConfHistories.length,
 				id
-			})).filter(x => x && x.amount > 0);
+			})).filter(x => x);
+			if (this.takingAvg) {
+				const avg = this.avg;
+				for (const input of this.machine.inputs) {
+					const avgItem = avg.inputs[input.id];
+					const resource = last(input.data) ? last(input.data).resource : avgItem.lastResource;
+					const conf = input.config;
+					if (avgItem.lastResource !== resource) {
+						avgItem.lastResource = resource;
+						avgItem.time = 0;
+					}
+					avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.otherwiseDiff)) / (avgItem.time + 1);
+					avgItem.time++;
+				}
+				for (const output of this.machine.outputs) {
+					const avgItem = avg.outputs[output.id];
+					const conf = output.config;
+					const resource = conf.produces.amount <= 0 ? avgItem.lastResource : conf.produces.resource;
+					if (avgItem.lastResource !== resource) {
+						avgItem.lastResource = resource;
+						avgItem.time = 0;
+					}
+					avgItem.value = (avgItem.value * avgItem.time + getProduces(conf, output.id, output.otherwiseDiff)) / (avgItem.time + 1);
+					avgItem.time++;
+				}
+			}
+		},
+		startAvg() {
+			this.avg.inputs = this.machine.inputs.map((_, id) => ({
+				lastResource: "none",
+				time: 0,
+				value: 0,
+				id
+			}));
+			this.avg.outputs = this.machine.outputs.map((_, id) => ({
+				lastResource: "none",
+				time: 0,
+				value: 0,
+				id
+			}));
+			this.takingAvg = true;
+		},
+		stopAvg() {
+			this.avg.inputs = [];
+			this.avg.outputs = [];
+			this.takingAvg = false;
 		}
 	},
 };
@@ -58,7 +108,13 @@ export default {
 				v-for="input in inputs"
 				:key="input.id"
 			>
-				Input {{ input.id + 1 }}: Consumes {{ format(input.amount, 2, 2, true) }} {{ input.resource.capitalize() }}/s
+				Input {{ input.id + 1 }}:
+				<span v-if="input.amount">
+					Consumes {{ format(input.amount, 2, 2, true) }} {{ input.resource.capitalize() }}/s
+				</span>
+				<span v-else>
+					IDLE
+				</span>
 				<br>
 			</span>
 		</template>
@@ -69,12 +125,55 @@ export default {
 				v-for="output in outputs"
 				:key="output.id"
 			>
-				Output {{ output.id + 1 }}: Produces {{ format(output.amount, 2, 2, true) }} {{ output.resource.capitalize() }}/s
+				Output {{ output.id + 1 }}:
+				<span v-if="output.amount">
+					Consumes {{ format(output.amount, 2, 2, true) }} {{ output.resource.capitalize() }}/s
+				</span>
+				<span v-else>
+					IDLE
+				</span>
 				<br>
 			</span>
 		</template>
-		<template v-else-if="!inputs.length">
-			STATUS: Idle
+		<button @click="takingAvg ? stopAvg() : startAvg()">
+			{{ takingAvg ? "Taking Average..." : "Take Average" }}
+		</button>
+		<template v-if="takingAvg">
+			<br>
+			<template v-if="inputs.length">
+				<span class="c-emphasise-text">Inputs</span>
+				<br>
+				<span
+					v-for="input in avg.inputs"
+					:key="input.id"
+				>
+					Input {{ input.id + 1 }}:
+					<span v-if="input.value">
+						Consumes {{ format(input.value, 2, 2, true) }} {{ input.lastResource.capitalize() }}/s
+					</span>
+					<span v-else>
+						IDLE
+					</span>
+					<br>
+				</span>
+			</template>
+			<template v-if="outputs.length">
+				<span class="c-emphasise-text">Outputs</span>
+				<br>
+				<span
+					v-for="output in avg.outputs"
+					:key="output.id"
+				>
+					Output {{ output.id + 1 }}:
+					<span v-if="output.value">
+						Consumes {{ format(output.value, 2, 2, true) }} {{ output.lastResource.capitalize() }}/s
+					</span>
+					<span v-else>
+						IDLE
+					</span>
+					<br>
+				</span>
+			</template>
 		</template>
 	</modal-wrapper>
 </template>
