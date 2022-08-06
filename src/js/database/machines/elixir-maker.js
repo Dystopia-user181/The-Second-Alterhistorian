@@ -90,5 +90,10 @@ GameDatabase.machines.elixirMaker = {
 			inputId: 5,
 		}]
 	}],
+	customLoop(diff) {
+		const prevElixir = this.outputItem(0) ? this.outputItem(0).amount : 0;
+		Machine.tickThisMachine(this, diff);
+		player.producedElixir += (this.outputItem(0) ? this.outputItem(0).amount : 0) - prevElixir;
+	},
 	description: `consumeCONSUMEconsumeCONSUMEconsumeCONSUMEconsume`
 };

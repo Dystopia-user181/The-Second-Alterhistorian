@@ -56,16 +56,20 @@ const WordShift = {
 };
 
 function elixirText() {
-	return WordShift.wordCycle(["elixir", "poison", "remedy"]);
+	return WordShift.wordCycle(["elixir", "poison", "venom"]);
 }
 
 function transmuteText() {
 	return WordShift.wordCycle(["Transmutation", "Metamorphosis", "Mutilation"]);
 }
 
+function immortalText() {
+	return WordShift.wordCycle(["immortality", "perpetuity", "eternity"]);
+}
+
 const Quotes = [{
 	cel: "sol",
-	line: () => "Ah. The fabled alchemist I kept hearing about."
+	line: () => "Ah. The fabled alchemist I keep hearing about."
 },
 {
 	cel: "sol",
@@ -81,21 +85,21 @@ const Quotes = [{
 },
 {
 	cel: "sol",
-	line: () => `Is this all Alchemy is to you?					\n${transmuteText()} of elements into the gold that you so worth, using the\
- ${elixirText()} that is so precious to you, to attain immortality in a futile attempt?`
+	line: () => `Is this all Alchemy is to you?                    \n${transmuteText()} of elements into the gold that you so worth, using the\
+ ${elixirText()} that is so precious to you, to attain ${immortalText()} in a futile attempt?`
 },
 {
 	cel: "sol",
-	line: () => "I'm afraid it doesn't work like that.					\nNothing works like that."
+	line: () => "I'm afraid it doesn't work like that.                    \nNothing works like that."
 },
 {
 	cel: "sol",
-	line: () => "My dearest disciple. What shall we do with this person?"
+	line: () => "My dearest disciple.                    What shall we do with this person?"
 },
 {
 	cel: "luna",
 	line: () => `They are a hack and a fraud, attempting to cheat their way through the system of Afterlife and Earth to attain\
- immortality.`
+ ${immortalText()}.`
 },
 {
 	cel: "luna",
@@ -111,20 +115,23 @@ export default {
 	data() {
 		return {
 			lineNumber: 0,
-			brightness: -0.2,
+			brightness: -0.5,
 			currentLine: "",
-			currentCel: "???"
+			currentCel: "???",
+			updateCycle: 0
 		};
 	},
 	methods: {
 		update() {
 			clearInterval(window.saveInterval);
 			if (this.lineNumber >= Quotes.length) {
-				this.brightness = Math.max(this.brightness - 0.01, 0);
-				if (this.brightness <= 0) Player.reset();
+				this.brightness = this.brightness - 0.003;
+				if (this.brightness <= -0.2) Player.reset();
 			}
-			else this.brightness = Math.min(this.brightness + 0.01, 1);
+			else this.brightness = Math.min(this.brightness + 0.005, 1);
 			if (this.brightness < 1) return;
+			this.updateCycle = !this.updateCycle;
+			if (this.updateCycle) return;
 			const line = Quotes[this.lineNumber];
 			this.currentCel = line.cel;
 			const lineAnim = this.currentLine.length;

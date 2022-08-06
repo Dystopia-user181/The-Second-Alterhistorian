@@ -18,5 +18,12 @@ export const migrations = [
 				}
 			}
 		}
+	},
+	player => {
+		for (const machine of Object.values(player.towns.home.machines)) {
+			if (machine.type === "elixirMaker") {
+				if (machine.outputs[0]) player.producedElixir += machine.outputs[0].amount;
+			}
+		}
 	}
 ]
