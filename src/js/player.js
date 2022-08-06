@@ -11,7 +11,9 @@ export const Player = {
 			towns: {
 				home: {
 					machines: Towns.home.defaultMachines,
-					upgrades: 0
+					upgrades: 0,
+					machinesPrepay: Towns.home.defaultMachinesPrepay,
+					upgradesPrepay: Towns.home.defaultUpgradesPrepay
 				}
 			},
 			currentlyIn: "home",
@@ -24,7 +26,8 @@ export const Player = {
 			},
 			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
 			fastTime: 0,
-			migrations: migrations.length
+			migrations: migrations.length,
+			producedElixir: 0
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
@@ -59,7 +62,6 @@ export const Player = {
 			if (prop === "machines") fillObject[prop] = deepClone(target[prop]);
 			else fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
 		}
-		if (fillObject.machines) console.log(fillObject.machines[3], target.machines[3])
 		return fillObject;
 	},
 	savePlayer() {
@@ -71,8 +73,10 @@ export const Player = {
 				const type = MachineTypes[machine.type];
 				if (type.upgrades && Object.keys(type.upgrades).length) {
 					if (!machine.upgrades) machine.upgrades = [];
+					if (!machine.upgradesPrepay) machine.upgradesPrepay = [];
 					for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
 						if (!(i in machine.upgrades)) machine.upgrades[i] = 0;
+						if (!(i in machine.upgradesPrepay)) machine.upgradesPrepay[i] = 0;
 					}
 				}
 				if (type.inputs.length) {

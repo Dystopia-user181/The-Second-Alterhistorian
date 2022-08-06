@@ -11,7 +11,8 @@ GameDatabase.machines.shoveller = {
 			resource: "earth",
 			amount: 0.3 * machine.upgrades.velocity.effect
 		})
-	}, {
+	},
+	{
 		capacity: 10,
 		produces: machine => ({
 			resource: "wood",

@@ -6,11 +6,13 @@ const recipes = [{
 	input: { resource: "earth", amount: 1.5 },
 	output: { resource: "sand", amount: 1.1 },
 	energyUsage: 0.1
-}, {
+},
+{
 	input: { resource: "stone", amount: 0.6 },
 	output: { resource: "stoneDust", amount: 0.6 },
 	energyUsage: 0.1
-}, {
+},
+{
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	energyUsage: 0
@@ -50,7 +52,8 @@ GameDatabase.machines.pulverizer = {
 				maximum: machine.outputDiffs.main * prod
 			};
 		}
-	}, {
+	},
+{
 		accepts: ["energy"],
 		capacity: () => 10,
 		consumes: machine => {
@@ -69,7 +72,8 @@ GameDatabase.machines.pulverizer = {
 			resource: machine.inputResource || "none",
 			amount: getConsumption(machine),
 			inputId: 0,
-		}, {
+		},
+{
 			resource: "energy",
 			amount: getEnergyUsage(machine),
 			inputId: 1,

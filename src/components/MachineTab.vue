@@ -82,7 +82,7 @@ export default {
 				machineData: machine
 			})).filter(x => (
 				x.position.top > - 250 && x.position.left > - 600
-				&& x.position.top < this.height && x.position.left < this.width
+					&& x.position.top < this.height && x.position.left < this.width
 			));
 			if (this.holdingFunction) this.holdingFunction();
 			if (this.holdingKeyFunction) this.holdingKeyFunction();
@@ -390,7 +390,7 @@ export default {
 	position: absolute;
 	display: flex;
 	flex-direction: column;
-	transform: translateX(calc(1px - 100%));
+	transform: translateX(calc(0.3px - 100%));
 	z-index: 1;
 }
 

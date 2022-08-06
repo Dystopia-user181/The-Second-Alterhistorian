@@ -24,7 +24,8 @@ export default {
 			beforeDestroy: null,
 			animation: false,
 			unlockedPipes: false,
-			isMin: false
+			isMin: false,
+			hasUpgradeAvailable: false
 		}
 	},
 	mounted() {
@@ -39,6 +40,7 @@ export default {
 	methods: {
 		update() {
 			this.unlockedPipes = Pipe.isUnlocked;
+			this.hasUpgradeAvailable = this.machine.hasUpgradeAvailable;
 			this.isMin = this.machine.data.min;
 			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
@@ -159,7 +161,11 @@ export default {
 <template>
 	<div
 		class="c-machine-container"
-		:class="{ 'c-machine-container--new': animation, 'c-machine-container--min': isMin }"
+		:class="{
+			'c-machine-container--new': animation,
+			'c-machine-container--min': isMin,
+			'c-glow-yellow': hasUpgradeAvailable,
+		}"
 	>
 		<div
 			v-if="unlockedPipes && inputs.length"

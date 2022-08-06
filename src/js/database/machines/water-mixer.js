@@ -5,8 +5,9 @@ import { machineUpg } from "./init";
 const recipes = [{
 	input: { resource: "earth", amount: 0.2 },
 	output: { resource: "clay", amount: 0.2 },
-	waterUsage: 0.4
-}, {
+	waterUsage: 0.3
+},
+{
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	waterUsage: 0.1
@@ -23,7 +24,8 @@ GameDatabase.machines.waterMixer = {
 			amount: recipesByInput[machine.inputResource || "none"].input.amount,
 			maximum: machine.outputDiffs.main * recipesByInput[machine.inputResource || "none"].input.amount
 		})
-	}, {
+	},
+	{
 		accepts: ["water"],
 		capacity: machine => 15 * machine.upgrades.capacity.effect,
 		consumes: machine => machine.outputDiffs.main === 0 ? 0.1 : recipesByInput[machine.inputResource || "none"].waterUsage
@@ -39,7 +41,8 @@ GameDatabase.machines.waterMixer = {
 			resource: machine.inputResource || "none",
 			amount: recipesByInput[machine.inputResource || "none"].input.amount,
 			inputId: 0,
-		}, {
+		},
+	{
 			resource: "water",
 			amount: recipesByInput[machine.inputResource || "none"].waterUsage,
 			inputId: 1,

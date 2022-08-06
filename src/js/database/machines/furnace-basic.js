@@ -6,16 +6,19 @@ const recipes = [{
 	input: { resource: "clay", amount: 0.2 },
 	output: { resource: "bricks", amount: 0.2 },
 	fuelUsage: 0.2
-}, {
+},
+{
 	input: { resource: "water", amount: 0.3 },
 	output: { resource: "steam", amount: 0.3 },
 	fuelUsage: 0.15
-}, {
+},
+{
 	input: { resource: "sand", amount: 0.5 },
 	output: { resource: "glass", amount: 0.32 },
 	fuelUsage: 0.4,
 	isUnlocked: () => player.unlockedCurrencies.energy
-}, {
+},
+{
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	fuelUsage: 0
@@ -58,7 +61,8 @@ GameDatabase.machines.furnaceBasic = {
 				maximum: machine.outputDiffs.main * prod
 			};
 		}
-	}, {
+	},
+{
 		accepts: machine => {
 			const accepts = ["wood"];
 			if (machine.upgrades.improve.count) accepts.push("coal");
@@ -81,7 +85,8 @@ GameDatabase.machines.furnaceBasic = {
 			resource: machine.inputResource || "none",
 			amount: getConsumption(machine),
 			inputId: 0,
-		}, {
+		},
+{
 			resource: machine.inputFuel || "none",
 			amount: getFuelUsage(machine),
 			inputId: 1,

@@ -10,11 +10,13 @@ GameDatabase.machines.inputMerger = {
 		accepts: Object.keys(Currencies),
 		capacity: () => 20,
 		consumes: machine => machine.consumes0 / machine.lastDiff
-	}, {
+	},
+	{
 		accepts: Object.keys(Currencies),
 		capacity: () => 20,
 		consumes: machine => machine.consumes1 / machine.lastDiff
-	}, {
+	},
+	{
 		accepts: Object.keys(Currencies),
 		capacity: () => 20,
 		consumes: machine => machine.consumes2 / machine.lastDiff

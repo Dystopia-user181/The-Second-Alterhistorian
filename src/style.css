@@ -77,7 +77,7 @@ hr {
 
 @keyframes a-opacity {
 	0% { opacity: 0; }
-	50% { opacity: 0.4; }
+	50% { opacity: 0.3; }
 	100% { opacity: 0; }
 }
   
@@ -93,6 +93,6 @@ hr {
 	top: 0;
 	left: 0;
 	background: gold;
-	border-radius: var(--var-border-radius, inherit);
-	animation: a-opacity 3s infinite;
+	border-radius: inherit;
+	animation: a-opacity 2s infinite;
 }

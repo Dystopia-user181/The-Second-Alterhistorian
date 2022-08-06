@@ -8,19 +8,23 @@ const recipes = [{
 	input: { resource: "clay", amount: 1 },
 	output: { resource: "bricks", amount: 1 },
 	energyUsage: 0.08
-}, {
+},
+{
 	input: { resource: "water", amount: 1.5 },
 	output: { resource: "steam", amount: 1.5 },
 	energyUsage: 0.08
-}, {
+},
+{
 	input: { resource: "sand", amount: 1 },
 	output: { resource: "glass", amount: 0.7 },
 	energyUsage: 0.15
-}, {
+},
+{
 	input: { resource: "stone", amount: 0.5 },
 	output: { resource: "lava", amount: 0.1 },
 	energyUsage: 0.5
-}, {
+},
+{
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	energyUsage: 0
@@ -83,7 +87,8 @@ GameDatabase.machines.arcFurnace = {
 			resource: machine.inputResource || "none",
 			amount: getConsumption(machine),
 			inputId: 0,
-		}, {
+		},
+{
 			resource: "energy",
 			amount: getEnergyUsage(machine),
 			inputId: 1,

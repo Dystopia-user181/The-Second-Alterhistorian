@@ -6,21 +6,25 @@ const recipes = [{
 	input: { resource: "coal", amount: 0.3 },
 	output: { resource: "fire", amount: 0.2 },
 	energyUsage: 0.3
-}, {
+},
+{
 	input: { resource: "energy", amount: 0.25 },
 	output: { resource: "essence", amount: 0.02 },
 	energyUsage: 0.15
-}, {
+},
+{
 	input: { resource: "lava", amount: 0.2 },
 	output: { resource: "vitriol", amount: 0.08 },
 	energyUsage: 0.5,
 	isUnlocked: machine => machine.upgrades.power.count > 0
-}, {
+},
+{
 	input: { resource: "glass", amount: 1 },
 	output: { resource: "purity", amount: 0.01 },
 	energyUsage: 0.5,
 	isUnlocked: machine => machine.upgrades.power.count > 1
-}, {
+},
+{
 	input: { resource: "none", amount: 0 },
 	output: { resource: "earth", amount: 0 },
 	energyUsage: 0
@@ -58,7 +62,8 @@ GameDatabase.machines.essencePurifier = {
 			};
 		},
 		isUnlocked: machine => machine.upgrades.unlock.effect
-	}, {
+	},
+	{
 		accepts: ["energy"],
 		capacity: machine => 5 * machine.upgrades.capacity.effect,
 		consumes: machine => {
@@ -78,7 +83,8 @@ GameDatabase.machines.essencePurifier = {
 			resource: machine.inputResource || "none",
 			amount: getConsumption(machine),
 			inputId: 0,
-		}, {
+		},
+		{
 			resource: "energy",
 			amount: getEnergyUsage(machine),
 			inputId: 1,

@@ -36,8 +36,8 @@ export default {
 
 <style scoped>
 @keyframes a-modal-overlay-fadein {
-  from { background-color: rgba(0, 0, 0, 0%); }
-  to { background-color: rgba(60, 60, 100, 50%); }
+	from { background-color: rgba(0, 0, 0, 0%); }
+	to { background-color: rgba(60, 60, 100, 50%); }
 }
 
 .c-modal-background-overlay {
@@ -50,19 +50,19 @@ export default {
 }
 
 .c-modal {
-  display: inline-block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 7;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  font-size: 14px;
-  background-color: #262626;
-  border: 2px solid #ffffff;
-  padding: 10px;
-  min-width: 300px;
-  transition-duration: 0.2s;
-  border-radius: 10px;
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 7;
+	transform: translate(-50%, -50%);
+	text-align: center;
+	font-size: 14px;
+	background-color: #262626;
+	border: 2px solid #ffffff;
+	padding: 10px;
+	min-width: 300px;
+	transition-duration: 0.2s;
+	border-radius: 10px;
 }
 </style>

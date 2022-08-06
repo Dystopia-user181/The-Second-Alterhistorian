@@ -4,7 +4,7 @@ import { MachineTypes, Machine } from "./machines";
 class Town {
 	constructor(config, townId) {
 		this.config = config;
-		this.sidebarShop = config.sidebarShop.map(x => new SidebarShopItem(x));
+		this.sidebarShop = config.sidebarShop.map((x, id) => new SidebarShopItem(x, townId, id));
 		this.upgrades = objectMap(config.upgrades, x => x, x => new TownUpgrade(x, townId));
 	}
 
@@ -17,18 +17,28 @@ class Town {
 		return machines;
 	}
 
+	get defaultMachinesPrepay() {
+		return Array(this.sidebarShop.length).fill(0);
+	}
+
+	get defaultUpgradesPrepay() {
+		return Array(Object.keys(this.upgrades).length).fill(0);
+	}
+
 	get isUnlocked() {
 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked);
 	}
 }
 
 class SidebarShopItem {
-	constructor(config) {
+	constructor(config, townId, id) {
 		this.config = config;
+		this.townId = townId;
+		this.id = id;
 	}
 
 	get cost() {
-		return run(this.config.cost);
+		return run(this.config.cost) - this.prepay;
 	}
 
 	get currencyType() {
@@ -44,15 +54,32 @@ class SidebarShopItem {
 	}
 
 	get canAfford() {
-		if (this.maxed) return false;
+		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount;
+	}
+
+	get canAffordWhole() {
 		if (!this.currencyType) return player.money >= this.cost;
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+	}
+
+	get prepay() {
+		return player.towns[this.townId].machinesPrepay[this.id];
+	}
+
+	set prepay(x) {
+		player.towns[this.townId].machinesPrepay[this.id] = x;
 	}
 
 	buy() {
 		if (!this.canAfford) return;
 		const cost = this.cost;
 		const currencyType = this.currencyType;
+		if (!this.canAffordWhole) {
+			this.prepay += player.holding.amount;
+			player.holding.amount = 0;
+			return;
+		}
 		if (!Machine.add(player.currentlyIn, this.config.type, player.display.offset.x + 60, player.display.offset.y + 60))
 			return;
 
@@ -60,6 +87,7 @@ class SidebarShopItem {
 			player.money -= cost;
 		} else {
 			player.holding.amount -= cost;
+			this.prepay = 0;
 		}
 	}
 }
@@ -83,7 +111,7 @@ class TownUpgrade {
 	}
 
 	get cost() {
-		return run(this.config.cost);
+		return run(this.config.cost) - player.towns[this.townId].upgradesPrepay[this.id];
 	}
 
 	get currencyType() {
@@ -115,9 +143,23 @@ class TownUpgrade {
 	}
 
 	get canAfford() {
-		if (this.maxed) return false;
+		if (this.isBought) return false;
+		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount;
+	}
+
+	get canAffordWhole() {
+		if (this.isBought) return false;
 		if (!this.currencyType) return player.money >= this.cost;
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+	}
+
+	get prepay() {
+		return player.towns[this.townId].upgradesPrepay[this.id];
+	}
+
+	set prepay(x) {
+		player.towns[this.townId].upgradesPrepay[this.id] = x;
 	}
 
 	effectOrDefault(def) {
@@ -126,10 +168,18 @@ class TownUpgrade {
 
 	buy() {
 		if (!this.canAfford || this.isBought) return;
-		if (!this.currencyType) {
-			player.money -= this.cost;
+		const cost = this.cost;
+		const currencyType = this.currencyType;
+		if (!this.canAffordWhole) {
+			this.prepay += player.holding.amount;
+			player.holding.amount = 0;
+			return;
+		}
+		if (!currencyType) {
+			player.money -= cost;
 		} else {
-			player.holding.amount -= this.cost;
+			player.holding.amount -= cost;
+			this.prepay = 0;
 		}
 		this.bits |= 1 << this.id;
 	}

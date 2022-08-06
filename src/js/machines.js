@@ -58,7 +58,7 @@ function MachineType(data) {
 		}
 
 		get hasUpgradeAvailable() {
-			return this.upgrades && Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
+			return this.upgrades && Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
 		}
 
 		get params() {
@@ -148,6 +148,7 @@ function MachineType(data) {
 			}
 			if (this.upgrades && Object.values(this.upgrades).length) {
 				returnObj.upgrades = Array(Object.values(this.upgrades).length).fill(0);
+				returnObj.upgradesPrepay = Array(Object.values(this.upgrades).length).fill(0);
 			}
 			return returnObj;
 		}
@@ -174,6 +175,10 @@ class MachineUpgrade {
 		return this.parentMachine.data.upgrades[this.id];
 	}
 
+	set count(x) {
+		this.parentMachine.data.upgrades[this.id] = x;
+	}
+
 	get max() {
 		return this.config.max;
 	}
@@ -182,12 +187,8 @@ class MachineUpgrade {
 		return this.count >= this.max;
 	}
 
-	set count(x) {
-		this.parentMachine.data.upgrades[this.id] = x;
-	}
-
 	get cost() {
-		return run(this.config.cost, this.count);
+		return run(this.config.cost, this.count) - this.prepay;
 	}
 
 	get currencyType() {
@@ -217,17 +218,37 @@ class MachineUpgrade {
 	get canAfford() {
 		if (this.maxed) return false;
 		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount;
+	}
+
+	get canAffordWhole() {
+		if (this.maxed) return false;
+		if (!this.currencyType) return player.money >= this.cost;
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+	}
+
+	get prepay() {
+		return this.parentMachine.data.upgradesPrepay[this.id];
+	}
+
+	set prepay(x) {
+		this.parentMachine.data.upgradesPrepay[this.id] = x;
 	}
 
 	buy() {
 		if (!this.canAfford || this.maxed) return;
+		if (!this.canAffordWhole) {
+			this.prepay += player.holding.amount;
+			player.holding.amount = 0;
+			return;
+		}
 		if (!this.currencyType) {
 			player.money -= this.cost;
 			this.count++;
 		} else {
 			player.holding.amount -= this.cost;
 			this.count++;
+			this.prepay = 0;
 		}
 	}
 }
@@ -238,6 +259,7 @@ window.MachineTypes = MachineTypes
 export const Machines = {};
 window.Machines = Machines;
 const MachinesById = {};
+export const MachineCounts = {};
 
 export const Machine = {
 	gameLoop(realDiff) {
@@ -333,6 +355,7 @@ export const Machine = {
 				const constructed = new MachineTypes[type](townName, i);
 				Machines[townName].push(constructed);
 				MachinesById[townName][i] = constructed;
+				MachineCounts[townName][type]++;
 				last(Machines[townName]).isNew = true;
 				return true;
 			}
@@ -342,9 +365,10 @@ export const Machine = {
 	remove(machine) {
 		Pipe.removeAllInputPipesTo(machine);
 		requestAnimationFrame(() => Pipe.removeAllInputPipesTo(machine));
-		window.removeThisMachineTest = machine;
 		delete player.towns[machine.town].machines[machine.id];
 		Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
+		delete MachinesById[machine.town][machine.id];
+		MachineCounts[machine.town][machine.type]--;
 	}
 };
 window.Machine = Machine;
@@ -405,11 +429,13 @@ export function initializeMachines() {
 	for (const town of Object.keys(GameDatabase.towns)) {
 		if (!Machines[town]) Machines[town] = [];
 		if (!MachinesById[town]) MachinesById[town] = {};
+		if (!MachineCounts[town]) MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
 		for (const machineId of Object.keys(player.towns[town].machines)) {
 			const machine = player.towns[town].machines[machineId];
 			const newMach = new MachineTypes[machine.type](town, machineId);
 			Machines[town].push(newMach);
 			MachinesById[town][machineId] = newMach;
+			MachineCounts[town][machine.type] += 1;
 		}
 	}
 }

@@ -1,4 +1,6 @@
 <script>
+import { MachineCounts } from '../js/machines';
+
 export default {
 	name: "SidebarShopMachineItem",
 	props: {
@@ -13,7 +15,8 @@ export default {
 			currencyType: "",
 			canAfford: false,
 			name: "",
-			description: ""
+			description: "",
+			count: 0
 		}
 	},
 	methods: {
@@ -23,6 +26,7 @@ export default {
 			this.canAfford = this.shopItem.canAfford;
 			this.name = this.shopItem.associatedMachine.name.capitalize();
 			this.description = this.shopItem.associatedMachine.description;
+			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.name];
 		}
 	}
 };
@@ -35,7 +39,7 @@ export default {
 		@click="shopItem.buy()"
 	>
 		<span class="c-emphasise-text">
-			{{ name }}
+			{{ name }} ({{ formatInt(count) }})
 		</span>
 		<hr>
 		{{ description }}

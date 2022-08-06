@@ -20,3 +20,7 @@ window.formatPow = function formatPow(value, places, placesUnder1000) {
 window.formatPercents = function formatPercents(value, places) {
 	return `${format(value * 100, 2, places)}%`;
 };
+
+window.formatInt = function formatInt(x) {
+	return format(x, 2, 0, false);
+}
