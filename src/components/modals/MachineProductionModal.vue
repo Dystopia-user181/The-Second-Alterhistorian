@@ -51,6 +51,7 @@ export default {
 				const avg = this.avg;
 				for (const input of this.machine.inputs) {
 					const avgItem = avg.inputs[input.id];
+					avgItem.isUnlocked = input.isUnlocked;
 					const resource = last(input.data) ? last(input.data).resource : avgItem.lastResource;
 					const conf = input.config;
 					if (avgItem.lastResource !== resource) {
@@ -62,6 +63,7 @@ export default {
 				}
 				for (const output of this.machine.outputs) {
 					const avgItem = avg.outputs[output.id];
+					avgItem.isUnlocked = output.isUnlocked;
 					const conf = output.config;
 					const resource = conf.produces.amount <= 0 ? avgItem.lastResource : conf.produces.resource;
 					if (avgItem.lastResource !== resource) {
@@ -74,16 +76,18 @@ export default {
 			}
 		},
 		startAvg() {
-			this.avg.inputs = this.machine.inputs.map((_, id) => ({
+			this.avg.inputs = this.machine.inputs.map((x, id) => ({
 				lastResource: "none",
 				time: 0,
 				value: 0,
+				isUnlocked: x.isUnlocked,
 				id
 			}));
-			this.avg.outputs = this.machine.outputs.map((_, id) => ({
+			this.avg.outputs = this.machine.outputs.map((x, id) => ({
 				lastResource: "none",
 				time: 0,
 				value: 0,
+				isUnlocked: x.isUnlocked, 
 				id
 			}));
 			this.takingAvg = true;
@@ -144,7 +148,7 @@ export default {
 				<span class="c-emphasise-text">Inputs</span>
 				<br>
 				<span
-					v-for="input in avg.inputs"
+					v-for="input in avg.inputs.filter(x => x.isUnlocked)"
 					:key="input.id"
 				>
 					Input {{ input.id + 1 }}:
@@ -161,7 +165,7 @@ export default {
 				<span class="c-emphasise-text">Outputs</span>
 				<br>
 				<span
-					v-for="output in avg.outputs"
+					v-for="output in avg.outputs.filter(x => x.isUnlocked)"
 					:key="output.id"
 				>
 					Output {{ output.id + 1 }}:
