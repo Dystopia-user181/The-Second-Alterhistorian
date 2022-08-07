@@ -31,11 +31,10 @@ export const Player = {
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
-	load() {
-		let tempPlayer = JSON.parse(localStorage.getItem(this.storageKey));
-		if (tempPlayer) {
-			const beforeMigrations = !tempPlayer.migrations;
-			const savedPlayer = this.coercePlayer(tempPlayer, this.defaultStart());
+	load(playerObj) {
+		if (playerObj) {
+			const beforeMigrations = !playerObj.migrations;
+			const savedPlayer = this.coercePlayer(playerObj, this.defaultStart());
 			deepAssign(player, savedPlayer);
 			for (const town in Towns) {
 				player.towns[town].machines = savedPlayer.towns[town].machines;
@@ -47,6 +46,9 @@ export const Player = {
 		}
 		this.fixMachines();
 		initializeMachines();
+	},
+	loadSave() {
+		this.load(JSON.parse(localStorage.getItem(this.storageKey)));
 	},
 	coercePlayer(target, source) {
 		if (target === null || target === undefined) return source;
@@ -110,15 +112,14 @@ export const Player = {
 		}
 	},
 	reset() {
-		clearInterval(window.saveInterval);
-		localStorage.removeItem(this.storageKey);
-		location.reload();
+		Player.load(Player.defaultStart());
+		Player.savePlayer();
 	}
 };
 
 export const player = reactive(Player.defaultStart());
 window.player = player;
 
-Player.load();
+Player.loadSave();
 
 window.saveInterval = setInterval(() => Player.savePlayer(), 10000);

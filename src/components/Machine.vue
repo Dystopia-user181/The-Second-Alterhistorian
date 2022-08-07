@@ -291,7 +291,7 @@ export default {
 }
 
 .c-machine__input {
-	min-width: 75px;
+	min-width: 80px;
 }
 
 .c-machine__output {

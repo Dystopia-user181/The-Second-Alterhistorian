@@ -427,9 +427,9 @@ window.Pipe = Pipe;
 
 export function initializeMachines() {
 	for (const town of Object.keys(GameDatabase.towns)) {
-		if (!Machines[town]) Machines[town] = [];
-		if (!MachinesById[town]) MachinesById[town] = {};
-		if (!MachineCounts[town]) MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
+		Machines[town] = [];
+		MachinesById[town] = {};
+		MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
 		for (const machineId of Object.keys(player.towns[town].machines)) {
 			const machine = player.towns[town].machines[machineId];
 			const newMach = new MachineTypes[machine.type](town, machineId);

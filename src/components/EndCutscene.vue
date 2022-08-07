@@ -123,7 +123,6 @@ export default {
 	},
 	methods: {
 		update() {
-			clearInterval(window.saveInterval);
 			if (this.lineNumber >= Quotes.length) {
 				this.brightness = this.brightness - 0.003;
 				if (this.brightness <= -0.2) Player.reset();

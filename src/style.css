@@ -95,4 +95,5 @@ hr {
 	background: gold;
 	border-radius: inherit;
 	animation: a-opacity 2s infinite;
+	pointer-events: none;
 }

@@ -118,7 +118,7 @@ GameDatabase.machines.essencePurifier = {
 		currencyType: "essence",
 		max: 2,
 		title: "Power",
-		description: "Increase the power level to extract essences from 1 more raw material",
+		description: "Increase the power level to extract essences from 1 more type of raw material",
 		effect: count => count,
 		formatEffect: () => "",
 		isUnlocked: machine => machine.upgrades.unlock.effect

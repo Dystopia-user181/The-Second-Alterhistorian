@@ -31,6 +31,8 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 
 	consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
 
+	if (player.holding.amount >= 0.5 && player.holding.resource === 'elixir') return;
+
 	if (player.holding.amount && player.holding.resource === 'elixir') {
 		const splashes = ["CONSUME more Elixir", "Elixir is your magnum opus", "An eternal suffering to those who dare touch your Elixir"];
 		if (Math.random() < (player.holding.amount * 5 + 1) / 100) consumes.value.push({
@@ -53,15 +55,30 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 
 <template>
 	<div
-		v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'"
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
-		<h1>The Second Alterhistorian</h1>
-		<div class="c-main-tabs">
-			<machine-tab />
-			<sidebar />
-		</div>
+		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
+			<h1>The Second Alterhistorian</h1>
+			<div class="c-main-tabs">
+				<machine-tab />
+				<sidebar />
+			</div>
+			<popup-modal v-if="Modals.current.value" :modal="Modals.current.value" />
+			<div
+				class="c-elixir-bg"
+				:style="{ opacity: elixirOpacity }"
+			/>
+			<div
+				v-for="consume in consumes"
+				:key="consume.time"
+				class="c-elixir-splashtext"
+				:style="{ top: `${consume.pos[0]}%`, left: `${consume.pos[1]}%` }"
+			>
+				{{ consume.text }}
+			</div>
+		</template>
+		<end-cutscene v-else />
 		<div
 			v-if="player.holding.amount > 0"
 			class="c-held-item"
@@ -73,21 +90,7 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 		>
 			{{ format(player.holding.amount, 2, 1) }}
 		</div>
-		<popup-modal v-if="Modals.current.value" :modal="Modals.current.value" />
-		<div
-			class="c-elixir-bg"
-			:style="{ opacity: elixirOpacity }"
-		/>
-		<div
-			v-for="consume in consumes"
-			:key="consume.time"
-			class="c-elixir-splashtext"
-			:style="{ top: `${consume.pos[0]}%`, left: `${consume.pos[1]}%` }"
-		>
-			{{ consume.text }}
-		</div>
 	</div>
-	<end-cutscene v-else />
 </template>
 
 <style scoped>
