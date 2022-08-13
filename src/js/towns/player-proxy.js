@@ -1,34 +1,8 @@
-import { GameDatabase } from "./database/game-database";
-import { MachineTypes, Machine } from "./machines";
+import { Machine, MachineTypes } from "@/js/machines/index";
+import { GameDatabase } from "@/js/database/index";
+import { player } from "@/js/player";
 
-class Town {
-	constructor(config, townId) {
-		this.config = config;
-		this.sidebarShop = config.sidebarShop.map((x, id) => new SidebarShopItem(x, townId, id));
-		this.upgrades = objectMap(config.upgrades, x => x, x => new TownUpgrade(x, townId));
-	}
-
-	get defaultMachines() {
-		const machines = mapToObject(this.config.defaultMachines.map(x => MachineTypes[x.type].newMachine(x.x, x.y)),
-			(_, id) => id, x => x);
-		for (const machine of Object.values(machines)) {
-			machine.isDefault = true;
-		}
-		return machines;
-	}
-
-	get defaultMachinesPrepay() {
-		return Array(this.sidebarShop.length).fill(0);
-	}
-
-	get defaultUpgradesPrepay() {
-		return Array(Object.keys(this.upgrades).length).fill(0);
-	}
-
-	get isUnlocked() {
-		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked);
-	}
-}
+import { arr, formatX, objectMap, run } from "@/utils/index";
 
 class SidebarShopItem {
 	constructor(config, townId, id) {
@@ -80,14 +54,19 @@ class SidebarShopItem {
 			player.holding.amount = 0;
 			return;
 		}
-		if (!Machine.add(player.currentlyIn, this.config.type, player.display.offset.x + 60, player.display.offset.y + 60))
+		if (!Machine.add(
+			player.currentlyIn,
+			this.config.type,
+			player.display.offset.x + 60,
+			player.display.offset.y + 60
+		))
 			return;
 
-		if (!currencyType) {
-			player.money -= cost;
-		} else {
+		if (currencyType) {
 			player.holding.amount -= cost;
 			this.prepay = 0;
+		} else {
+			player.money -= cost;
 		}
 	}
 }
@@ -103,7 +82,7 @@ class TownUpgrade {
 	}
 
 	get bits() {
-		return player.towns[this.townId].upgrades
+		return player.towns[this.townId].upgrades;
 	}
 
 	set bits(x) {
@@ -127,7 +106,7 @@ class TownUpgrade {
 	}
 
 	get formattedEffect() {
-		return !this.config.formatEffect ? formatX(this.effect, 2, 1) : this.config.formatEffect(this.effect);
+		return this.config.formatEffect ? this.config.formatEffect(this.effect) : formatX(this.effect, 2, 1);
 	}
 
 	get title() {
@@ -175,18 +154,50 @@ class TownUpgrade {
 			player.holding.amount = 0;
 			return;
 		}
-		if (!currencyType) {
-			player.money -= cost;
-		} else {
+		if (currencyType) {
 			player.holding.amount -= cost;
 			this.prepay = 0;
+		} else {
+			player.money -= cost;
 		}
 		this.bits |= 1 << this.id;
 	}
 }
 
-export const Towns = objectMap(GameDatabase.towns, x => x, (x, id) => new Town(x, id));
-window.Towns = Towns;
+class Town {
+	constructor(config, townId) {
+		this.config = config;
+		this.sidebarShop = config.sidebarShop.map((x, id) => new SidebarShopItem(x, townId, id));
+		this.upgrades = objectMap(config.upgrades, x => x, x => new TownUpgrade(x, townId));
+	}
+
+	get defaultMachines() {
+		const machines = arr(this.config.defaultMachines.map(x => MachineTypes[x.type].newMachine(x.x, x.y)))
+			.mapToObject((_, id) => id, x => x);
+		for (const machine of Object.values(machines)) {
+			machine.isDefault = true;
+		}
+		return machines;
+	}
+
+	get defaultMachinesPrepay() {
+		return Array(this.sidebarShop.length).fill(0);
+	}
+
+	get defaultUpgradesPrepay() {
+		return Array(Object.keys(this.upgrades).length).fill(0);
+	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked);
+	}
+}
+
+export const Towns = {};
+
+export function initTownsData() {
+	Object.assign(Towns, objectMap(GameDatabase.towns, x => x, (x, id) => new Town(x, id)));
+}
 
 export const SidebarShop = {
 	get currentMachines() {
@@ -196,4 +207,4 @@ export const SidebarShop = {
 	get currentUpgrades() {
 		return Towns[player.currentlyIn].upgrades;
 	}
-}
+};

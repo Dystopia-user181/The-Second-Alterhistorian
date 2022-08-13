@@ -1,5 +1,7 @@
 <script>
-import { Player } from "./../js/player";
+import { Player } from "@/js/player";
+
+import { str } from "@/utils/index";
 
 function predictableRandom(x) {
 	let start = Math.pow(x % 97, 4.3) * 232344573;
@@ -38,12 +40,14 @@ const WordShift = {
 
 		return " ".repeat(Math.ceil(bufferSpace)) + v + " ".repeat(Math.floor(bufferSpace));
 	},
-	randomCrossWords(str, frac = 0.7) {
-		if (frac <= 0) return str;
-		const x = str.split("");
+	randomCrossWords(string, frac = 0.7) {
+		if (frac <= 0) return string;
+		const x = string.split("");
 		for (let i = 0; i < x.length * frac; i++) {
-			const randomIndex = Math.floor(predictableRandom(Math.floor(Date.now() / 500) % 964372 + 1.618 * i) * x.length);
-			x[randomIndex] = randomSymbol();
+			const randomIdx = Math.floor(
+				predictableRandom(Math.floor(Date.now() / 500) % 964372 + 1.618 * i) * x.length
+			);
+			x[randomIdx] = randomSymbol();
 		}
 		return x.join("");
 	},
@@ -85,21 +89,21 @@ const Quotes = [{
 },
 {
 	cel: "sol",
-	line: () => `Is this all Alchemy is to you?                    \n${transmuteText()} of elements into the gold that you so worth, using the\
- ${elixirText()} that is so precious to you, to attain ${immortalText()} in a futile attempt?`
+	line: () => `Is this all Alchemy is to you?                 \n${transmuteText()} of elements into the gold that you\
+ so worth, using the ${elixirText()} that is so precious to you, to attain ${immortalText()} in a futile attempt?`
 },
 {
 	cel: "sol",
-	line: () => "I'm afraid it doesn't work like that.                    \nNothing works like that."
+	line: () => "I'm afraid it doesn't work like that.                 \nNothing works like that."
 },
 {
 	cel: "sol",
-	line: () => "My dearest disciple.                    What shall we do with this person?"
+	line: () => "My dearest disciple.                 What shall we do with this person?"
 },
 {
 	cel: "luna",
-	line: () => `They are a hack and a fraud, attempting to cheat their way through the system of Afterlife and Earth to attain\
- ${immortalText()}.`
+	line: () => `They are a hack and a fraud, attempting to cheat their way through the system of Afterlife and Earth\
+ to attain ${immortalText()}.`
 },
 {
 	cel: "luna",
@@ -124,10 +128,9 @@ export default {
 	methods: {
 		update() {
 			if (this.lineNumber >= Quotes.length) {
-				this.brightness = this.brightness - 0.003;
+				this.brightness -= 0.003;
 				if (this.brightness <= -0.2) Player.reset();
-			}
-			else this.brightness = Math.min(this.brightness + 0.005, 1);
+			} else this.brightness = Math.min(this.brightness + 0.005, 1);
 			if (this.brightness < 1) return;
 			this.updateCycle = !this.updateCycle;
 			if (this.updateCycle) return;
@@ -140,9 +143,10 @@ export default {
 			if (this.currentLine.length !== Quotes[this.lineNumber].line().length) return;
 			this.lineNumber++;
 			this.currentLine = "";
-		}
+		},
+		str
 	}
-}
+};
 </script>
 
 <template>
@@ -155,7 +159,7 @@ export default {
 			{{ currentLine }}
 		</div>
 		<div :class="`c-end-cutscene__cel-label c-end-cutscene__cel-label--${currentCel}`">
-			{{ currentCel.capitalize() }}
+			{{ str(currentCel).capitalize }}
 		</div>
 		<div :class="`c-end-cutscene__cel-image c-end-cutscene__cel-image--${currentCel}`" />
 	</div>

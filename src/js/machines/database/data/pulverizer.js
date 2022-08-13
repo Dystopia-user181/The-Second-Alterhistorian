@@ -1,6 +1,8 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
+
+import { arr } from "@/utils/index";
 
 const recipes = [{
 	input: { resource: "earth", amount: 1.5 },
@@ -18,7 +20,7 @@ const recipes = [{
 	energyUsage: 0
 }];
 
-const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
 function poundForce() {
 	return Math.tan((Date.now() / 1000) % 1.293);
@@ -37,7 +39,7 @@ function getProduction(machine) {
 	return {
 		resource: out.resource,
 		amount: out.amount * poundForce()
-	}
+	};
 }
 
 GameDatabase.machines.pulverizer = {
@@ -53,7 +55,7 @@ GameDatabase.machines.pulverizer = {
 			};
 		}
 	},
-{
+	{
 		accepts: ["energy"],
 		capacity: () => 10,
 		consumes: machine => {
@@ -73,7 +75,7 @@ GameDatabase.machines.pulverizer = {
 			amount: getConsumption(machine),
 			inputId: 0,
 		},
-{
+		{
 			resource: "energy",
 			amount: getEnergyUsage(machine),
 			inputId: 1,

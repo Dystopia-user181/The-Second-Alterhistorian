@@ -1,8 +1,12 @@
-import { initializeMachines, MachineTypes } from "./machines";
-import { Towns } from "./towns";
+import { reactive, toRaw } from "vue";
+
+import { deepAssign, deepClone, objectMap } from "../utils/index";
+
+import { initializeMachines, MachineTypes } from "./machines/index";
 import { Currencies } from "./database/currencies";
 import { migrations } from "./migrations";
-import { toRaw, reactive } from "vue";
+import { Towns } from "./towns/index";
+
 
 export const Player = {
 	defaultStart() {
@@ -43,6 +47,8 @@ export const Player = {
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
 			}
+		} else {
+			deepAssign(player, Player.defaultStart());
 		}
 		this.fixMachines();
 		initializeMachines();
@@ -70,44 +76,50 @@ export const Player = {
 		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
-		for (const town of Object.keys(player.towns)) {
-			for (const machine of Object.values(player.towns[town].machines)) {
-				const type = MachineTypes[machine.type];
-				if (type.upgrades && Object.keys(type.upgrades).length) {
-					if (!machine.upgrades) machine.upgrades = [];
-					if (!machine.upgradesPrepay) machine.upgradesPrepay = [];
-					for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
-						if (!(i in machine.upgrades)) machine.upgrades[i] = 0;
-						if (!(i in machine.upgradesPrepay)) machine.upgradesPrepay[i] = 0;
-					}
-				}
-				if (type.inputs.length) {
-					if (!machine.inputs) machine.inputs = [];
-					for (let i = 0; i < type.inputs.length; i++) {
-						if (!(i in machine.inputs)) machine.inputs[i] = [];
-					}
-				}
-				if (type.outputs.length) {
-					if (!machine.outputs) machine.outputs = [];
-					if (!machine.pipes) machine.pipes = [];
-					for (let i = 0; i < type.outputs.length; i++) {
-						if (!(i in machine.outputs)) machine.outputs[i] = [];
-						if (!(i in machine.pipes)) machine.pipes[i] = [];
-					}
-				}
+		for (const town in player.towns) {
+			for (const machineId in player.towns[town].machines) {
+				const machine = player.towns[town].machines[machineId];
+				Player.fixMachineData(machine);
 			}
 			const defaultMachines = Towns[town].defaultMachines;
 			for (const defaultMachine of Object.values(defaultMachines)) {
-				if (!Object.values(player.towns[town].machines).find(x => x.type === defaultMachine.type && x.isDefault)) {
-					let i = 0;
-					while (true) {
-						if (!player.towns[town].machines[i]) {
-							player.towns[town].machines[i] = defaultMachine;
-							break;
-						}
-						i++;
+				if (Object.values(player.towns[town].machines)
+					.find(x => x.type === defaultMachine.type && x.isDefault)) {
+					continue;
+				}
+				let i = 0;
+				while (player.towns[town].machines[i]) {
+					i++;
+					if (!player.towns[town].machines[i]) {
+						player.towns[town].machines[i] = defaultMachine;
+						break;
 					}
 				}
+			}
+		}
+	},
+	fixMachineData(machine) {
+		const type = MachineTypes[machine.type];
+		if (type.upgrades && Object.keys(type.upgrades).length) {
+			machine.upgrades = machine.upgrades || [];
+			machine.upgradesPrepay = machine.upgradesPrepay || [];
+			for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
+				machine.upgrades[i] = machine.upgrades[i] || 0;
+				machine.upgradesPrepay[i] = machine.upgradesPrepay[i] || 0;
+			}
+		}
+		if (type.inputs.length) {
+			machine.inputs = machine.inputs || [];
+			for (let i = 0; i < type.inputs.length; i++) {
+				machine.inputs[i] = machine.inputs[i] || [];
+			}
+		}
+		if (type.outputs.length) {
+			machine.outputs = machine.outputs || [];
+			machine.pipes = machine.pipes || [];
+			for (let i = 0; i < type.outputs.length; i++) {
+				machine.outputs[i] = machine.outputs[i] || [];
+				machine.pipes[i] = machine.pipes[i] || [];
 			}
 		}
 	},
@@ -117,9 +129,8 @@ export const Player = {
 	}
 };
 
-export const player = reactive(Player.defaultStart());
-window.player = player;
+export const player = reactive({});
 
-Player.loadSave();
+window.addEventListener("load", () => Player.loadSave());
 
 window.saveInterval = setInterval(() => Player.savePlayer(), 10000);

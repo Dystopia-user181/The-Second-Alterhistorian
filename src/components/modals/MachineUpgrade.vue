@@ -1,4 +1,6 @@
 <script>
+import { format } from "@/utils/index";
+
 export default {
 	name: "MachineUpgrade",
 	props: {
@@ -16,7 +18,7 @@ export default {
 			maxed: false,
 			canAfford: false,
 			currencyType: ""
-		}
+		};
 	},
 	methods: {
 		update() {
@@ -27,7 +29,8 @@ export default {
 			this.maxed = this.upgrade.maxed;
 			this.canAfford = this.upgrade.canAfford;
 			this.currencyType = this.upgrade.currencyType || "";
-		}
+		},
+		format
 	},
 };
 </script>

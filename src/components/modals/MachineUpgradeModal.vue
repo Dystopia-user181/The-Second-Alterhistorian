@@ -2,27 +2,30 @@
 import MachineUpgrade from "./MachineUpgrade.vue";
 import ModalWrapper from "./ModalWrapper.vue";
 
+import { str } from "@/utils/index";
+
 export default {
 	name: "MachineUpgradeModal",
+	components: {
+		MachineUpgrade,
+		ModalWrapper
+	},
 	props: {
 		machine: {
 			type: Object,
 			required: true
 		}
 	},
-	components: {
-		MachineUpgrade,
-		ModalWrapper
-	},
 	data() {
 		return {
 			upgrades: []
-		}
+		};
 	},
 	methods: {
 		update() {
 			this.upgrades = Object.values(this.machine.upgrades || {}).filter(x => x.isUnlocked);
-		}
+		},
+		str
 	},
 };
 </script>
@@ -30,7 +33,7 @@ export default {
 <template>
 	<modal-wrapper class="c-machine-upgrade-modal">
 		<template #header>
-			Upgrades ({{ machine.type.name.capitalize() }})
+			Upgrades ({{ str(machine.type.name).capitalize }})
 		</template>
 		<machine-upgrade
 			v-for="upgrade in upgrades"

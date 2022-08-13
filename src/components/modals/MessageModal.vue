@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from "vue";
 import { Modals } from "./../../js/ui/modals";
 
 import ModalWrapper from "./ModalWrapper.vue";
@@ -13,14 +12,18 @@ function hide() {
 
 <template>
 	<modal-wrapper>
-		<template #header>Info</template>
+		<template #header>
+			Info
+		</template>
 		<br>
 		<span
 			class="c-message-modal__text"
 			v-html="Modals.message.text.value"
 		/>
 		<br><br>
-		<button @click="hide">Okay</button>
+		<button @click="hide">
+			Okay
+		</button>
 	</modal-wrapper>
 </template>
 

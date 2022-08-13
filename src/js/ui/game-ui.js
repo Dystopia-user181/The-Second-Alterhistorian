@@ -1,6 +1,7 @@
-import { createApp } from 'vue';
 import "./../../style.css";
-import App from './../../App.vue';
+import { createApp } from "vue";
+
+import App from "./../../App.vue";
 
 const vueApp = createApp(App);
 
@@ -10,6 +11,10 @@ vueApp.mixin({
 			this.on$(GAME_EVENTS.UPDATE, this.update);
 			this.update();
 		}
+		if (this.render) {
+			this.on$(GAME_EVENTS.RENDER, this.render);
+			this.render();
+		}
 	},
 	beforeUnmount() {
 		EventHub.ui.offAll(this);
@@ -17,30 +22,12 @@ vueApp.mixin({
 	methods: {
 		on$(event, fn) {
 			EventHub.ui.on(event, fn, this);
-		},
-		format(value, places, placesUnder1000, small) {
-			return format(value, places, placesUnder1000, small);
-		},
-		formatInt(value) {
-			return formatInt(value);
-		},
-		formatPercents(value, places) {
-			return formatPercents(value, places);
-		},
-		formatX(value, places, placesUnder1000) {
-			return formatX(value, places, placesUnder1000);
-		},
-		formatPow(value, places, placesUnder1000) {
-			return formatPow(value, places, placesUnder1000);
-		},
-		objectMap(...args) {
-			return objectMap(...args);
 		}
 	}
 });
 
-vueApp.mount('#app');
-	
+window.addEventListener("load", () => vueApp.mount("#app"));
+
 export const GameUI = {
 	events: [],
 	flushPromise: undefined,
@@ -66,6 +53,9 @@ export const GameUI = {
 	},
 	update() {
 		this.dispatch(GAME_EVENTS.UPDATE);
+	},
+	render() {
+		EventHub.ui.dispatch(GAME_EVENTS.RENDER);
 	}
 };
 

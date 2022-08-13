@@ -1,6 +1,6 @@
-import { GameDatabase } from "../game-database";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
 
 GameDatabase.machines.cistern = {
 	name: "cistern",

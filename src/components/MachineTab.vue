@@ -1,7 +1,10 @@
 <script>
-import { Currencies } from "./../js/database/currencies";
-import { Machines } from "./../js/machines";
-import { Modals } from "./../js/ui/modals";
+import { Machine, Machines, Pipe } from "@/js/machines/index";
+import { Currencies } from "@/js/database/currencies";
+import { Modals } from "@/js/ui/modals";
+import { player } from "@/js/player";
+
+import { arr, format, formatX, objectMap } from "@/utils/index";
 
 import MachineVue from "./Machine.vue";
 
@@ -34,7 +37,7 @@ export default {
 				machine: null,
 				id: 0
 			},
-		}
+		};
 	},
 	computed: {
 		maxOffsetX: () => 5998,
@@ -42,7 +45,7 @@ export default {
 	},
 	mounted() {
 		this.on$(GAME_EVENTS.ARROW_KEYDOWN, key => {
-			switch(key) {
+			switch (key) {
 				case "up":
 					this.registerOffsetKey([0, -1]);
 					break;
@@ -69,10 +72,6 @@ export default {
 			this.fastTime = player.fastTime;
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.height = this.$refs.machineTab.offsetHeight;
-			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
-			player.display.offset.y = Math.min(player.display.offset.y, this.maxOffsetY - this.height);
-			this.offsetX = player.display.offset.x;
-			this.offsetY = player.display.offset.y;
 			this.machines = Machines[player.currentlyIn].map(machine => ({
 				position: {
 					top: machine.data.y - this.offsetY,
@@ -81,9 +80,15 @@ export default {
 				notifyUpgrade: machine.hasUpgradeAvailable,
 				machineData: machine
 			})).filter(x => (
-				x.position.top > - 250 && x.position.left > - 600
-					&& x.position.top < this.height && x.position.left < this.width
+				x.position.top > - 250 && x.position.left > - 600 &&
+					x.position.top < this.height && x.position.left < this.width
 			));
+		},
+		render() {
+			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
+			player.display.offset.y = Math.min(player.display.offset.y, this.maxOffsetY - this.height);
+			this.offsetX = player.display.offset.x;
+			this.offsetY = player.display.offset.y;
 			if (this.holdingFunction) this.holdingFunction();
 			if (this.holdingKeyFunction) this.holdingKeyFunction();
 			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");
@@ -106,16 +111,22 @@ export default {
 							ctx.lineWidth = 9;
 							ctx.strokeStyle = "#ffffff";
 							ctx.beginPath();
-							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + machine.height + 10 - this.offsetY);
+							ctx.moveTo(
+								machine.data.x + i * 30 + 15 - this.offsetX,
+								machine.data.y + machine.height + 10 - this.offsetY
+							);
 							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
 								pipe[0].data.y - 10 - this.offsetY);
 							ctx.stroke();
 							ctx.lineWidth = 5;
-							const intermediate = findLast(machine.outputHistories, x => x[i].length);
-							const currency = intermediate ? last(intermediate[i]).resource : "";
+							const intermediate = arr(machine.outputHistories).findLast(x => x[i].length);
+							const currency = intermediate ? arr(intermediate[i]).last.resource : "";
 							ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
 							ctx.beginPath();
-							ctx.moveTo(machine.data.x + i * 30 + 15 - this.offsetX, machine.data.y + machine.height + 10 - this.offsetY);
+							ctx.moveTo(
+								machine.data.x + i * 30 + 15 - this.offsetX,
+								machine.data.y + machine.height + 10 - this.offsetY
+							);
 							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
 								pipe[0].data.y - 10 - this.offsetY);
 							ctx.stroke();
@@ -129,11 +140,11 @@ export default {
 					ctx.beginPath();
 					ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
 						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10
-							: this.draggingPipe.machine.height + 10 ) - this.offsetY);
+							: this.draggingPipe.machine.height + 10) - this.offsetY);
 					if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
 						ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
 							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10
-								: this.hoveringPipe.machine.height + 10 ) - this.offsetY);
+								: this.hoveringPipe.machine.height + 10) - this.offsetY);
 					else
 						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
 					ctx.stroke();
@@ -212,8 +223,7 @@ export default {
 			if (shiftDown) {
 				Machine.remove(machine);
 				this.update();
-			}
-			else {
+			} else {
 				Modals.removeMachine.show({ machine }).then(() => this.update());
 			}
 		},
@@ -235,12 +245,20 @@ export default {
 			if (this.draggingPipe.type === "output") {
 				if (this.hoveringPipe.type === "input") {
 					Pipe.removeAllInputPipesTo(this.hoveringPipe.machine, this.hoveringPipe.id);
-					this.draggingPipe.machine.addPipe(this.hoveringPipe.machine, this.hoveringPipe.id, this.draggingPipe.id);
+					this.draggingPipe.machine.addPipe(
+						this.hoveringPipe.machine,
+						this.hoveringPipe.id,
+						this.draggingPipe.id
+					);
 				}
 			} else if (this.draggingPipe.type === "input") {
 				if (this.hoveringPipe.type === "output") {
 					Pipe.removeAllInputPipesTo(this.draggingPipe.machine, this.draggingPipe.id);
-					this.hoveringPipe.machine.addPipe(this.draggingPipe.machine, this.draggingPipe.id, this.hoveringPipe.id);
+					this.hoveringPipe.machine.addPipe(
+						this.draggingPipe.machine,
+						this.draggingPipe.id,
+						this.hoveringPipe.id
+					);
 				}
 			}
 			this.draggingPipe.type = "";
@@ -281,15 +299,18 @@ export default {
 				document.addEventListener("mouseleave", stopHolding);
 				this.beforeDestroy = stopHolding;
 			}
-		}
+		},
+		objectMap,
+		format,
+		formatX
 	}
-}
+};
 </script>
 
 <template>
 	<div
-		class="c-machine-tab"
 		ref="machineTab"
+		class="c-machine-tab"
 		@mousedown="attemptUseDrag"
 	>
 		<span class="c-machine-tab__fast-time-display">

@@ -1,6 +1,9 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
+
+import { arr } from "@/utils/index";
 
 const metals = ["iron", "lead", "copper", "silver", "gold", "quicksilver"];
 
@@ -30,10 +33,12 @@ const recipes = [{
 	energyUsage: 0
 }];
 
-const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
 function getConsumption(machine) {
-	return recipesByInput[machine.inputResource || "none"].input.amount * (machine.catalystActive ? 1.6 : 1) * machine.upgrades.velocity.effect;
+	return recipesByInput[machine.inputResource || "none"].input.amount *
+		(machine.catalystActive ? 1.6 : 1) *
+		machine.upgrades.velocity.effect;
 }
 
 function getEnergyUsage(machine) {
@@ -45,13 +50,14 @@ function getProduction(machine) {
 	return {
 		resource: out.resource,
 		amount: out.amount * (machine.catalystActive ? 1.6 : 1) * machine.upgrades.velocity.effect
-	}
+	};
 }
 
 GameDatabase.machines.arcFurnace = {
 	name: "arcFurnace",
 	inputs: [{
-		accepts: () => recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked)).map(x => x.input.resource).filter(x => x !== "none"),
+		accepts: () => recipes.filter(x => (x.isUnlocked ? run(x.isUnlocked) : true))
+			.map(x => x.input.resource).filter(x => x !== "none"),
 		capacity: () => 40,
 		consumes: machine => {
 			const prod = getConsumption(machine);
@@ -88,7 +94,7 @@ GameDatabase.machines.arcFurnace = {
 			amount: getConsumption(machine),
 			inputId: 0,
 		},
-{
+		{
 			resource: "energy",
 			amount: getEnergyUsage(machine),
 			inputId: 1,

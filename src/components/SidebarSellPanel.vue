@@ -1,5 +1,7 @@
 <script>
-import { Currencies } from "./../js/database/currencies";
+import { Currencies } from "@/js/database/currencies";
+import { format } from "@/utils/index";
+import { player } from "@/js/player";
 
 export default {
 	name: "SidebarSellPanel",
@@ -10,7 +12,7 @@ export default {
 			holdingResource: "",
 			showMode: "",
 			gainedMoney: 0
-		}
+		};
 	},
 	methods: {
 		update() {
@@ -38,15 +40,16 @@ export default {
 			const amount = player.holding.amount * fraction;
 			player.holding.amount -= amount;
 			player.money += amount * Currencies[player.holding.resource].value;
-		}
+		},
+		format
 	}
-}
+};
 </script>
 
 <template>
 	<div class="c-sidebar__shop">
 		<h2 class="c-money-display">
-			${{format(money, 2, 2)}}
+			${{ format(money, 2, 2) }}
 			<br>
 			<span v-if="gainedMoney">
 				+${{ format(gainedMoney, 2, 2) }}

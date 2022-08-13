@@ -1,16 +1,20 @@
 <script setup>
 import { ref } from "vue";
-import { Currencies } from "./js/database/currencies";
-import { Modals } from "./js/ui/modals";
-import { player } from "./js/player";
 
-import MachineTab from "./components/MachineTab.vue";
-import Sidebar from "./components/Sidebar.vue";
-import PopupModal from "./components/modals/PopupModal.vue";
-import EndCutscene from "./components/EndCutscene.vue";
+import { Currencies } from "@/js/database/currencies";
+import { Modals } from "@/js/ui/modals";
+import { player } from "@/js/player";
+
+import { format } from "@/utils/index";
+
+import EndCutscene from "@/components/EndCutscene.vue";
+import MachineTab from "@/components/MachineTab.vue";
+import PopupModal from "@/components/modals/PopupModal.vue";
+import Sidebar from "@/components/Sidebar.vue";
 
 const mouseX = ref(0), mouseY = ref(0);
-window.mouseX = 0, window.mouseY = 0;
+window.mouseX = 0;
+window.mouseY = 0;
 
 function currencyColour(curr) {
 	return Currencies[curr].colour;
@@ -26,15 +30,17 @@ const consumes = ref([]);
 const elixirOpacity = ref(0);
 
 EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
-	if (player.holding.resource === 'elixir') elixirOpacity.value = player.holding.amount;
+	if (player.holding.resource === "elixir") elixirOpacity.value = player.holding.amount;
 	else elixirOpacity.value = 0;
 
 	consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
 
-	if (player.holding.amount >= 0.5 && player.holding.resource === 'elixir') return;
+	if (player.holding.amount >= 0.5 && player.holding.resource === "elixir") return;
 
-	if (player.holding.amount && player.holding.resource === 'elixir') {
-		const splashes = ["CONSUME more Elixir", "Elixir is your magnum opus", "An eternal suffering to those who dare touch your Elixir"];
+	if (player.holding.amount && player.holding.resource === "elixir") {
+		const splashes = ["CONSUME more Elixir",
+			"Elixir is your magnum opus",
+			"An eternal suffering to those who dare touch your Elixir"];
 		if (Math.random() < (player.holding.amount * 5 + 1) / 100) consumes.value.push({
 			time: Date.now(),
 			text: splashes[Math.floor(Math.random() * splashes.length)],
@@ -50,7 +56,7 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 			pos: [Math.random() * 100, Math.random() * 100]
 		});
 	}
-})
+});
 </script>
 
 <template>
@@ -64,7 +70,10 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 				<machine-tab />
 				<sidebar />
 			</div>
-			<popup-modal v-if="Modals.current.value" :modal="Modals.current.value" />
+			<popup-modal
+				v-if="Modals.current.value"
+				:modal="Modals.current.value"
+			/>
 			<div
 				class="c-elixir-bg"
 				:style="{ opacity: elixirOpacity }"

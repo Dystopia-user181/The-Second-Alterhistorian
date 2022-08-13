@@ -1,6 +1,8 @@
-import { GameDatabase } from "../game-database";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
+
+import { formatX } from "@/utils/index";
 
 GameDatabase.machines.shoveller = {
 	name: "shoveller",
@@ -40,10 +42,10 @@ GameDatabase.machines.shoveller = {
 		name: "wood",
 		cost: count => 40 * Math.pow(5, count),
 		max: 2,
-		title: upg => upg.count ? "Persistence" : "Wood",
-		description: upg => upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees",
+		title: upg => (upg.count ? "Persistence" : "Wood"),
+		description: upg => (upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees"),
 		effect: count => (Math.pow(1.4, count) - 1) * 2.5,
-		formatEffect: effect => effect ? formatX(effect, 2, 1) : "Not unlocked"
+		formatEffect: effect => (effect ? formatX(effect, 2, 1) : "Not unlocked")
 	}]),
 	description: `Produces Earth.`
 };

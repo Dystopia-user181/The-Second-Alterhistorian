@@ -1,4 +1,6 @@
 <script>
+import { Modals } from "@/js/ui/modals";
+
 export default {
 	name: "PopupModal",
 	props: {

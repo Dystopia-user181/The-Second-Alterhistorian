@@ -1,6 +1,6 @@
-import { GameDatabase } from "../game-database";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
 
 GameDatabase.machines.quarry = {
 	name: "quarry",
@@ -44,8 +44,8 @@ GameDatabase.machines.quarry = {
 	},
 	{
 		name: "velocity",
-		cost: count => count > 4 ? Math.pow(4, count - 5) * 10 : Math.pow(3, count) * 10,
-		currencyType: count => count > 4 ? "vitriol" : "energy",
+		cost: count => (count > 4 ? Math.pow(4, count - 5) * 10 : Math.pow(3, count) * 10),
+		currencyType: count => (count > 4 ? "vitriol" : "energy"),
 		max: 8,
 		title: "Velocity",
 		description: "Increase Stone and Coal production",

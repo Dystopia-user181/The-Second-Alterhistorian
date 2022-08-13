@@ -1,6 +1,10 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
+import { player } from "@/js/player";
+
+import { arr, run } from "@/utils/index";
 
 const recipes = [{
 	input: { resource: "coal", amount: 0.3 },
@@ -30,7 +34,7 @@ const recipes = [{
 	energyUsage: 0
 }];
 
-const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
 function getConsumption(machine) {
 	return recipesByInput[machine.inputResource || "none"].input.amount * machine.upgrades.velocity.effect;
@@ -45,13 +49,13 @@ function getProduction(machine) {
 	return {
 		resource: out.resource,
 		amount: out.amount * machine.upgrades.velocity.effect
-	}
+	};
 }
 
 GameDatabase.machines.essencePurifier = {
 	name: "essencePurifier",
 	inputs: [{
-		accepts: machine => recipes.filter(x => !x.isUnlocked ? true : run(x.isUnlocked, machine))
+		accepts: machine => recipes.filter(x => (x.isUnlocked ? run(x.isUnlocked, machine) : true))
 			.map(x => x.input.resource).filter(x => x !== "none"),
 		capacity: machine => 5 * machine.upgrades.capacity.effect,
 		consumes: machine => {
@@ -94,7 +98,7 @@ GameDatabase.machines.essencePurifier = {
 	upgrades: machineUpg([{
 		name: "unlock",
 		cost: 150,
-		currencyType: () => player.unlockedCurrencies.energy ? "energy" : "???",
+		currencyType: () => (player.unlockedCurrencies.energy ? "energy" : "???"),
 		max: 1,
 		title: "Power",
 		description: "Supply Power to the EssencePurifier.",
@@ -108,7 +112,7 @@ GameDatabase.machines.essencePurifier = {
 		currencyType: "lava",
 		max: 4,
 		title: "Efficiency",
-		description: "Increase operation speed without increasing energy usage",
+		description: "Increase operation speed without increasing energy usage in Input 2",
 		effect: count => Math.pow(1.5, count) + count * 0.2,
 		isUnlocked: machine => machine.upgrades.unlock.effect
 	},
@@ -131,7 +135,8 @@ GameDatabase.machines.essencePurifier = {
 		title: "Capacity",
 		description: "Increase capacity",
 		effect: count => Math.pow(2, count - 1) + count + 0.5,
-		isUnlocked: machine => machine.upgrades.power.count || player.unlockedCurrencies.vitriol
+		isUnlocked: machine => machine.upgrades.unlock.effect &&
+			(machine.upgrades.power.count || player.unlockedCurrencies.vitriol)
 	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";

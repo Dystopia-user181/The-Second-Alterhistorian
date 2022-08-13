@@ -1,5 +1,5 @@
 <script>
-import { Currencies } from "./../js/database/currencies";
+import { Currencies } from "@/js/database/currencies";
 
 export default {
 	name: "ResourceStack",
@@ -10,14 +10,14 @@ export default {
 		},
 		capacity: {
 			type: Number,
-			required: false
+			required: true
 		}
 	},
 	data() {
 		return {
 			display: [],
 			ctx: null
-		}
+		};
 	},
 	methods: {
 		update() {
@@ -46,8 +46,8 @@ export default {
 			<slot />
 		</span>
 		<canvas
-			class="c-resources-stack__canvas"
 			ref="canvas"
+			class="c-resources-stack__canvas"
 			height="400"
 			width="1"
 		/>

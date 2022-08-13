@@ -1,5 +1,5 @@
 <script>
-import { Modals } from "./../../js/ui/modals";
+import { Modals } from "@/js/ui/modals";
 
 export default {
 	name: "ModalWrapper",

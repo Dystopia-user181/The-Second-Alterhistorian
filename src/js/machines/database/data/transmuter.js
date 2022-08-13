@@ -1,4 +1,8 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
+
+import { GameDatabase } from "@/js/database/index";
+
+import { arr } from "@/utils/index";
 
 const recipes = [{
 	input: { resource: "stone", amount: 0.5 },
@@ -41,7 +45,7 @@ const recipes = [{
 	vitriolUsage: 0
 }];
 
-const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
 function getConsumption(machine) {
 	return recipesByInput[machine.inputResource || "none"].input.amount;
@@ -56,7 +60,7 @@ function getProduction(machine) {
 	return {
 		resource: out.resource,
 		amount: out.amount
-	}
+	};
 }
 
 GameDatabase.machines.transmuter = {

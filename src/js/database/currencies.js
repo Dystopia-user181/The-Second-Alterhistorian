@@ -95,4 +95,4 @@ export const Currencies = {
 		colour: "#6f2eb0",
 		value: 0
 	}
-}
+};

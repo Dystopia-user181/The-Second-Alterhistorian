@@ -1,5 +1,8 @@
 <script>
-import { Stack } from "./../js/stack";
+import { Pipe } from "@/js/machines/index";
+import { player } from "@/js/player";
+
+import { arr, format, Stack, str } from "@/utils/index";
 
 import ResourceStack from "./ResourceStack.vue";
 
@@ -26,15 +29,15 @@ export default {
 			unlockedPipes: false,
 			isMin: false,
 			hasUpgradeAvailable: false
-		}
+		};
 	},
 	mounted() {
 		if (this.machine.isNew) {
-			this.animation = true
+			this.animation = true;
 			delete this.machine.isNew;
 		}
 	},
-	beforeUnmount() { 
+	beforeUnmount() {
 		if (this.beforeDestroy) this.beforeDestroy();
 	},
 	methods: {
@@ -45,31 +48,33 @@ export default {
 			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
 			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
 			this.inputData = this.inputs.map(x => {
-				const intermediate = findLast(this.machine.inputHistories, y => y[x.id].length);
+				const intermediate = arr(this.machine.inputHistories).findLast(y => y[x.id].length);
 				return {
 					stack: x.data,
-					resource: intermediate ? last(intermediate[x.id]).resource.capitalize() : "None",
+					resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
 					amount: Stack.volumeOfStack(x.data),
 					capacity: x.config.capacity,
 					label: x.config.label
 				};
 			});
 			this.outputData = this.outputs.map(x => {
-				const intermediate = findLast(this.machine.outputHistories, y => y[x.id].length);
+				const intermediate = arr(this.machine.outputHistories).findLast(y => y[x.id].length);
 				return {
 					stack: x.data,
-					resource: intermediate ? last(intermediate[x.id]).resource.capitalize() : "None",
+					resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
 					amount: Stack.volumeOfStack(x.data),
 					capacity: x.config.capacity,
 					label: x.config.label
 				};
 			});
+		},
+		render() {
 			if (this.holdFunction) this.holdFunction();
 		},
 		transferFromOutputToHolding(output) {
 			if (!output.data.length) return;
-			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
-			else if (player.holding.resource !== last(output.data).resource) return;
+			if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
+			else if (player.holding.resource !== arr(output.data).last.resource) return;
 			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
 			if (player.holding.amount < 0.001) player.holding.amount = 0;
 		},
@@ -94,14 +99,14 @@ export default {
 		allToHolding(id) {
 			const output = this.outputs[id];
 			if (!output.data.length) return;
-			if (player.holding.amount <= 0) player.holding.resource = last(output.data).resource;
-			else if (player.holding.resource !== last(output.data).resource) return;
-			player.holding.amount += Stack.removeFromStack(output.data, last(output.data).amount);
+			if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
+			else if (player.holding.resource !== arr(output.data).last.resource) return;
+			player.holding.amount += Stack.removeFromStack(output.data, arr(output.data).last.amount);
 			if (player.holding.amount < 0.001) player.holding.amount = 0;
 		},
 		transferFromHoldingToInput(input) {
 			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-			player.holding.amount = player.holding.amount - Stack.addToStack(input.data, {
+			player.holding.amount -= Stack.addToStack(input.data, {
 				resource: player.holding.resource,
 				amount: Math.min(input.config.capacity * 0.007, player.holding.amount)
 			}, input.config.capacity);
@@ -127,18 +132,18 @@ export default {
 		allToInput(id) {
 			const input = this.inputs[id];
 			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-			player.holding.amount = player.holding.amount - Stack.addToStack(input.data, {
+			player.holding.amount -= Stack.addToStack(input.data, {
 				resource: player.holding.resource,
 				amount: player.holding.amount
 			}, input.config.capacity);
 		},
 		inputClassObject(input) {
-			return player.holding.amount === 0 ? "c-cursor-default"
-				: (!input.config.accepts.includes(player.holding.resource) ? "c-cursor-notallowed" : "");
+			if (player.holding.amount === 0) return "c-cursor-default";
+			return input.config.accepts.includes(player.holding.resource) ? "" : "c-cursor-notallowed";
 		},
 		outputClassObject(output) {
 			if (!output.data.length) return "c-cursor-default";
-			return (player.holding.resource !== last(output.data).resource && player.holding.amount)
+			return (player.holding.resource !== arr(output.data).last.resource && player.holding.amount)
 				? "c-cursor-default" : "";
 		},
 		emitInputPipeDrag(id) {
@@ -154,6 +159,8 @@ export default {
 		emitOutputPipeHover(id) {
 			this.$emit("output-pipe-hover", this.machine, id);
 		},
+		str,
+		format
 	}
 };
 </script>
@@ -184,7 +191,7 @@ export default {
 				{{ input.id + 1 }}
 			</div>
 		</div>
-		<span class="c-emphasise-text">{{ machine.type.name.capitalize() }}</span>
+		<span class="c-emphasise-text">{{ str(machine.type.name).capitalize }}</span>
 		<div class="l-machine__inner">
 			<span v-if="isMin">
 				Collapsed
@@ -229,7 +236,7 @@ export default {
 					>
 						{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
 						<br>
-						Output {{ id + 1}}
+						Output {{ id + 1 }}
 						<br>
 						{{ outputData[id].resource }}
 						<span v-if="outputData[id].label">

@@ -1,6 +1,8 @@
 <script>
 import ModalWrapper from "./ModalWrapper.vue";
 
+import { arr, format, str } from "@/utils/index";
+
 export default {
 	name: "MachineProductionModal",
 	components: {
@@ -21,44 +23,50 @@ export default {
 				outputs: []
 			},
 			takingAvg: false
-		}
+		};
 	},
 	methods: {
 		update() {
-			const getConsumes = (function(consumes, diff) {
+			const getConsumes = function(consumes, diff) {
 				// *1.1 to account for some errors
-				return typeof consumes === "object" ? Math.min(consumes.amount, consumes.maximum / diff * 1.1) : consumes;
-			}).bind(this);
-			const getProduces = (function (x, id, diff) {
-				return this.machine.outputDiffs[x.id !== undefined ? x.id : id] * x.produces.amount / diff
+				return typeof consumes === "object"
+					? Math.min(consumes.amount, consumes.maximum / diff * 1.1)
+					: consumes;
+			};
+			const getProduces = (function(x, output) {
+				return this.machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
+					output.otherwiseDiff;
 			}).bind(this);
 			this.inputs = this.machine.inputs.map((x, id) => {
-				const input = findLast(this.machine.inputHistories.map(x => x[id]), x => x.length);
-				return !x.isUnlocked ? null : {
-					resource: input ? last(input).resource : "",
-					amount: this.machine.inputConfHistories.map(x => x[id]).reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0)
-						/ this.machine.inputConfHistories.length,
+				const input = arr(this.machine.inputHistories.map(y => y[id])).findLast(y => y.length);
+				return x.isUnlocked ? {
+					resource: input ? arr(input).last.resource : "",
+					amount: this.machine.inputConfHistories.map(y => y[id])
+						.reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0) /
+						this.machine.inputConfHistories.length,
 					id
-				}
+				} : null;
 			}).filter(x => x);
-			this.outputs = this.machine.outputs.map((x, id) => (!x.isUnlocked ? null : {
+			this.outputs = this.machine.outputs.map((x, id) => (x.isUnlocked ? {
 				resource: x.config.produces.resource,
-				amount: this.machine.outputConfHistories.map(x => x[id]).reduce((a, v) => a + getProduces(v, id, x.otherwiseDiff), 0)
-					/ this.machine.outputConfHistories.length,
+				amount: this.machine.outputConfHistories.map(y => y[id])
+					.reduce((a, v) => a + getProduces(v, x), 0) /
+					this.machine.outputConfHistories.length,
 				id
-			})).filter(x => x);
+			} : null)).filter(x => x);
 			if (this.takingAvg) {
 				const avg = this.avg;
 				for (const input of this.machine.inputs) {
 					const avgItem = avg.inputs[input.id];
 					avgItem.isUnlocked = input.isUnlocked;
-					const resource = last(input.data) ? last(input.data).resource : avgItem.lastResource;
+					const resource = arr(input.data).last ? arr(input.data).last.resource : avgItem.lastResource;
 					const conf = input.config;
 					if (avgItem.lastResource !== resource) {
 						avgItem.lastResource = resource;
 						avgItem.time = 0;
 					}
-					avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.otherwiseDiff)) / (avgItem.time + 1);
+					avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.otherwiseDiff)) /
+						(avgItem.time + 1);
 					avgItem.time++;
 				}
 				for (const output of this.machine.outputs) {
@@ -70,7 +78,8 @@ export default {
 						avgItem.lastResource = resource;
 						avgItem.time = 0;
 					}
-					avgItem.value = (avgItem.value * avgItem.time + getProduces(conf, output.id, output.otherwiseDiff)) / (avgItem.time + 1);
+					avgItem.value = (avgItem.value * avgItem.time + getProduces(conf, output)) /
+						(avgItem.time + 1);
 					avgItem.time++;
 				}
 			}
@@ -87,7 +96,7 @@ export default {
 				lastResource: "none",
 				time: 0,
 				value: 0,
-				isUnlocked: x.isUnlocked, 
+				isUnlocked: x.isUnlocked,
 				id
 			}));
 			this.takingAvg = true;
@@ -96,14 +105,18 @@ export default {
 			this.avg.inputs = [];
 			this.avg.outputs = [];
 			this.takingAvg = false;
-		}
+		},
+		format,
+		str
 	},
 };
 </script>
 
 <template>
 	<modal-wrapper class="c-machine-production-modal">
-		<template #header>Statistics ({{ machine.type.name.capitalize() }})</template>
+		<template #header>
+			Statistics ({{ str(machine.type.name).capitalize }})
+		</template>
 		<br>
 		<template v-if="inputs.length">
 			<span class="c-emphasise-text">Inputs</span>
@@ -114,7 +127,7 @@ export default {
 			>
 				Input {{ input.id + 1 }}:
 				<span v-if="input.amount">
-					Consumes {{ format(input.amount, 2, 2, true) }} {{ input.resource.capitalize() }}/s
+					Consumes {{ format(input.amount, 2, 2, true) }} {{ str(input.resource).capitalize }}/s
 				</span>
 				<span v-else>
 					IDLE
@@ -131,7 +144,7 @@ export default {
 			>
 				Output {{ output.id + 1 }}:
 				<span v-if="output.amount">
-					Consumes {{ format(output.amount, 2, 2, true) }} {{ output.resource.capitalize() }}/s
+					Consumes {{ format(output.amount, 2, 2, true) }} {{ str(output.resource).capitalize }}/s
 				</span>
 				<span v-else>
 					IDLE
@@ -153,7 +166,7 @@ export default {
 				>
 					Input {{ input.id + 1 }}:
 					<span v-if="input.value">
-						Consumes {{ format(input.value, 2, 2, true) }} {{ input.lastResource.capitalize() }}/s
+						Consumes {{ format(input.value, 2, 2, true) }} {{ str(input.lastResource).capitalize }}/s
 					</span>
 					<span v-else>
 						IDLE
@@ -170,7 +183,7 @@ export default {
 				>
 					Output {{ output.id + 1 }}:
 					<span v-if="output.value">
-						Consumes {{ format(output.value, 2, 2, true) }} {{ output.lastResource.capitalize() }}/s
+						Consumes {{ format(output.value, 2, 2, true) }} {{ str(output.lastResource).capitalize }}/s
 					</span>
 					<span v-else>
 						IDLE

@@ -1,0 +1,279 @@
+{
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:vue/essential",
+		"plugin:import/recommended",
+		"plugin:vue/recommended"
+	],
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module"
+	},
+	"plugins": [
+		"vue"
+	],
+	"settings": {
+		"import/resolver": {
+			"alias": {
+				"map": [
+					["@", "./src"]
+				],
+				"extensions": [".js", ".vue"]
+			}
+		}
+	},
+	"rules": {
+		"import/prefer-default-export": "off",
+	
+		"import/no-unresolved": "error",
+		"import/named": "error",
+		"import/namespace": "error",
+		"import/default": "error",
+		"import/export": "error",
+		"import/no-named-as-default": "warn",
+		"import/no-named-as-default-member": "warn",
+		"import/no-duplicates": "warn",
+		"import/extensions": "off",
+		"import/first": "warn",
+		"import/newline-after-import": "warn",
+		"import/no-named-default": "warn",
+		"import/no-self-import": "warn",
+		"import/order": [
+			"warn",
+			{
+				"newlines-between": "always-and-inside-groups",
+				"pathGroups": [{ "pattern": "@/**", "group": "sibling" }]
+			}
+		],
+		"sort-imports": [
+			"warn",
+			{
+				"ignoreCase": true,
+				"allowSeparatedGroups": true
+			}
+		],
+		"no-console": "warn",
+		"no-template-curly-in-string": "warn",
+		"array-callback-return": "error",
+		"complexity": "warn",
+		"consistent-return": "error",
+		"dot-location": [
+			"error",
+			"property"
+		],
+		"dot-notation": "error",
+		"eqeqeq": "error",
+		"no-else-return": [
+			"error",
+			{
+				"allowElseIf": false
+			}
+		],
+		"vue/multi-word-component-names": "off",
+		"vue/one-component-per-file": "error",
+		"vue/component-definition-name-casing": "warn",
+		"vue/order-in-components": "warn",
+		"vue/require-prop-type-constructor": "warn",
+		"vue/require-default-prop": "warn",
+		"vue/html-indent": [ "warn", "tab" ],
+		"vue/html-comment-content-newline": "warn",
+		"vue/html-comment-content-spacing": "warn",
+		"vue/html-comment-indent": "warn",
+		"vue/padding-line-between-blocks": "warn",
+		"vue/block-tag-newline": "warn",
+		"vue/no-multiple-objects-in-class": "warn",
+		"vue/no-static-inline-styles": "warn",
+		"vue/no-v-html": "off",
+		"vue/no-multiple-template-root": "off",
+		"no-empty-function": "error",
+		"no-eval": "error",
+		"no-extra-bind": "error",
+		"no-extra-label": "error",
+		"no-floating-decimal": "error",
+		"no-implicit-coercion": "error",
+		"no-implied-eval": "error",
+		"no-invalid-this": "error",
+		"no-iterator": "error",
+		"no-labels": "error",
+		"no-lone-blocks": "error",
+		"no-loop-func": "error",
+		"no-multi-spaces": "error",
+		"no-multi-str": "error",
+		"no-new": "error",
+		"no-new-func": "error",
+		"no-new-wrappers": "error",
+		"no-octal-escape": "error",
+		"no-param-reassign": "error",
+		"no-proto": "error",
+		"no-return-await": "error",
+		"no-script-url": "error",
+		"no-self-compare": "error",
+		"no-sequences": "error",
+		"no-unmodified-loop-condition": "error",
+		"no-unused-expressions": "error",
+		"no-useless-call": "error",
+		"no-useless-catch": "error",
+		"no-useless-concat": "error",
+		"no-useless-return": "error",
+		"no-void": "error",
+		"no-with": "error",
+		"radix": "warn",
+		"require-await": "error",
+		"require-unicode-regexp": "error",
+		"wrap-iife": "error",
+		"yoda": "error",
+		"no-label-var": "error",
+		"no-shadow": "error",
+		"no-shadow-restricted-names": "error",
+		"no-undef": "off",
+		"no-unused-vars": [
+			"error",
+			{
+				"vars": "local",
+				"args": "after-used"
+			}
+		],
+		"no-use-before-define": [
+			"error",
+			{
+				"functions": false,
+				"variables": false
+			}
+		],
+		"array-bracket-spacing": "error",
+		"block-spacing": "error",
+		"brace-style": [
+			"error",
+			"1tbs",
+			{
+				"allowSingleLine": true
+			}
+		],
+		"camelcase": [ "error" ],
+		"capitalized-comments": [
+			"error",
+			"always",
+			{
+				"ignoreConsecutiveComments": true
+			}
+		],
+		"comma-spacing": "error",
+		"comma-style": "error",
+		"computed-property-spacing": "error",
+		"consistent-this": "error",
+		"func-call-spacing": "error",
+		"id-blacklist": [
+			"error",
+			"ret",
+			"helper",
+			"temp",
+			"tmp"
+		],
+		"indent": [ "warn", "tab", {
+			"SwitchCase": 1
+		} ],
+		"key-spacing": "error",
+		"keyword-spacing": "error",
+		"line-comment-position": "error",
+		"lines-between-class-members": [
+			"error",
+			"always",
+			{
+				"exceptAfterSingleLine": true
+			}
+		],
+		"max-depth": "warn",
+		"max-len": [
+			"warn",
+			{
+				"code": 120
+			}
+		],
+		"max-params": [ "warn", 4 ],
+		"max-statements-per-line": [ "error", { "max": 1 } ],
+		"multiline-comment-style": [
+			"error",
+			"separate-lines"
+		],
+		"new-parens": "error",
+		"no-array-constructor": "warn",
+		"no-inline-comments": "error",
+		"no-lonely-if": "error",
+		"no-mixed-spaces-and-tabs": "error",
+		"no-multi-assign": "warn",
+		"no-multiple-empty-lines": "error",
+		"no-negated-condition": "error",
+		"no-nested-ternary": "error",
+		"no-new-object": "error",
+		"no-trailing-spaces": "warn",
+		"no-unneeded-ternary": "error",
+		"no-whitespace-before-property": "error",
+		"object-curly-spacing": [
+			"error",
+			"always"
+		],
+		"operator-assignment": "error",
+		"operator-linebreak": [
+			"error",
+			"after",
+			{
+				"overrides": {
+				"?": "before",
+				":": "before"
+				}
+			}
+		],
+		"quotes": [
+			"error",
+			"double",
+			{
+				"avoidEscape": true,
+				"allowTemplateLiterals": true
+			}
+		],
+		"semi": "warn",
+		"semi-spacing": "error",
+		"space-before-blocks": "error",
+		"space-before-function-paren": [
+			"error",
+			"never"
+		],
+		"space-in-parens": "error",
+		"space-infix-ops": "error",
+		"spaced-comment": "error",
+		"strict": [
+			"error",
+			"global"
+		],
+		"switch-colon-spacing": "error",
+		"template-tag-spacing": "error",
+		"arrow-body-style": "error",
+		"arrow-parens": [
+		"error",
+		"as-needed"
+		],
+		"arrow-spacing": "error",
+		"no-confusing-arrow": [
+			"error",
+			{
+				"allowParens": true
+			}
+		],
+		"no-duplicate-imports": "error",
+		"no-useless-computed-key": "error",
+		"no-useless-constructor": "error",
+		"no-var": "error",
+		"object-shorthand": "error",
+		"prefer-arrow-callback": "error",
+		"prefer-const": "error",
+		"prefer-rest-params": "error",
+		"prefer-spread": "error",
+		"rest-spread-spacing": "error",
+		"template-curly-spacing": "error",
+		"prefer-template": "error"
+	}
+}

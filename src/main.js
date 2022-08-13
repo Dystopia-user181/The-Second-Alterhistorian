@@ -1,8 +1,7 @@
-import "./js/utils/extensions";
-import "./js/utils/formatting";
-import "./js/database/index";
+import "./js/database";
 import "./js/eventhub";
-import "./js/machines";
+import "./js/machines/index";
+import "./js/towns/index";
 import "./js/player";
 import "./js/keyboard";
 import "./js/game";

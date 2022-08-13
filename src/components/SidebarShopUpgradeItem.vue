@@ -1,4 +1,6 @@
 <script>
+import { format } from "@/utils/index";
+
 export default {
 	name: "SidebarShopUpgradeItem",
 	props: {
@@ -15,7 +17,7 @@ export default {
 			name: "",
 			description: "",
 			isBought: false
-		}
+		};
 	},
 	methods: {
 		update() {
@@ -25,7 +27,8 @@ export default {
 			this.isBought = this.shopItem.isBought;
 			this.name = this.shopItem.title;
 			this.description = this.shopItem.description;
-		}
+		},
+		format
 	}
 };
 </script>
@@ -45,7 +48,7 @@ export default {
 		<hr>
 		{{ description }}
 		<br>
-		Cost: {{ !currencyType ? "$" : ""}} {{ format(cost, 2, 1) }} {{ currencyType }}
+		Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
 	</button>
 </template>
 

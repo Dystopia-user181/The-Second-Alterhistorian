@@ -1,8 +1,9 @@
-import { GameDatabase } from "../game-database";
-import { Stack } from "./../../stack";
-import { Currencies } from "./../currencies";
+import { Machine, Pipe } from "../../logic";
 
-// import { machineUpg } from "./init";
+import { Currencies } from "@/js/database/currencies";
+import { GameDatabase } from "@/js/database/index";
+
+import { Stack } from "@/utils/index";
 
 GameDatabase.machines.autoSeller = {
 	name: "autoSeller",

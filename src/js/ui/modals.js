@@ -1,7 +1,7 @@
-import { shallowRef, ref } from "vue";
+import { ref, shallowRef } from "vue";
 
-import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
 import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
+import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
 import MessageModal from "./../../components/modals/MessageModal.vue";
 import RemoveMachineModal from "./../../components/modals/RemoveMachineModal.vue";
 
@@ -11,33 +11,33 @@ class Modal {
 		this._modalConfig = {};
 		this._priority = priority;
 	}
-	
+
 	show(modalConfig) {
 		this._props = Object.assign({}, modalConfig || {});
-	
+
 		const modalQueue = Modals.queue;
 		// Add this modal to the front of the queue and sort based on priority to ensure priority is maintained.
 		modalQueue.unshift(this);
 		Modals.sortModalQueue();
 		return {
-			then: (func) => {
+			then: func => {
 				this.afterHide = func;
 			}
-		}
+		};
 	}
-	
+
 	get isOpen() {
 		return Modals.current === this;
 	}
-	
+
 	get component() {
 		return this._component;
 	}
-	
+
 	get props() {
 		return this._props;
 	}
-	
+
 	get priority() {
 		return this._priority;
 	}
@@ -88,7 +88,7 @@ Modals.message = new class extends Modal {
 		this.queue.push(text);
 		return super.show();
 	}
-  
+
 	hide() {
 		if (this.queue.length <= 1) {
 			Modals.hide();

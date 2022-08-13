@@ -7,17 +7,22 @@ window.addEventListener("keydown", e => {
 		EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, key.slice(5));
 		return;
 	}
-	switch(key) {
+	switch (key) {
 		case "w":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "up"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "up");
+			break;
 		case "a":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "left"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "left");
+			break;
 		case "s":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "down"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "down");
+			break;
 		case "d":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "right"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYDOWN, "right");
+			break;
 		case "escape":
-			EventHub.dispatch(GAME_EVENTS.ESCAPE_PRESSED); break;
+			EventHub.dispatch(GAME_EVENTS.ESCAPE_PRESSED);
+			break;
 	}
 });
 
@@ -28,15 +33,19 @@ window.addEventListener("keyup", e => {
 		EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, key.slice(5));
 		return;
 	}
-	switch(key) {
+	switch (key) {
 		case "w":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "up"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "up");
+			break;
 		case "a":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "left"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "left");
+			break;
 		case "s":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "down"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "down");
+			break;
 		case "d":
-			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "right"); break;
+			EventHub.dispatch(GAME_EVENTS.ARROW_KEYUP, "right");
+			break;
 	}
 });
 

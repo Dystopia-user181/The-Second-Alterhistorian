@@ -1,4 +1,7 @@
-import { GameDatabase } from "../game-database";
+import { Towns } from "../../player-proxy";
+
+import { GameDatabase } from "@/js/database/index";
+import { player } from "@/js/player";
 
 GameDatabase.towns.home = {
 	defaultMachines: [{
@@ -76,8 +79,8 @@ GameDatabase.towns.home = {
 			type: "autoSeller",
 			cost: 0.2,
 			currencyType: "essence",
-			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought
-				&& (player.unlockedCurrencies.essence || player.unlockedCurrencies.fire)
+			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought &&
+				(player.unlockedCurrencies.essence || player.unlockedCurrencies.fire)
 		}
 	],
 	upgrades: {
@@ -86,7 +89,7 @@ GameDatabase.towns.home = {
 			cost: 36,
 			currencyType: "bricks",
 			title: "Pipes",
-			description: "Unlock basic pipes. They transport resources based on the capacity of the attached input containers."
+			description: `Unlock basic pipes. (TO BE REDONE)`
 		},
 		pipesSpeed1: {
 			id: 1,

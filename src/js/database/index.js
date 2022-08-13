@@ -1,5 +1,1 @@
-import "./game-database";
-
-import "./machines/index";
-
-import "./towns/index";
+export * from "./game-database";

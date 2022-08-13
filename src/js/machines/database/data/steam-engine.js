@@ -1,8 +1,9 @@
-import { GameDatabase } from "../game-database";
+import { machineUpg } from "../init";
 
-import { Stack } from "../../stack";
+import { GameDatabase } from "@/js/database/index";
 
-import { machineUpg } from "./init";
+import { Stack } from "@/utils/index";
+
 
 GameDatabase.machines.steamEngine = {
 	name: "steamEngine",
@@ -43,7 +44,7 @@ GameDatabase.machines.steamEngine = {
 	upgrades: machineUpg([{
 		name: "harness",
 		cost: count => Math.pow(5, count) * 6,
-		currencyType: () => player.unlockedCurrencies.fire ? "lava" : "???",
+		currencyType: () => (player.unlockedCurrencies.fire ? "lava" : "???"),
 		max: 3,
 		title: "Harness",
 		description: "Increase operation speed",

@@ -1,5 +1,8 @@
 <script>
-import { MachineCounts } from '../js/machines';
+import { MachineCounts } from "@/js/machines/index";
+import { player } from "@/js/player";
+
+import { format, formatInt, str } from "@/utils/index";
 
 export default {
 	name: "SidebarShopMachineItem",
@@ -17,17 +20,19 @@ export default {
 			name: "",
 			description: "",
 			count: 0
-		}
+		};
 	},
 	methods: {
 		update() {
 			this.cost = this.shopItem.cost;
 			this.currencyType = this.shopItem.currencyType || "";
 			this.canAfford = this.shopItem.canAfford;
-			this.name = this.shopItem.associatedMachine.name.capitalize();
+			this.name = str(this.shopItem.associatedMachine.name).capitalize;
 			this.description = this.shopItem.associatedMachine.description;
 			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.name];
-		}
+		},
+		format,
+		formatInt
 	}
 };
 </script>
@@ -44,7 +49,7 @@ export default {
 		<hr>
 		{{ description }}
 		<br>
-		Cost: {{ !currencyType ? "$" : ""}} {{ format(cost, 2, 1) }} {{ currencyType }}
+		Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
 	</button>
 </template>
 

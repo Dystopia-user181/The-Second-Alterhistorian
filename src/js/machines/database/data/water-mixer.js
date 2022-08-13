@@ -1,6 +1,9 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
+import { machineUpg } from "../init";
 
-import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
+
+import { arr } from "@/utils/index";
 
 const recipes = [{
 	input: { resource: "earth", amount: 0.2 },
@@ -13,7 +16,7 @@ const recipes = [{
 	waterUsage: 0.1
 }];
 
-const recipesByInput = mapToObject(recipes, x => x.input.resource, x => x);
+const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
 GameDatabase.machines.waterMixer = {
 	name: "waterMixer",
@@ -28,7 +31,8 @@ GameDatabase.machines.waterMixer = {
 	{
 		accepts: ["water"],
 		capacity: machine => 15 * machine.upgrades.capacity.effect,
-		consumes: machine => machine.outputDiffs.main === 0 ? 0.1 : recipesByInput[machine.inputResource || "none"].waterUsage
+		consumes: machine => (machine.outputDiffs.main === 0 ? 0.1
+			: recipesByInput[machine.inputResource || "none"].waterUsage)
 	}],
 	outputs: [{
 		id: "main",
@@ -42,7 +46,7 @@ GameDatabase.machines.waterMixer = {
 			amount: recipesByInput[machine.inputResource || "none"].input.amount,
 			inputId: 0,
 		},
-	{
+		{
 			resource: "water",
 			amount: recipesByInput[machine.inputResource || "none"].waterUsage,
 			inputId: 1,

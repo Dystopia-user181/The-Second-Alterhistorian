@@ -1,5 +1,6 @@
 <script>
-import { SidebarShop } from "./../js/towns";
+import { SidebarShop } from "@/js/towns/index";
+
 import SidebarShopMachineItem from "./SidebarShopMachineItem.vue";
 import SidebarShopUpgradeItem from "./SidebarShopUpgradeItem.vue";
 

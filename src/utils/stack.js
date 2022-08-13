@@ -1,3 +1,5 @@
+import { arr } from "./extensions";
+
 export const Stack = {
 	volumeOfStack(stack) {
 		return stack.reduce((v, item) => v + item.amount, 0);
@@ -19,16 +21,18 @@ export const Stack = {
 	},
 	removeFromStack(stack, amount, isBottom = true) {
 		if (!stack.length) return 0;
-		const removed = isBottom ? last(stack) : stack[0];
+		const removed = isBottom ? arr(stack).last : stack[0];
 		if (removed.amount <= amount) {
-			isBottom ? stack.pop() : stack.shift();
+			if (isBottom) stack.pop();
+			else stack.shift();
 			return removed.amount;
-		} else {
-			removed.amount -= amount;
-			if (last(stack).amount < Number.EPSILON) isBottom ? stack.pop() : stack.shift();
-			return amount;
 		}
-	}
-}
 
-window.Stack = Stack;
+		removed.amount -= amount;
+		if (arr(stack).last.amount < Number.EPSILON) {
+			if (isBottom) stack.pop();
+			else stack.shift();
+		}
+		return amount;
+	}
+};

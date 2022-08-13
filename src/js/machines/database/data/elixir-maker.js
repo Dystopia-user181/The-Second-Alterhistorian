@@ -1,6 +1,6 @@
-import { GameDatabase } from "../game-database";
+import { Machine } from "../../logic";
 
-// import { machineUpg } from "./init";
+import { GameDatabase } from "@/js/database/index";
 
 GameDatabase.machines.elixirMaker = {
 	name: "elixirMaker",
@@ -59,7 +59,7 @@ GameDatabase.machines.elixirMaker = {
 			resource: "elixir",
 			amount: 0.1
 		},
-		requiresList: machine => [{
+		requiresList: () => [{
 			resource: "quicksilver",
 			amount: 1,
 			inputId: 0,
