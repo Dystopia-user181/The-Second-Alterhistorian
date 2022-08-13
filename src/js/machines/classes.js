@@ -1,3 +1,5 @@
+import { MachinesById } from "./player-proxy";
+
 import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";

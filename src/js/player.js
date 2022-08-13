@@ -130,6 +130,7 @@ export const Player = {
 };
 
 export const player = reactive({});
+window.player = player;
 
 window.addEventListener("load", () => Player.loadSave());
 

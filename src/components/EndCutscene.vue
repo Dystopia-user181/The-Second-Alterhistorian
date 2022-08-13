@@ -126,7 +126,7 @@ export default {
 		};
 	},
 	methods: {
-		update() {
+		render() {
 			if (this.lineNumber >= Quotes.length) {
 				this.brightness -= 0.003;
 				if (this.brightness <= -0.2) Player.reset();

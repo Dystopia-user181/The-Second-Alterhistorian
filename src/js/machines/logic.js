@@ -136,17 +136,5 @@ export const Pipe = {
 				);
 			}
 		}
-	},
-	removeAllInputPipesTo(machine, inputId) {
-		const town = machine.town;
-		if (inputId === undefined) {
-			for (const otherMachine of Machines[town]) {
-				otherMachine.removeAllPipes(machine);
-			}
-		} else {
-			for (const otherMachine of Machines[town]) {
-				if (otherMachine.removePipe(machine, inputId)) return;
-			}
-		}
 	}
 };

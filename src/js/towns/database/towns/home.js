@@ -89,7 +89,8 @@ GameDatabase.towns.home = {
 			cost: 36,
 			currencyType: "bricks",
 			title: "Pipes",
-			description: `Unlock basic pipes. (TO BE REDONE)`
+			description: `Unlock basic pipes.
+				They transport resources based on the capacity of the attached input containers.`
 		},
 		pipesSpeed1: {
 			id: 1,
