@@ -156,7 +156,7 @@ export function MachineType(data) {
 			requestAnimationFrame(() => this.updatePipes());
 		}
 
-		get hasUpgrades() {
+		get isUpgradeable() {
 			return this.upgrades && Object.keys(this.upgrades).length > 0;
 		}
 
