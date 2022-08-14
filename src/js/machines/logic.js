@@ -1,6 +1,6 @@
 import { player } from "@/js/player";
 
-import { arr, deepClone, Stack } from "@/utils/index";
+import { arr, deepClone, Stack, str } from "@/utils/index";
 
 import { Towns } from "@/js/towns/index";
 
@@ -16,9 +16,26 @@ export const Machine = {
 		for (const machine of machines.flat()) {
 			if (machine.type.customLoop) {
 				machine.type.customLoop.bind(machine)(diff);
-				continue;
+			} else {
+				Machine.tickThisMachine(machine, diff);
 			}
-			Machine.tickThisMachine(machine, diff);
+			machine.updates++;
+			for (const input of machine.inputs) {
+				const inpData = arr(machine.inputHistories).last[input.id];
+				if (inpData.length) {
+					input.displayResource = [str(arr(inpData).last.resource).capitalize, machine.updates];
+				} else if (machine.updates - 5 > input.displayResource) {
+					input.displayResource = ["None", Infinity];
+				}
+			}
+			for (const output of machine.outputs) {
+				const outData = arr(machine.outputHistories).last[output.id];
+				if (outData.length) {
+					output.displayResource = [str(arr(outData).last.resource).capitalize, machine.updates];
+				} else if (machine.updates - 5 > output.displayResource) {
+					output.displayResource = ["None", Infinity];
+				}
+			}
 		}
 	},
 	addInputHistory(machine) {

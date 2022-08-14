@@ -63,6 +63,9 @@ export default {
 		this.on$(GAME_EVENTS.ARROW_KEYUP, () => {
 			this.deregisterOffsetKey();
 		});
+		this.on$(GAME_EVENTS.MACHINE_ADDED, () => this.updateMachines());
+		this.on$(GAME_EVENTS.MACHINE_REMOVED, () => this.updateMachines());
+		this.updateMachines();
 	},
 	beforeUnmount() {
 		if (this.beforeDestroy) this.beforeDestroy();
@@ -72,89 +75,89 @@ export default {
 			this.fastTime = player.fastTime;
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.height = this.$refs.machineTab.offsetHeight;
-			this.machines = Machines[player.currentlyIn].map(machine => ({
-				position: {
-					top: machine.data.y - this.offsetY,
-					left: machine.data.x - this.offsetX
-				},
-				notifyUpgrade: machine.hasUpgradeAvailable,
-				machineData: machine
-			})).filter(x => (
-				x.position.top > - 250 && x.position.left > - 600 &&
-					x.position.top < this.height && x.position.left < this.width
-			));
+			for (const machine of this.machines) {
+				machine.notifyUpgrade = machine.machineData.hasUpgradeAvailable;
+			}
 		},
 		render() {
+			if (this.holdingFunction) this.holdingFunction();
+			if (this.holdingKeyFunction) this.holdingKeyFunction();
 			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
 			player.display.offset.y = Math.min(player.display.offset.y, this.maxOffsetY - this.height);
 			this.offsetX = player.display.offset.x;
 			this.offsetY = player.display.offset.y;
-			if (this.holdingFunction) this.holdingFunction();
-			if (this.holdingKeyFunction) this.holdingKeyFunction();
 			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");
-			this.$nextTick(() => {
-				const ctx = this.ctx;
-				ctx.clearRect(0, 0, this.width, this.height);
-				ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-				for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
-					ctx.fillRect(i - 1, 0, 2, this.height);
-				}
-				for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
-					ctx.fillRect(0, i - 1, this.width, 2);
-				}
-				ctx.lineCap = "round";
-				ctx.globalAlpha = 0.8;
-				for (const machine of Machines[player.currentlyIn]) {
-					for (let i = 0; i < machine.pipes.length; i++) {
-						const pipes = machine.pipes[i];
-						for (const pipe of pipes) {
-							ctx.lineWidth = 9;
-							ctx.strokeStyle = "#ffffff";
-							ctx.beginPath();
-							ctx.moveTo(
-								machine.data.x + i * 30 + 15 - this.offsetX,
-								machine.data.y + machine.height + 10 - this.offsetY
-							);
-							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
-								pipe[0].data.y - 10 - this.offsetY);
-							ctx.stroke();
-							ctx.lineWidth = 5;
-							const intermediate = arr(machine.outputHistories).findLast(x => x[i].length);
-							const currency = intermediate ? arr(intermediate[i]).last.resource : "";
-							ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
-							ctx.beginPath();
-							ctx.moveTo(
-								machine.data.x + i * 30 + 15 - this.offsetX,
-								machine.data.y + machine.height + 10 - this.offsetY
-							);
-							ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
-								pipe[0].data.y - 10 - this.offsetY);
-							ctx.stroke();
-						}
+			const ctx = this.ctx;
+			ctx.clearRect(0, 0, this.width, this.height);
+			ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+			for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
+				ctx.fillRect(i - 1, 0, 2, this.height);
+			}
+			for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
+				ctx.fillRect(0, i - 1, this.width, 2);
+			}
+			ctx.lineCap = "round";
+			ctx.globalAlpha = 0.8;
+			for (const machine of Machines[player.currentlyIn]) {
+				for (let i = 0; i < machine.pipes.length; i++) {
+					const pipes = machine.pipes[i];
+					for (const pipe of pipes) {
+						ctx.lineWidth = 9;
+						ctx.strokeStyle = "#ffffff";
+						ctx.beginPath();
+						ctx.moveTo(
+							machine.data.x + i * 30 + 15 - this.offsetX,
+							machine.data.y + machine.height + 10 - this.offsetY
+						);
+						ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
+							pipe[0].data.y - 10 - this.offsetY);
+						ctx.stroke();
+						ctx.lineWidth = 5;
+						const intermediate = arr(machine.outputHistories).findLast(x => x[i].length);
+						const currency = intermediate ? arr(intermediate[i]).last.resource : "";
+						ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
+						ctx.beginPath();
+						ctx.moveTo(
+							machine.data.x + i * 30 + 15 - this.offsetX,
+							machine.data.y + machine.height + 10 - this.offsetY
+						);
+						ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
+							pipe[0].data.y - 10 - this.offsetY);
+						ctx.stroke();
 					}
 				}
-				ctx.globalAlpha = 1;
-				ctx.lineWidth = 5;
-				if (this.draggingPipe.type) {
-					ctx.strokeStyle = "#ffffff";
-					ctx.beginPath();
-					ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
-						this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10
-							: this.draggingPipe.machine.height + 10) - this.offsetY);
-					if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
-						ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
-							this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10
-								: this.hoveringPipe.machine.height + 10) - this.offsetY);
-					else
-						ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
-					ctx.stroke();
-				}
-			});
+			}
+			ctx.globalAlpha = 1;
+			ctx.lineWidth = 5;
+			if (this.draggingPipe.type) {
+				ctx.strokeStyle = "#ffffff";
+				ctx.beginPath();
+				ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
+					this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10
+						: this.draggingPipe.machine.height + 10) - this.offsetY);
+				if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
+					ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
+						this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10
+							: this.hoveringPipe.machine.height + 10) - this.offsetY);
+				else
+					ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
+				ctx.stroke();
+			}
+		},
+		updateMachines() {
+			this.machines = Machines[player.currentlyIn].map(machine => ({
+				position: {
+					top: machine.data.y - player.display.offset.y,
+					left: machine.data.x - player.display.offset.x
+				},
+				notifyUpgrade: machine.hasUpgradeAvailable,
+				machineData: machine
+			}));
 		},
 		moveMachines() {
 			for (const machine of this.machines) {
-				machine.position.top = machine.machineData.data.y - this.offsetY;
-				machine.position.left = machine.machineData.data.x - this.offsetX;
+				machine.position.top = machine.machineData.data.y - player.display.offset.y;
+				machine.position.left = machine.machineData.data.x - player.display.offset.x;
 			}
 		},
 		registerMoveHold(machine) {
@@ -163,11 +166,11 @@ export default {
 				this.holdingMachine = machine;
 				const followMouse = function(event) {
 					machine.machineData.data.x = Math.min(
-						Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + this.offsetX, 20),
+						Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + player.display.offset.x, 20),
 						this.maxOffsetX - 270
 					);
 					machine.machineData.data.y = Math.min(
-						Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + this.offsetY, 20),
+						Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + player.display.offset.y, 20),
 						this.maxOffsetY - 270
 					);
 					this.moveMachines();
@@ -295,6 +298,7 @@ export default {
 						this.maxOffsetY - this.height), 0);
 					y = player.display.offset.y + event2.clientY - event.clientY;
 					this.moveMachines();
+					this.render();
 				}.bind(this);
 				document.addEventListener("mousemove", followMouse);
 				const stopHolding = function() {
@@ -337,7 +341,10 @@ export default {
 			:height="height"
 		/>
 		<span
-			v-for="machine in machines"
+			v-for="machine in machines.filter(x => (
+				x.position.top > -250 && x.position.left > -600 &&
+				x.position.top < height && x.position.left < width
+			))"
 			:key="machine.machineData.id"
 		>
 			<machine-vue

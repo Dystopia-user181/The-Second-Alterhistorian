@@ -113,6 +113,7 @@ export function MachineType(data) {
 			this.outputConfHistories = [];
 			this.inputConfHistories = [];
 			this.outputDiffs = arr(data.outputs).mapToObject((x, id) => (x.id === undefined ? id : x.id), () => 0);
+			this.updates = 0;
 			// Have to use alias to make it available for use in inputs and outputs
 			// eslint-disable-next-line consistent-this
 			const machine = this;
@@ -131,7 +132,8 @@ export function MachineType(data) {
 				get isUnlocked() {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
 				},
-				data: this.data.inputs[id]
+				data: this.data.inputs[id],
+				displayResource: ["None", Infinity]
 			}));
 			this.outputs = this.type.outputs.map((x, id) => ({
 				id,
@@ -148,7 +150,8 @@ export function MachineType(data) {
 				get isUnlocked() {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
 				},
-				data: this.data.outputs[id]
+				data: this.data.outputs[id],
+				displayResource: ["None", Infinity]
 			}));
 			if (this.type.upgrades)
 				this.upgrades = objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
@@ -168,8 +171,12 @@ export function MachineType(data) {
 			return this.data.min ? 160 : 250;
 		}
 
-		get type() {
-			return this.constructor;
+		get name() {
+			return this.type.name;
+		}
+
+		get displayName() {
+			return str(this.name).capitalize;
 		}
 
 		addPipe(machine, inputId, outputId) {
@@ -261,6 +268,10 @@ export function MachineType(data) {
 	for (const i of Object.keys(data)) {
 		if (i !== "name") type[i] = data[i];
 	}
+
+	type.displayName = str(type.name).capitalize;
+
+	type.prototype.type = type;
 
 	return type;
 }

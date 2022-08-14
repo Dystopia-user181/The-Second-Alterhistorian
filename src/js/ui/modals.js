@@ -1,9 +1,9 @@
 import { ref, shallowRef } from "vue";
 
-import MachineProductionModal from "./../../components/modals/MachineProductionModal.vue";
-import MachineUpgradeModal from "./../../components/modals/MachineUpgradeModal.vue";
-import MessageModal from "./../../components/modals/MessageModal.vue";
-import RemoveMachineModal from "./../../components/modals/RemoveMachineModal.vue";
+import MachineProductionModal from "@/components/modals/MachineProductionModal.vue";
+import MachineUpgradeModal from "@/components/modals/MachineUpgradeModal.vue";
+import MessageModal from "@/components/modals/MessageModal.vue";
+import RemoveMachineModal from "@/components/modals/RemoveMachineModal.vue";
 
 class Modal {
 	constructor(component, priority = 0) {
