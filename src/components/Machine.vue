@@ -1,4 +1,8 @@
-<script>
+<script setup>
+import { defineEmits, defineProps, ref, shallowRef } from "vue";
+
+import { onMount } from "@/components/mixins";
+
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
@@ -6,163 +10,170 @@ import { arr, format, Stack, str } from "@/utils/index";
 
 import ResourceStack from "./ResourceStack.vue";
 
-export default {
-	name: "Machine",
-	components: {
-		ResourceStack
-	},
-	props: {
-		machine: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			inputs: [],
-			inputData: [],
-			outputs: [],
-			outputData: [],
-			holdFunction: null,
-			beforeDestroy: null,
-			animation: false,
-			unlockedPipes: false,
-			isMin: false,
-			hasUpgradeAvailable: false
-		};
-	},
-	mounted() {
-		if (this.machine.isNew) {
-			this.animation = true;
-			delete this.machine.isNew;
+const props = defineProps({
+	machine: {
+		type: Object,
+		required: true
+	}
+});
+
+const emit = defineEmits([
+	"input-pipe-drag-start", "input-pipe-hover",
+	"output-pipe-drag-start", "output-pipe-hover",
+	"pipe-stop-hover"
+]);
+
+const inputs = shallowRef([]);
+const inputData = shallowRef([]);
+const outputs = shallowRef([]);
+const outputData = shallowRef([]);
+const animation = ref(false);
+const isMin = ref(false);
+const hasUpgradeAvailable = ref(false);
+const unlockedPipes = ref(false);
+let holdFunction = null, beforeDestroy = null;
+
+
+onMount({
+	onMount() {
+		if (props.machine.isNew) {
+			animation.value = true;
+			delete props.machine.isNew;
 		}
 	},
 	beforeUnmount() {
-		if (this.beforeDestroy) this.beforeDestroy();
+		if (beforeDestroy) beforeDestroy();
 	},
-	methods: {
-		update() {
-			this.unlockedPipes = Pipe.isUnlocked;
-			this.hasUpgradeAvailable = this.machine.hasUpgradeAvailable;
-			this.isMin = this.machine.data.min;
-			this.inputs = this.machine.inputs.filter(x => x.isUnlocked);
-			this.outputs = this.machine.outputs.filter(x => x.isUnlocked);
-			this.inputData = this.inputs.map(x => {
-				const intermediate = arr(this.machine.inputHistories).findLast(y => y[x.id].length);
-				return {
-					stack: x.data,
-					resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
-					amount: Stack.volumeOfStack(x.data),
-					capacity: x.config.capacity,
-					label: x.config.label
-				};
-			});
-			this.outputData = this.outputs.map(x => {
-				const intermediate = arr(this.machine.outputHistories).findLast(y => y[x.id].length);
-				return {
-					stack: x.data,
-					resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
-					amount: Stack.volumeOfStack(x.data),
-					capacity: x.config.capacity,
-					label: x.config.label
-				};
-			});
-		},
-		render() {
-			if (this.holdFunction) this.holdFunction();
-		},
-		transferFromOutputToHolding(output) {
-			if (!output.data.length) return;
-			if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
-			else if (player.holding.resource !== arr(output.data).last.resource) return;
-			player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
-			if (player.holding.amount < 0.001) player.holding.amount = 0;
-		},
-		registerOutputHold(id, e) {
-			if (e.button === 2) {
-				this.allToHolding(id);
-				return;
-			}
-			if (!this.holdFunction) {
-				this.holdFunction = this.transferFromOutputToHolding.bind(this, this.outputs[id]);
-				const stopHolding = function() {
-					this.holdFunction = null;
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		allToHolding(id) {
-			const output = this.outputs[id];
-			if (!output.data.length) return;
-			if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
-			else if (player.holding.resource !== arr(output.data).last.resource) return;
-			player.holding.amount += Stack.removeFromStack(output.data, arr(output.data).last.amount);
-			if (player.holding.amount < 0.001) player.holding.amount = 0;
-		},
-		transferFromHoldingToInput(input) {
-			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-			player.holding.amount -= Stack.addToStack(input.data, {
-				resource: player.holding.resource,
-				amount: Math.min(input.config.capacity * 0.007, player.holding.amount)
-			}, input.config.capacity);
-		},
-		registerInputHold(id, e) {
-			if (e.button === 2) {
-				this.allToInput(id);
-				return;
-			}
-			if (!this.holdFunction) {
-				this.holdFunction = this.transferFromHoldingToInput.bind(this, this.inputs[id]);
-				const stopHolding = function() {
-					this.holdFunction = null;
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		allToInput(id) {
-			const input = this.inputs[id];
-			if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-			player.holding.amount -= Stack.addToStack(input.data, {
-				resource: player.holding.resource,
-				amount: player.holding.amount
-			}, input.config.capacity);
-		},
-		inputClassObject(input) {
-			if (player.holding.amount === 0) return "c-cursor-default";
-			return input.config.accepts.includes(player.holding.resource) ? "" : "c-cursor-notallowed";
-		},
-		outputClassObject(output) {
-			if (!output.data.length) return "c-cursor-default";
-			return (player.holding.resource !== arr(output.data).last.resource && player.holding.amount)
-				? "c-cursor-default" : "";
-		},
-		emitInputPipeDrag(id) {
-			Pipe.removeAllInputPipesTo(this.machine, id);
-			this.$emit("input-pipe-drag-start", this.machine, id);
-		},
-		emitInputPipeHover(id) {
-			this.$emit("input-pipe-hover", this.machine, id);
-		},
-		emitOutputPipeDrag(id) {
-			this.$emit("output-pipe-drag-start", this.machine, id);
-		},
-		emitOutputPipeHover(id) {
-			this.$emit("output-pipe-hover", this.machine, id);
-		},
-		str,
-		format
+	update() {
+		const machine = props.machine;
+		unlockedPipes.value = Pipe.isUnlocked;
+		hasUpgradeAvailable.value = machine.hasUpgradeAvailable;
+		isMin.value = machine.data.min;
+		inputs.value = machine.inputs.filter(x => x.isUnlocked);
+		outputs.value = machine.outputs.filter(x => x.isUnlocked);
+		inputData.value = inputs.value.map(x => {
+			const intermediate = arr(machine.inputHistories).findLast(y => y[x.id].length);
+			return {
+				stack: x.data,
+				resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
+				amount: Stack.volumeOfStack(x.data),
+				capacity: x.config.capacity,
+				label: x.config.label
+			};
+		});
+		outputData.value = outputs.value.map(x => {
+			const intermediate = arr(machine.outputHistories).findLast(y => y[x.id].length);
+			return {
+				stack: x.data,
+				resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
+				amount: Stack.volumeOfStack(x.data),
+				capacity: x.config.capacity,
+				label: x.config.label
+			};
+		});
+	},
+	render() {
+		if (holdFunction) holdFunction();
 	}
-};
+});
+
+function transferFromOutputToHolding(output) {
+	if (!output.data.length) return;
+	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
+	else if (player.holding.resource !== arr(output.data).last.resource) return;
+	player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
+	if (player.holding.amount < 0.001) player.holding.amount = 0;
+}
+
+function registerOutputHold(output, e) {
+	if (e.button === 2) {
+		allToHolding(output);
+		return;
+	}
+	if (!holdFunction) {
+		holdFunction = transferFromOutputToHolding.bind(null, output);
+		const stopHolding = function() {
+			holdFunction = null;
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			beforeDestroy = null;
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		beforeDestroy = stopHolding;
+	}
+}
+
+function allToHolding(output) {
+	if (!output.data.length) return;
+	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
+	else if (player.holding.resource !== arr(output.data).last.resource) return;
+	player.holding.amount += Stack.removeFromStack(output.data, arr(output.data).last.amount);
+	if (player.holding.amount < 0.001) player.holding.amount = 0;
+}
+
+function transferFromHoldingToInput(input) {
+	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
+	player.holding.amount -= Stack.addToStack(input.data, {
+		resource: player.holding.resource,
+		amount: Math.min(input.config.capacity * 0.007, player.holding.amount)
+	}, input.config.capacity);
+}
+
+function registerInputHold(input, e) {
+	if (e.button === 2) {
+		allToInput(input);
+		return;
+	}
+	if (!holdFunction) {
+		holdFunction = transferFromHoldingToInput.bind(null, input);
+		const stopHolding = function() {
+			holdFunction = null;
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			beforeDestroy = null;
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		beforeDestroy = stopHolding;
+	}
+}
+
+function allToInput(input) {
+	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
+	player.holding.amount -= Stack.addToStack(input.data, {
+		resource: player.holding.resource,
+		amount: player.holding.amount
+	}, input.config.capacity);
+}
+
+function inputClassObject(input) {
+	if (player.holding.amount === 0) return "c-cursor-default";
+	return input.config.accepts.includes(player.holding.resource) ? "" : "c-cursor-notallowed";
+}
+
+function outputClassObject(output) {
+	if (!output.data.length) return "c-cursor-default";
+	return (player.holding.resource !== arr(output.data).last.resource && player.holding.amount)
+		? "c-cursor-default" : "";
+}
+
+function emitInputPipeDrag(id) {
+	Pipe.removeAllInputPipesTo(props.machine, id);
+	emit("input-pipe-drag-start", props.machine, id);
+}
+
+function emitInputPipeHover(id) {
+	emit("input-pipe-hover", props.machine, id);
+}
+
+function emitOutputPipeDrag(id) {
+	emit("output-pipe-drag-start", props.machine, id);
+}
+
+function emitOutputPipeHover(id) {
+	emit("output-pipe-hover", props.machine, id);
+}
 </script>
 
 <template>
@@ -185,7 +196,7 @@ export default {
 				class="c-machine__input-pipe"
 				:style="{ left: `${input.id * 30 + 15}px`}"
 				@mouseenter="emitInputPipeHover(input.id)"
-				@mouseleave="$emit('pipe-stop-hover')"
+				@mouseleave="emit('pipe-stop-hover')"
 				@mousedown="emitInputPipeDrag(input.id)"
 			>
 				{{ input.id + 1 }}
@@ -202,7 +213,7 @@ export default {
 					:key="id"
 					class="c-machine__input"
 					:class="inputClassObject(input)"
-					@mousedown="registerInputHold(id, $event)"
+					@mousedown="registerInputHold(input, $event)"
 				>
 					<resource-stack
 						:stack="inputData[id].stack"
@@ -228,7 +239,7 @@ export default {
 					:key="id"
 					class="c-machine__output"
 					:class="outputClassObject(output)"
-					@mousedown="registerOutputHold(id, $event)"
+					@mousedown="registerOutputHold(output, $event)"
 				>
 					<resource-stack
 						:stack="outputData[id].stack"
@@ -262,7 +273,7 @@ export default {
 				class="c-machine__output-pipe"
 				:style="{ left: `${output.id * 30 + 15}px`}"
 				@mouseenter="emitOutputPipeHover(output.id)"
-				@mouseleave="$emit('pipe-stop-hover')"
+				@mouseleave="emit('pipe-stop-hover')"
 				@mousedown="emitOutputPipeDrag(output.id)"
 			>
 				{{ output.id + 1 }}

@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
-import { player } from "@/js/player";
+import { onMount } from "@/components/mixins";
 
 import { format } from "@/utils/index";
 
@@ -28,33 +28,37 @@ function updateMousePos(event) {
 
 const consumes = ref([]);
 const elixirOpacity = ref(0);
+const holding = ref({});
 
-EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
-	if (player.holding.resource === "elixir") elixirOpacity.value = player.holding.amount;
-	else elixirOpacity.value = 0;
+onMount({
+	update() {
+		holding.value = { resource: player.holding.resource, amount: player.holding.amount };
+		if (player.holding.resource === "elixir") elixirOpacity.value = player.holding.amount;
+		else elixirOpacity.value = 0;
 
-	consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
+		consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
 
-	if (player.holding.amount >= 0.5 && player.holding.resource === "elixir") return;
+		if (player.holding.amount >= 0.5 && player.holding.resource === "elixir") return;
 
-	if (player.holding.amount && player.holding.resource === "elixir") {
-		const splashes = ["CONSUME more Elixir",
-			"Elixir is your magnum opus",
-			"An eternal suffering to those who dare touch your Elixir"];
-		if (Math.random() < (player.holding.amount * 5 + 1) / 100) consumes.value.push({
-			time: Date.now(),
-			text: splashes[Math.floor(Math.random() * splashes.length)],
-			pos: [Math.random() * 100, Math.random() * 100]
-		});
-		return;
-	}
-	if (player.producedElixir > 0) {
-		const splashes = ["CONSUME the Elixir", "Elixir is your making", "Let no one profit off Elixir"];
-		if (Math.random() < 0.01) consumes.value.push({
-			time: Date.now(),
-			text: splashes[Math.floor(Math.random() * splashes.length)],
-			pos: [Math.random() * 100, Math.random() * 100]
-		});
+		if (player.holding.amount && player.holding.resource === "elixir") {
+			const splashes = ["CONSUME more Elixir",
+				"Elixir is your magnum opus",
+				"An eternal suffering to those who dare touch your Elixir"];
+			if (Math.random() < (player.holding.amount * 5 + 1) / 100) consumes.value.push({
+				time: Date.now(),
+				text: splashes[Math.floor(Math.random() * splashes.length)],
+				pos: [Math.random() * 100, Math.random() * 100]
+			});
+			return;
+		}
+		if (player.producedElixir > 0) {
+			const splashes = ["CONSUME the Elixir", "Elixir is your making", "Let no one profit off Elixir"];
+			if (Math.random() < 0.01) consumes.value.push({
+				time: Date.now(),
+				text: splashes[Math.floor(Math.random() * splashes.length)],
+				pos: [Math.random() * 100, Math.random() * 100]
+			});
+		}
 	}
 });
 </script>
@@ -64,7 +68,7 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
-		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
+		<template v-if="holding.amount < 0.5 || holding.resource !== 'elixir'">
 			<h1>The Second Alterhistorian</h1>
 			<div class="c-main-tabs">
 				<machine-tab />
@@ -89,15 +93,15 @@ EventHub.ui.on(GAME_EVENTS.UPDATE, () => {
 		</template>
 		<end-cutscene v-else />
 		<div
-			v-if="player.holding.amount > 0"
+			v-if="holding.amount > 0"
 			class="c-held-item"
 			:style="{
 				top: `${mouseY}px`,
 				left: `${mouseX}px`,
-				'background-color': currencyColour(player.holding.resource)
+				'background-color': currencyColour(holding.resource)
 			}"
 		>
-			{{ format(player.holding.amount, 2, 1) }}
+			{{ format(holding.amount, 2, 1) }}
 		</div>
 	</div>
 </template>

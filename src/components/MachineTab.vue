@@ -151,6 +151,12 @@ export default {
 				}
 			});
 		},
+		moveMachines() {
+			for (const machine of this.machines) {
+				machine.position.top = machine.machineData.data.y - this.offsetY;
+				machine.position.left = machine.machineData.data.x - this.offsetX;
+			}
+		},
 		registerMoveHold(machine) {
 			if (!this.holding) {
 				this.holding = true;
@@ -164,6 +170,7 @@ export default {
 						Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + this.offsetY, 20),
 						this.maxOffsetY - 270
 					);
+					this.moveMachines();
 				}.bind(this);
 				document.addEventListener("mousemove", followMouse);
 				const stopHolding = function() {
@@ -190,6 +197,7 @@ export default {
 						this.maxOffsetX - this.width), 0);
 					player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
 						this.maxOffsetY - this.height), 0);
+					this.moveMachines();
 				}.bind(this);
 				const stopHolding = function() {
 					this.holding = false;
@@ -214,6 +222,7 @@ export default {
 					this.holdingMachine.machineData.data.x += (player.display.offset.x - x);
 					this.holdingMachine.machineData.data.y += (player.display.offset.y - y);
 				}
+				this.moveMachines();
 			}.bind(this);
 		},
 		deregisterOffsetKey() {
@@ -285,6 +294,7 @@ export default {
 					player.display.offset.y = Math.max(Math.min(y + event.clientY - event2.clientY,
 						this.maxOffsetY - this.height), 0);
 					y = player.display.offset.y + event2.clientY - event.clientY;
+					this.moveMachines();
 				}.bind(this);
 				document.addEventListener("mousemove", followMouse);
 				const stopHolding = function() {

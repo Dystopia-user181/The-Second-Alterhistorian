@@ -195,10 +195,7 @@
 		],
 		"max-params": [ "warn", 4 ],
 		"max-statements-per-line": [ "error", { "max": 1 } ],
-		"multiline-comment-style": [
-			"error",
-			"separate-lines"
-		],
+		"multiline-comment-style": "off",
 		"new-parens": "error",
 		"no-array-constructor": "warn",
 		"no-inline-comments": "error",
