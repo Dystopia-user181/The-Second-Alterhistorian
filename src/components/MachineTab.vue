@@ -78,6 +78,7 @@ export default {
 					left: machine.data.x - this.offsetX
 				},
 				notifyUpgrade: machine.hasUpgradeAvailable,
+				notifyPartialUpgrade: machine.hasPartialUpgradeAvailable,
 				machineData: machine
 			})).filter(x => (
 				x.position.top > - 250 && x.position.left > - 600 &&
@@ -361,7 +362,11 @@ export default {
 				/>
 				<div
 					class="fas fa-arrow-up"
-					:class="{ 'c-glow-yellow': machine.notifyUpgrade }"
+					:class="{
+						'c-glow-green': machine.notifyUpgrade,
+						'c-glow-yellow': machine.notifyPartialUpgrade,
+						'c-darker': !machine.notifyPartialUpgrade
+					}"
 					@mousedown="openUpgrades(machine.machineData)"
 				/>
 				<div

@@ -156,6 +156,10 @@ export function MachineType(data) {
 			requestAnimationFrame(() => this.updatePipes());
 		}
 
+		get hasPartialUpgradeAvailable() {
+			return this.upgrades && Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
+		}
+
 		get hasUpgradeAvailable() {
 			return this.upgrades && Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
 		}
