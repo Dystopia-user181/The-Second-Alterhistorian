@@ -3,7 +3,7 @@ import { machineUpg } from "../init";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { arr } from "@/utils/index";
+import { arr, run } from "@/utils/index";
 
 const recipes = [{
 	input: { resource: "clay", amount: 0.2 },
