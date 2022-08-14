@@ -78,8 +78,9 @@ export default {
 					left: machine.data.x - this.offsetX
 				},
 				isUpgradeable: machine.isUpgradeable,
-				notifyUpgrade: machine.hasUpgradeAvailable,
-				notifyPartialUpgrade: machine.hasPartialUpgradeAvailable,
+				isFullyUpgraded: machine.isFullyUpgraded,
+				notifyUpgrade: machine.hasWholeBuyableUpgrades,
+				notifyPartialUpgrade: machine.hasPartialBuyableUpgrades,
 				machineData: machine
 			})).filter(x => (
 				x.position.top > - 250 && x.position.left > - 600 &&
@@ -364,9 +365,9 @@ export default {
 				<div
 					class="fas fa-arrow-up"
 					:class="{
-						'c-glow-green': machine.isUpgradeable && machine.notifyUpgrade,
-						'c-glow-yellow': machine.isUpgradeable && machine.notifyPartialUpgrade,
-						'c-darker': machine.isUpgradeable && !machine.notifyPartialUpgrade,
+						'c-darker': machine.isFullyUpgraded,
+						'c-glow-green': machine.notifyUpgrade,
+						'c-glow-yellow': machine.notifyPartialUpgrade,
 						'c-hidden': !machine.isUpgradeable
 					}"
 					@mousedown="openUpgrades(machine.machineData)"
