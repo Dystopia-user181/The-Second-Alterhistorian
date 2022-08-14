@@ -1,12 +1,12 @@
 <script setup>
-import { defineEmits, defineProps, ref, shallowRef } from "vue";
+import { ref, shallowRef } from "vue";
 
 import { onMount } from "@/components/mixins";
 
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, Stack, str } from "@/utils/index";
+import { arr, format, Stack } from "@/utils/index";
 
 import ResourceStack from "./ResourceStack.vue";
 
@@ -53,26 +53,20 @@ onMount({
 		isMin.value = machine.data.min;
 		inputs.value = machine.inputs.filter(x => x.isUnlocked);
 		outputs.value = machine.outputs.filter(x => x.isUnlocked);
-		inputData.value = inputs.value.map(x => {
-			const intermediate = arr(machine.inputHistories).findLast(y => y[x.id].length);
-			return {
-				stack: x.data,
-				resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
-				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity,
-				label: x.config.label
-			};
-		});
-		outputData.value = outputs.value.map(x => {
-			const intermediate = arr(machine.outputHistories).findLast(y => y[x.id].length);
-			return {
-				stack: x.data,
-				resource: intermediate ? str(arr(intermediate[x.id]).last.resource).capitalize : "None",
-				amount: Stack.volumeOfStack(x.data),
-				capacity: x.config.capacity,
-				label: x.config.label
-			};
-		});
+		inputData.value = inputs.value.map(x => ({
+			stack: x.data,
+			resource: x.displayResource[0],
+			amount: Stack.volumeOfStack(x.data),
+			capacity: x.config.capacity,
+			label: x.config.label
+		}));
+		outputData.value = outputs.value.map(x => ({
+			stack: x.data,
+			resource: x.displayResource[0],
+			amount: Stack.volumeOfStack(x.data),
+			capacity: x.config.capacity,
+			label: x.config.label
+		}));
 	},
 	render() {
 		if (holdFunction) holdFunction();
@@ -205,7 +199,7 @@ function emitOutputPipeHover(id) {
 				{{ input.id + 1 }}
 			</div>
 		</div>
-		<span class="c-emphasise-text">{{ str(machine.type.name).capitalize }}</span>
+		<span class="c-emphasise-text">{{ machine.displayName }}</span>
 		<div class="l-machine__inner">
 			<span v-if="isMin">
 				Collapsed

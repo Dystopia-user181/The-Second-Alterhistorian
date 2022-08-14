@@ -115,7 +115,7 @@ export default {
 <template>
 	<modal-wrapper class="c-machine-production-modal">
 		<template #header>
-			Statistics ({{ str(machine.type.name).capitalize }})
+			Statistics ({{ machine.displayName }})
 		</template>
 		<br>
 		<template v-if="inputs.length">

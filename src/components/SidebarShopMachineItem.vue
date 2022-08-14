@@ -2,7 +2,7 @@
 import { MachineCounts } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { format, formatInt, str } from "@/utils/index";
+import { format, formatInt } from "@/utils/index";
 
 export default {
 	name: "SidebarShopMachineItem",
@@ -27,7 +27,7 @@ export default {
 			this.cost = this.shopItem.cost;
 			this.currencyType = this.shopItem.currencyType || "";
 			this.canAfford = this.shopItem.canAfford;
-			this.name = str(this.shopItem.associatedMachine.name).capitalize;
+			this.name = this.shopItem.associatedMachine.displayName;
 			this.description = this.shopItem.associatedMachine.description;
 			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.name];
 		},

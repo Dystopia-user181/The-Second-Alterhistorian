@@ -39,6 +39,9 @@ EventHub.logic = new EventHub();
 EventHub.ui = new EventHub();
 
 window.GAME_EVENTS = {
+	// Machines
+	MACHINE_ADDED: "MACHINE_ADDED",
+	MACHINE_REMOVED: "MACHINE_REMOVED",
 	// Ticks
 	GAME_TICK_BEFORE: "GAME_TICK_BEFORE",
 	GAME_TICK_AFTER: "GAME_TICK_AFTER",

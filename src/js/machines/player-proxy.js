@@ -43,6 +43,7 @@ Machine.add = function(townName, type, x, y) {
 			MachinesById[townName][i] = constructed;
 			MachineCounts[townName][type]++;
 			arr(Machines[townName]).last.isNew = true;
+			EventHub.dispatch(GAME_EVENTS.MACHINE_ADDED);
 			return true;
 		}
 		i++;
@@ -58,6 +59,7 @@ Machine.remove = function(machine) {
 	Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	delete MachinesById[machine.town][machine.id];
 	MachineCounts[machine.town][machine.type]--;
+	EventHub.dispatch(GAME_EVENTS.MACHINE_REMOVED);
 };
 
 Pipe.removeAllInputPipesTo = function(machine, inputId) {
