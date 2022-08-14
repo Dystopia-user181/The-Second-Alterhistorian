@@ -118,3 +118,7 @@ hr {
 .c-darker::before {
 	color: rgb(80, 80, 80);
 }
+
+.c-hidden {
+	display: none !important;
+};

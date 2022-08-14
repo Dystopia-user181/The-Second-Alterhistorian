@@ -77,6 +77,7 @@ export default {
 					top: machine.data.y - this.offsetY,
 					left: machine.data.x - this.offsetX
 				},
+				hasUpgrades: machine.hasUpgrades,
 				notifyUpgrade: machine.hasUpgradeAvailable,
 				notifyPartialUpgrade: machine.hasPartialUpgradeAvailable,
 				machineData: machine
@@ -363,9 +364,10 @@ export default {
 				<div
 					class="fas fa-arrow-up"
 					:class="{
-						'c-glow-green': machine.notifyUpgrade,
-						'c-glow-yellow': machine.notifyPartialUpgrade,
-						'c-darker': !machine.notifyPartialUpgrade
+						'c-glow-green': machine.hasUpgrades && machine.notifyUpgrade,
+						'c-glow-yellow': machine.hasUpgrades && machine.notifyPartialUpgrade,
+						'c-darker': machine.hasUpgrades && !machine.notifyPartialUpgrade,
+						'c-hidden': !machine.hasUpgrades
 					}"
 					@mousedown="openUpgrades(machine.machineData)"
 				/>
