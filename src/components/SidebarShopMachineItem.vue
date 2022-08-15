@@ -2,7 +2,7 @@
 import { MachineCounts } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { format, formatInt } from "@/utils/index";
+import { format, formatInt } from "@/utils";
 
 export default {
 	name: "SidebarShopMachineItem",

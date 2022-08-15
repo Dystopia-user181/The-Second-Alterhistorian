@@ -1,5 +1,5 @@
 <script>
-import { format } from "@/utils/index";
+import { format } from "@/utils";
 
 export default {
 	name: "MachineUpgrade",

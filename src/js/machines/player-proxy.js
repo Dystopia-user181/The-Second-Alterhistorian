@@ -5,7 +5,7 @@ import { GameDatabase } from "@/js/database";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, objectMap } from "@/utils/index";
+import { arr, objectMap } from "@/utils";
 
 export const Machines = {};
 export const MachinesById = {};

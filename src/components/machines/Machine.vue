@@ -6,7 +6,7 @@ import { onMount } from "@/components/mixins";
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, Stack } from "@/utils/index";
+import { arr, format, Stack } from "@/utils";
 
 import ResourceStack from "./ResourceStack.vue";
 
@@ -20,7 +20,8 @@ const props = defineProps({
 const emit = defineEmits([
 	"input-pipe-drag-start", "input-pipe-hover",
 	"output-pipe-drag-start", "output-pipe-hover",
-	"pipe-stop-hover"
+	"pipe-stop-hover",
+	"move-machine-start"
 ]);
 
 const inputs = shallowRef([]);
@@ -178,8 +179,8 @@ function emitOutputPipeHover(id) {
 		:class="{
 			'c-machine-container--new': animation,
 			'c-machine-container--min': isMin,
-			'c-glow-green': hasWholeBuyableUpgrades,
-			'c-glow-yellow': hasPartialBuyableUpgrades,
+			'c-glow-green': hasPartialBuyableUpgrades,
+			'c-glow-yellow': hasWholeBuyableUpgrades,
 		}"
 	>
 		<div
@@ -199,7 +200,12 @@ function emitOutputPipeHover(id) {
 				{{ input.id + 1 }}
 			</div>
 		</div>
-		<span class="c-emphasise-text">{{ machine.displayName }}</span>
+		<div
+			class="c-emphasise-text c-machine__title"
+			@mousedown="emit('move-machine-start', $event)"
+		>
+			{{ machine.displayName }}
+		</div>
 		<div class="l-machine__inner">
 			<span v-if="isMin">
 				Collapsed
@@ -303,6 +309,12 @@ function emitOutputPipeHover(id) {
 
 .l-machine__inner > span {
 	align-self: center;
+}
+
+.c-machine__title {
+	cursor: move;
+	align-self: stretch;
+	text-align: center;
 }
 
 .c-machine__input {

@@ -1,6 +1,6 @@
 <script>
 import { Currencies } from "@/js/database/currencies";
-import { format } from "@/utils/index";
+import { format } from "@/utils";
 import { player } from "@/js/player";
 
 export default {

@@ -4,7 +4,7 @@ import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { areArraysEqualSets, arr, formatX, objectMap, run, str } from "@/utils/index";
+import { areArraysEqualSets, arr, formatX, objectMap, run, str } from "@/utils";
 
 function acceptsAll(accepts) {
 	return areArraysEqualSets(accepts, Object.keys(Currencies));
@@ -113,6 +113,12 @@ export function MachineType(data) {
 			this.outputConfHistories = [];
 			this.inputConfHistories = [];
 			this.outputDiffs = arr(data.outputs).mapToObject((x, id) => (x.id === undefined ? id : x.id), () => 0);
+
+			if (this.type.upgrades)
+				this.upgrades = objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
+			this.isUpgradeable = this.upgrades && Object.keys(this.upgrades).length > 0;
+
+			this.pipes = [];
 			this.updates = 0;
 			// Have to use alias to make it available for use in inputs and outputs
 			// eslint-disable-next-line consistent-this
@@ -153,14 +159,7 @@ export function MachineType(data) {
 				data: this.data.outputs[id],
 				displayResource: ["None", Infinity]
 			}));
-			if (this.type.upgrades)
-				this.upgrades = objectMap(this.type.upgrades, x => x, x => new MachineUpgrade(x, this));
-			this.pipes = [];
 			requestAnimationFrame(() => this.updatePipes());
-		}
-
-		get isUpgradeable() {
-			return this.upgrades && Object.keys(this.upgrades).length > 0;
 		}
 
 		get isFullyUpgraded() {
@@ -253,6 +252,10 @@ export function MachineType(data) {
 
 		showProduction() {
 			Modals.machineProduction.show({ machine: this });
+		}
+
+		toggleMinimized() {
+			this.data.min = !this.data.min;
 		}
 
 		static name = data.name;

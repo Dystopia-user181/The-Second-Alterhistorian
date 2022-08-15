@@ -1,4 +1,4 @@
-import { deepAssign, deepClone, objectMap } from "../utils/index";
+import { deepAssign, deepClone, objectMap } from "../utils";
 
 import { initializeMachines, MachineTypes } from "./machines/index";
 import { Currencies } from "./database/currencies";

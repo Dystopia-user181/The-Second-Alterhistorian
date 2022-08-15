@@ -1,17 +1,16 @@
 <script>
-import { Machine, Machines, Pipe } from "@/js/machines/index";
+import { Machines, Pipe } from "@/js/machines/index";
 import { Currencies } from "@/js/database/currencies";
-import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, format, formatX, objectMap } from "@/utils/index";
+import { arr, format, formatX } from "@/utils";
 
-import MachineVue from "./Machine.vue";
+import MachineContainer from "./MachineContainer.vue";
 
 export default {
 	name: "MachineTab",
 	components: {
-		MachineVue
+		MachineContainer
 	},
 	data() {
 		return {
@@ -37,6 +36,7 @@ export default {
 				machine: null,
 				id: 0
 			},
+			console
 		};
 	},
 	computed: {
@@ -75,20 +75,12 @@ export default {
 			this.fastTime = player.fastTime;
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.height = this.$refs.machineTab.offsetHeight;
-			this.machines = Machines[player.currentlyIn].map(machine => ({
-				position: {
-					top: machine.data.y - this.offsetY,
-					left: machine.data.x - this.offsetX
-				},
-				isUpgradeable: machine.isUpgradeable,
-				isFullyUpgraded: machine.isFullyUpgraded,
-				notifyUpgrade: machine.hasWholeBuyableUpgrades,
-				notifyPartialUpgrade: machine.hasPartialBuyableUpgrades,
-				machineData: machine
-			})).filter(x => (
-				x.position.top > - 250 && x.position.left > - 600 &&
-					x.position.top < this.height && x.position.left < this.width
-			));
+
+			for (const machine of this.machines) {
+				machine.notifyUpgrade = machine.machineData.hasWholeBuyableUpgrades;
+				machine.notifyPartialUpgrade = machine.machineData.hasPartialBuyableUpgrades;
+				machine.isFullyUpgraded = machine.machineData.isFullyUpgraded;
+			}
 		},
 		render() {
 			if (this.holdingFunction) this.holdingFunction();
@@ -157,51 +149,15 @@ export default {
 		},
 		updateMachines() {
 			this.machines = Machines[player.currentlyIn].map(machine => ({
-				position: {
-					top: machine.data.y - player.display.offset.y,
-					left: machine.data.x - player.display.offset.x
-				},
-				notifyUpgrade: machine.hasUpgradeAvailable,
+				isUpgradeable: machine.isUpgradeable,
+				isFullyUpgraded: machine.isFullyUpgraded,
+				notifyUpgrade: machine.hasWholeBuyableUpgrades,
+				notifyPartialUpgrade: machine.hasPartialBuyableUpgrades,
 				machineData: machine
 			}));
 		},
 		moveMachines() {
-			for (const machine of this.machines) {
-				machine.position.top = machine.machineData.data.y - player.display.offset.y;
-				machine.position.left = machine.machineData.data.x - player.display.offset.x;
-			}
-		},
-		registerMoveHold(machine) {
-			if (!this.holding) {
-				this.holding = true;
-				this.holdingMachine = machine;
-				const followMouse = function(event) {
-					machine.machineData.data.x = Math.min(
-						Math.max(event.clientX + 12.5 - this.$refs.machineTab.offsetLeft + player.display.offset.x, 20),
-						this.maxOffsetX - 270
-					);
-					machine.machineData.data.y = Math.min(
-						Math.max(event.clientY - 12.5 - this.$refs.machineTab.offsetTop + player.display.offset.y, 20),
-						this.maxOffsetY - 270
-					);
-					this.moveMachines();
-				}.bind(this);
-				document.addEventListener("mousemove", followMouse);
-				const stopHolding = function() {
-					this.holding = false;
-					document.removeEventListener("mousemove", followMouse);
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-					this.holdingMachine = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		openUpgrades(machine) {
-			Modals.machineUpgrades.show({ machine });
+			//
 		},
 		registerOffsetHold(offset) {
 			if (!this.holding) {
@@ -241,14 +197,6 @@ export default {
 		},
 		deregisterOffsetKey() {
 			this.holdingKeyFunction = null;
-		},
-		deleteMachine(machine) {
-			if (shiftDown) {
-				Machine.remove(machine);
-				this.update();
-			} else {
-				Modals.removeMachine.show({ machine }).then(() => this.update());
-			}
 		},
 		handlePipeDrag(type, machine, id) {
 			this.holding = true;
@@ -296,6 +244,36 @@ export default {
 			this.hoveringPipe.type = "";
 			this.hoveringPipe.machine = null;
 		},
+		handleMoveMachineStart(machine, e) {
+			const originalX = machine.machineData.data.x - e.clientX;
+			const originalY = machine.machineData.data.y - e.clientY;
+			if (!this.holding) {
+				this.holding = true;
+				this.holdingMachine = machine;
+				const followMouse = function(event) {
+					machine.machineData.data.x = Math.min(
+						Math.max(originalX + event.clientX, 30),
+						this.maxOffsetX - 270
+					);
+					machine.machineData.data.y = Math.min(
+						Math.max(originalY + event.clientY, 30),
+						this.maxOffsetY - 270
+					);
+				}.bind(this);
+				document.addEventListener("mousemove", followMouse);
+				const stopHolding = function() {
+					this.holding = false;
+					document.removeEventListener("mousemove", followMouse);
+					document.removeEventListener("mouseup", stopHolding);
+					document.removeEventListener("mouseleave", stopHolding);
+					this.beforeDestroy = null;
+					this.holdingMachine = null;
+				}.bind(this);
+				document.addEventListener("mouseup", stopHolding);
+				document.addEventListener("mouseleave", stopHolding);
+				this.beforeDestroy = stopHolding;
+			}
+		},
 		attemptUseDrag(event) {
 			if (!this.holding) {
 				this.holding = true;
@@ -325,7 +303,6 @@ export default {
 				this.beforeDestroy = stopHolding;
 			}
 		},
-		objectMap,
 		format,
 		formatX
 	}
@@ -351,62 +328,23 @@ export default {
 			:width="width"
 			:height="height"
 		/>
-		<span
-			v-for="machine in machines.filter(x => (
-				x.position.top > -250 && x.position.left > -600 &&
-				x.position.top < height && x.position.left < width
-			))"
-			:key="machine.machineData.id"
+		<div
+			:style="{
+				transform: `translate(-${offsetX}px, -${offsetY}px)`
+			}"
 		>
-			<machine-vue
-				:machine="machine.machineData"
-				:style="objectMap(machine.position, x => x, x => `${x}px`)"
+			<machine-container
+				v-for="machine in machines"
+				:key="machine.machineData.id"
+				:machine="machine"
 				@input-pipe-drag-start="(machine, id) => handlePipeDrag('input', machine, id)"
 				@output-pipe-drag-start="(machine, id) => handlePipeDrag('output', machine, id)"
-				@input-pipe-drag-end="handlePipeStopDrag"
-				@output-pipe-drag-end="handlePipeStopDrag"
 				@input-pipe-hover="(machine, id) => handlePipeHover('input', machine, id)"
 				@output-pipe-hover="(machine, id) => handlePipeHover('output', machine, id)"
 				@pipe-stop-hover="handlePipeStopHover"
+				@move-machine-start="handleMoveMachineStart"
 			/>
-			<div
-				class="c-machine-sidebar"
-				:style="objectMap(machine.position, x => x, x => `${x}px`)"
-			>
-				<div
-					class="fas fa-arrows"
-					@mousedown="registerMoveHold(machine)"
-				/>
-				<div
-					class="fas fa-arrow-up"
-					:class="{
-						'c-darker': machine.isFullyUpgraded,
-						'c-glow-green': machine.notifyUpgrade,
-						'c-glow-yellow': machine.notifyPartialUpgrade,
-						'c-hidden': !machine.isUpgradeable
-					}"
-					@mousedown="openUpgrades(machine.machineData)"
-				/>
-				<div
-					class="fas fa-info-circle"
-					@mousedown="machine.machineData.showDescription()"
-				/>
-				<div
-					class="fas fa-chart-bar"
-					@mousedown="machine.machineData.showProduction()"
-				/>
-				<div
-					class="fas"
-					:class="machine.machineData.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
-					@mousedown="machine.machineData.data.min = !machine.machineData.data.min"
-				/>
-				<div
-					v-if="!machine.machineData.data.isDefault"
-					class="fas fa-trash"
-					@mousedown="deleteMachine(machine.machineData)"
-				/>
-			</div>
-		</span>
+		</div>
 		<div
 			v-if="offsetX > 0"
 			class="fas fa-chevron-left c-machine-tab__offset c-machine-tab__offset-left"
@@ -438,54 +376,6 @@ export default {
 	flex: 1 0 auto;
 	align-self: stretch;
 	justify-self: stretch;
-}
-
-.c-machine-sidebar {
-	position: absolute;
-	display: flex;
-	flex-direction: column;
-	transform: translateX(calc(0.3px - 100%));
-	z-index: 1;
-}
-
-.c-machine-sidebar .fas {
-	width: 25px;
-	height: 25px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #333333;
-	border-radius: 5px 0 0 5px;
-	font-size: 1.1em;
-	transition: text-shadow 0.3s;
-}
-
-.c-machine-sidebar .fas:hover {
-	text-shadow: 0 0 5px;
-}
-
-.c-machine-sidebar .fas:nth-child(even) {
-	opacity: 0.7;
-}
-
-.c-machine-sidebar .fa-arrows {
-	cursor: move;
-}
-
-.c-machine-sidebar .fa-arrow-up,
-.c-machine-sidebar .fa-expand-arrows-alt,
-.c-machine-sidebar .fa-compress-arrows-alt {
-	cursor: pointer;
-}
-
-.c-machine-sidebar .fa-info-circle,
-.c-machine-sidebar .fa-chart-bar {
-	cursor: help;
-}
-
-.c-machine-sidebar .fa-trash {
-	cursor: pointer;
-	color: #cc5555;
 }
 
 .c-machine-tab__offset {

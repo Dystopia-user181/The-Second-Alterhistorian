@@ -1,7 +1,7 @@
 <script>
 import { Player } from "@/js/player";
 
-import { str } from "@/utils/index";
+import { str } from "@/utils";
 
 function predictableRandom(x) {
 	let start = Math.pow(x % 97, 4.3) * 232344573;

@@ -5,10 +5,10 @@ import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
 import { onMount } from "@/components/mixins";
 
-import { format } from "@/utils/index";
+import { format } from "@/utils";
 
 import EndCutscene from "@/components/EndCutscene.vue";
-import MachineTab from "@/components/MachineTab.vue";
+import MachineTab from "@/components/machines/MachineTab.vue";
 import PopupModal from "@/components/modals/PopupModal.vue";
 import Sidebar from "@/components/Sidebar.vue";
 

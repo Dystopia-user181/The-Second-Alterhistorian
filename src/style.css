@@ -112,13 +112,9 @@ hr {
 }
 
 .c-glow-green::after {
-	background: green;
+	background: rgba(0, 128, 0, 0.3);
 }
 
 .c-darker::before {
 	color: rgb(80, 80, 80);
 }
-
-.c-hidden {
-	display: none !important;
-};

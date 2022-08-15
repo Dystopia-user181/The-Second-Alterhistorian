@@ -1,6 +1,6 @@
 import { player } from "@/js/player";
 
-import { arr, deepClone, Stack, str } from "@/utils/index";
+import { arr, deepClone, Stack, str } from "@/utils";
 
 import { Towns } from "@/js/towns/index";
 

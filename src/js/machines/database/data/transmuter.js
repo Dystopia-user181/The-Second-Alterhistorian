@@ -2,7 +2,7 @@ import { Machine } from "../../logic";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { arr } from "@/utils/index";
+import { arr } from "@/utils";
 
 const recipes = [{
 	input: { resource: "stone", amount: 0.5 },

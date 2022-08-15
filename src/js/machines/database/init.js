@@ -1,6 +1,6 @@
 import { GameDatabase } from "@/js/database/index";
 
-import { arr } from "@/utils/index";
+import { arr } from "@/utils";
 
 GameDatabase.machines = {};
 

@@ -3,7 +3,7 @@ import { Machine, Pipe } from "../../logic";
 import { Currencies } from "@/js/database/currencies";
 import { GameDatabase } from "@/js/database/index";
 
-import { Stack } from "@/utils/index";
+import { Stack } from "@/utils";
 
 GameDatabase.machines.inputMerger = {
 	name: "inputMerger",
