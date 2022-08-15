@@ -80,20 +80,45 @@ hr {
 	50% { opacity: 0.3; }
 	100% { opacity: 0; }
 }
-  
-.c-glow-yellow {
+
+.c-glow-yellow,
+.c-glow-green {
 	position: relative;
 }
 
-.c-glow-yellow::after {
+.c-glow-yellow::before {
+	color: gold;
+}
+
+.c-glow-green::before {
+	color: green;
+}
+
+.c-glow-yellow::after,
+.c-glow-green::after {
 	content: "";
 	width: 100%;
 	height: 100%;
 	position: absolute;
 	top: 0;
 	left: 0;
-	background: gold;
 	border-radius: inherit;
 	animation: a-opacity 2s infinite;
 	pointer-events: none;
 }
+
+.c-glow-yellow::after {
+	background: gold;
+}
+
+.c-glow-green::after {
+	background: green;
+}
+
+.c-darker::before {
+	color: rgb(80, 80, 80);
+}
+
+.c-hidden {
+	display: none !important;
+};

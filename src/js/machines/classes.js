@@ -159,8 +159,23 @@ export function MachineType(data) {
 			requestAnimationFrame(() => this.updatePipes());
 		}
 
-		get hasUpgradeAvailable() {
-			return this.upgrades && Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
+		get isUpgradeable() {
+			return this.upgrades && Object.keys(this.upgrades).length > 0;
+		}
+
+		get isFullyUpgraded() {
+			return this.isUpgradeable &&
+				Object.values(this.upgrades).every(upgrade => !upgrade.isUnlocked || upgrade.maxed);
+		}
+
+		get hasPartialBuyableUpgrades() {
+			return this.isUpgradeable &&
+				!this.hasWholeBuyableUpgrades &&
+				Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
+		}
+
+		get hasWholeBuyableUpgrades() {
+			return this.isUpgradeable && Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
 		}
 
 		get params() {

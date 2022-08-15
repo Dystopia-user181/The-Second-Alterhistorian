@@ -75,9 +75,20 @@ export default {
 			this.fastTime = player.fastTime;
 			this.width = this.$refs.machineTab.offsetWidth;
 			this.height = this.$refs.machineTab.offsetHeight;
-			for (const machine of this.machines) {
-				machine.notifyUpgrade = machine.machineData.hasUpgradeAvailable;
-			}
+			this.machines = Machines[player.currentlyIn].map(machine => ({
+				position: {
+					top: machine.data.y - this.offsetY,
+					left: machine.data.x - this.offsetX
+				},
+				isUpgradeable: machine.isUpgradeable,
+				isFullyUpgraded: machine.isFullyUpgraded,
+				notifyUpgrade: machine.hasWholeBuyableUpgrades,
+				notifyPartialUpgrade: machine.hasPartialBuyableUpgrades,
+				machineData: machine
+			})).filter(x => (
+				x.position.top > - 250 && x.position.left > - 600 &&
+					x.position.top < this.height && x.position.left < this.width
+			));
 		},
 		render() {
 			if (this.holdingFunction) this.holdingFunction();
@@ -368,7 +379,12 @@ export default {
 				/>
 				<div
 					class="fas fa-arrow-up"
-					:class="{ 'c-glow-yellow': machine.notifyUpgrade }"
+					:class="{
+						'c-darker': machine.isFullyUpgraded,
+						'c-glow-green': machine.notifyUpgrade,
+						'c-glow-yellow': machine.notifyPartialUpgrade,
+						'c-hidden': !machine.isUpgradeable
+					}"
 					@mousedown="openUpgrades(machine.machineData)"
 				/>
 				<div

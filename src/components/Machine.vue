@@ -29,7 +29,8 @@ const outputs = shallowRef([]);
 const outputData = shallowRef([]);
 const animation = ref(false);
 const isMin = ref(false);
-const hasUpgradeAvailable = ref(false);
+const hasWholeBuyableUpgrades = ref(false);
+const hasPartialBuyableUpgrades = ref(false);
 const unlockedPipes = ref(false);
 let holdFunction = null, beforeDestroy = null;
 
@@ -47,7 +48,8 @@ onMount({
 	update() {
 		const machine = props.machine;
 		unlockedPipes.value = Pipe.isUnlocked;
-		hasUpgradeAvailable.value = machine.hasUpgradeAvailable;
+		hasWholeBuyableUpgrades.value = machine.hasWholeBuyableUpgrades;
+		hasPartialBuyableUpgrades.value = machine.hasPartialBuyableUpgrades;
 		isMin.value = machine.data.min;
 		inputs.value = machine.inputs.filter(x => x.isUnlocked);
 		outputs.value = machine.outputs.filter(x => x.isUnlocked);
@@ -176,7 +178,8 @@ function emitOutputPipeHover(id) {
 		:class="{
 			'c-machine-container--new': animation,
 			'c-machine-container--min': isMin,
-			'c-glow-yellow': hasUpgradeAvailable,
+			'c-glow-green': hasWholeBuyableUpgrades,
+			'c-glow-yellow': hasPartialBuyableUpgrades,
 		}"
 	>
 		<div
