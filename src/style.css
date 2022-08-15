@@ -91,7 +91,7 @@ hr {
 }
 
 .c-glow-green::before {
-	color: green;
+	color: lime;
 }
 
 .c-glow-yellow::after,
@@ -112,7 +112,7 @@ hr {
 }
 
 .c-glow-green::after {
-	background: rgba(0, 128, 0, 0.3);
+	background: rgba(0, 128, 0, 0.6);
 }
 
 .c-darker::before {
