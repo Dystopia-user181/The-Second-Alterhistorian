@@ -6,7 +6,7 @@ import { onMount } from "@/components/mixins";
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, Stack } from "@/utils";
+import { arr, format, Stack, str } from "@/utils";
 
 import ResourceStack from "./ResourceStack.vue";
 
@@ -56,14 +56,14 @@ onMount({
 		outputs.value = machine.outputs.filter(x => x.isUnlocked);
 		inputData.value = inputs.value.map(x => ({
 			stack: x.data,
-			resource: x.displayResource[0],
+			resource: str(x.displayResource[0]).capitalize,
 			amount: Stack.volumeOfStack(x.data),
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
 		outputData.value = outputs.value.map(x => ({
 			stack: x.data,
-			resource: x.displayResource[0],
+			resource: str(x.displayResource[0]).capitalize,
 			amount: Stack.volumeOfStack(x.data),
 			capacity: x.config.capacity,
 			label: x.config.label

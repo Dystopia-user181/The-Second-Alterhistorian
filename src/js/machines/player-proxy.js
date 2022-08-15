@@ -1,3 +1,5 @@
+import { shallowReactive } from "vue";
+
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
@@ -10,10 +12,13 @@ import { arr, objectMap } from "@/utils";
 export const Machines = {};
 export const MachinesById = {};
 export const MachineCounts = {};
+export const Pipes = {};
+window.Pipes = Pipes;
 
 export function initializeMachines() {
 	for (const town in GameDatabase.towns) {
-		Machines[town] = [];
+		Machines[town] = shallowReactive([]);
+		Pipes[town] = shallowReactive([]);
 		MachinesById[town] = {};
 		MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
 		for (const machineId in player.towns[town].machines) {
@@ -22,6 +27,16 @@ export function initializeMachines() {
 			Machines[town].push(newMach);
 			MachinesById[town][machineId] = newMach;
 			MachineCounts[town][machine.type] += 1;
+			Promise.resolve().then(() => {
+				for (const pipeId in newMach.pipes) {
+					for (const pipe of newMach.pipes[pipeId]) {
+						Pipes[town].push({
+							out: [newMach, newMach.outputs[pipeId]],
+							in: [pipe[0], pipe[1]]
+						});
+					}
+				}
+			});
 		}
 	}
 }

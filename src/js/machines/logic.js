@@ -1,6 +1,6 @@
 import { player } from "@/js/player";
 
-import { arr, deepClone, Stack, str } from "@/utils";
+import { arr, deepClone, Stack } from "@/utils";
 
 import { Towns } from "@/js/towns/index";
 
@@ -23,17 +23,21 @@ export const Machine = {
 			for (const input of machine.inputs) {
 				const inpData = arr(machine.inputHistories).last[input.id];
 				if (inpData.length) {
-					input.displayResource = [str(arr(inpData).last.resource).capitalize, machine.updates];
-				} else if (machine.updates - 5 > input.displayResource) {
-					input.displayResource = ["None", Infinity];
+					input.displayResource[0] = arr(inpData).last.resource;
+					input.displayResource[1] = machine.updates;
+				} else if (machine.updates - 5 > input.displayResource[1]) {
+					input.displayResource[0] = "none";
+					input.displayResource[1] = Infinity;
 				}
 			}
 			for (const output of machine.outputs) {
 				const outData = arr(machine.outputHistories).last[output.id];
 				if (outData.length) {
-					output.displayResource = [str(arr(outData).last.resource).capitalize, machine.updates];
-				} else if (machine.updates - 5 > output.displayResource) {
-					output.displayResource = ["None", Infinity];
+					output.displayResource[0] = arr(outData).last.resource;
+					output.displayResource[1] = machine.updates;
+				} else if (machine.updates - 5 > output.displayResource[1]) {
+					output.displayResource[0] = "none";
+					output.displayResource[1] = Infinity;
 				}
 			}
 		}

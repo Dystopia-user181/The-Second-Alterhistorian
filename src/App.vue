@@ -3,9 +3,11 @@ import { ref } from "vue";
 
 import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
-import { onMount } from "@/components/mixins";
+import { player } from "@/js/player";
 
 import { format } from "@/utils";
+
+import { onMount } from "@/components/mixins";
 
 import EndCutscene from "@/components/EndCutscene.vue";
 import MachineTab from "@/components/machines/MachineTab.vue";
@@ -28,11 +30,9 @@ function updateMousePos(event) {
 
 const consumes = ref([]);
 const elixirOpacity = ref(0);
-const holding = ref({});
 
 onMount({
 	update() {
-		holding.value = { resource: player.holding.resource, amount: player.holding.amount };
 		if (player.holding.resource === "elixir") elixirOpacity.value = player.holding.amount;
 		else elixirOpacity.value = 0;
 
@@ -68,7 +68,7 @@ onMount({
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
-		<template v-if="holding.amount < 0.5 || holding.resource !== 'elixir'">
+		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
 			<h1>The Second Alterhistorian</h1>
 			<div class="c-main-tabs">
 				<machine-tab />
@@ -93,15 +93,15 @@ onMount({
 		</template>
 		<end-cutscene v-else />
 		<div
-			v-if="holding.amount > 0"
+			v-if="player.holding.amount > 0"
 			class="c-held-item"
 			:style="{
 				top: `${mouseY}px`,
 				left: `${mouseX}px`,
-				'background-color': currencyColour(holding.resource)
+				'background-color': currencyColour(player.holding.resource)
 			}"
 		>
-			{{ format(holding.amount, 2, 1) }}
+			{{ format(player.holding.amount, 2, 1) }}
 		</div>
 	</div>
 </template>

@@ -21,18 +21,18 @@ const emit = defineEmits([
 ]);
 
 const pos = computed(() => ({
-	left: `${props.machine.machineData.data.x}px`,
-	top: `${props.machine.machineData.data.y}px`
+	left: `${props.machine.data.x}px`,
+	top: `${props.machine.data.y}px`
 }));
 
 const shouldExist = ref(false);
 
 onMount({
 	update() {
-		shouldExist.value = props.machine.machineData.data.x > player.display.offset.x - 600 &&
-			props.machine.machineData.data.x < player.display.offset.x + window.innerWidth &&
-			props.machine.machineData.data.y > player.display.offset.y - 260 &&
-			props.machine.machineData.data.y < player.display.offset.y + window.innerHeight;
+		shouldExist.value = props.machine.data.x > player.display.offset.x - 600 &&
+			props.machine.data.x < player.display.offset.x + window.innerWidth &&
+			props.machine.data.y > player.display.offset.y - 260 &&
+			props.machine.data.y < player.display.offset.y + window.innerHeight;
 	}
 });
 </script>
@@ -40,7 +40,7 @@ onMount({
 <template>
 	<span v-if="shouldExist">
 		<machine-vue
-			:machine="props.machine.machineData"
+			:machine="props.machine"
 			:style="pos"
 			@input-pipe-drag-start="(...args) => emit('input-pipe-drag-start', ...args)"
 			@output-pipe-drag-start="(...args) => emit('output-pipe-drag-start', ...args)"

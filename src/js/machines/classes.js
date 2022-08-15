@@ -1,4 +1,6 @@
-import { MachinesById } from "./player-proxy";
+import { reactive } from "vue";
+
+import { MachinesById, Pipes } from "./player-proxy";
 
 import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
@@ -139,7 +141,7 @@ export function MachineType(data) {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
 				},
 				data: this.data.inputs[id],
-				displayResource: ["None", Infinity]
+				displayResource: reactive(["none", Infinity])
 			}));
 			this.outputs = this.type.outputs.map((x, id) => ({
 				id,
@@ -157,9 +159,9 @@ export function MachineType(data) {
 					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
 				},
 				data: this.data.outputs[id],
-				displayResource: ["None", Infinity]
+				displayResource: reactive(["none", Infinity])
 			}));
-			requestAnimationFrame(() => this.updatePipes());
+			Promise.resolve().then(() => this.updatePipes());
 		}
 
 		get isFullyUpgraded() {
@@ -195,6 +197,10 @@ export function MachineType(data) {
 
 		addPipe(machine, inputId, outputId) {
 			this.data.pipes[outputId].push([machine.id, inputId]);
+			Pipes[this.town].push({
+				out: [this, this.outputs[outputId]],
+				in: [machine, machine.inputs[inputId]]
+			});
 			this.updatePipes();
 		}
 
@@ -203,7 +209,12 @@ export function MachineType(data) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					if (this.data.pipes[i][j][0].toString() === machine.id.toString() &&
 						this.data.pipes[i][j][1] === inputId) {
+						Pipes[this.town].splice(Pipes[this.town].findIndex(pipe =>
+							pipe.out[0] === this && pipe.out[1] === this.outputs[i] &&
+							pipe.in[0] === machine && pipe.in[1] === machine.inputs[inputId]
+						), 1);
 						this.data.pipes[i].splice(j, 1);
+
 						this.updatePipes();
 						return true;
 					}
@@ -216,6 +227,10 @@ export function MachineType(data) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
+						Pipes[this.town].splice(Pipes[this.town].findIndex(pipe =>
+							pipe.out[0] === this && pipe.out[1] === this.outputs[i] &&
+							pipe.in[0] === machine && pipe.in[1] === machine.inputs[this.data.pipes[i][j][1]]
+						), 1);
 						this.data.pipes[i].splice(j, 1);
 					}
 				}

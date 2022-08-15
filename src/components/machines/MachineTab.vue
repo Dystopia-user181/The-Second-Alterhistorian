@@ -1,312 +1,241 @@
-<script>
-import { Machines, Pipe } from "@/js/machines/index";
-import { Currencies } from "@/js/database/currencies";
+<script setup>
+import { Machines, Pipe, Pipes } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, formatX } from "@/utils";
+import { format, formatX } from "@/utils";
+
+import { onMount } from "@/components/mixins";
 
 import MachineContainer from "./MachineContainer.vue";
+import PipeConnection from "./PipeConnection.vue";
 
-export default {
-	name: "MachineTab",
-	components: {
-		MachineContainer
-	},
-	data() {
-		return {
-			machines: [],
-			fastTime: 0,
-			holding: false,
-			holdingMachine: null,
-			beforeDestroy: null,
-			offsetX: 0,
-			offsetY: 0,
-			width: 0,
-			height: 0,
-			ctx: null,
-			holdingFunction: null,
-			holdingKeyFunction: null,
-			draggingPipe: {
-				type: "",
-				machine: null,
-				id: 0
-			},
-			hoveringPipe: {
-				type: "",
-				machine: null,
-				id: 0
-			},
-			console
-		};
-	},
-	computed: {
-		maxOffsetX: () => 5998,
-		maxOffsetY: () => 2998
-	},
-	mounted() {
-		this.on$(GAME_EVENTS.ARROW_KEYDOWN, key => {
+let holding = $ref(false);
+let holdingMachine = null;
+let holdingMachineX, holdingMachineY;
+let beforeDestroy = null;
+let offsetX = $ref(0);
+let offsetY = $ref(0);
+let width = $ref(0);
+let height = $ref(0);
+let holdingFunction = null;
+let holdingKeyFunction = null;
+const draggingPipe = {
+	type: "",
+	machine: null,
+	id: 0
+};
+const hoveringPipe = {
+	type: "",
+	machine: null,
+	id: 0
+};
+
+const machineTab = $ref(null);
+
+const maxOffsetX = 5998;
+const maxOffsetY = 2998;
+
+const machines = $computed(() => Machines[player.currentlyIn]);
+const pipes = $computed(() => Pipes[player.currentlyIn]);
+
+onMount({
+	on: {
+		ARROW_KEYDOWN(key) {
 			switch (key) {
 				case "up":
-					this.registerOffsetKey([0, -1]);
+					registerOffsetKey([0, -1]);
 					break;
 				case "right":
-					this.registerOffsetKey([1, 0]);
+					registerOffsetKey([1, 0]);
 					break;
 				case "down":
-					this.registerOffsetKey([0, 1]);
+					registerOffsetKey([0, 1]);
 					break;
 				case "left":
-					this.registerOffsetKey([-1, 0]);
+					registerOffsetKey([-1, 0]);
 					break;
 			}
-		});
-		this.on$(GAME_EVENTS.ARROW_KEYUP, () => {
-			this.deregisterOffsetKey();
-		});
-		this.on$(GAME_EVENTS.MACHINE_ADDED, () => this.updateMachines());
-		this.on$(GAME_EVENTS.MACHINE_REMOVED, () => this.updateMachines());
-		this.updateMachines();
+		},
+		ARROW_KEYUP() {
+			deregisterOffsetKey();
+		}
 	},
 	beforeUnmount() {
-		if (this.beforeDestroy) this.beforeDestroy();
+		if (beforeDestroy) beforeDestroy();
 	},
-	methods: {
-		update() {
-			this.fastTime = player.fastTime;
-			this.width = this.$refs.machineTab.offsetWidth;
-			this.height = this.$refs.machineTab.offsetHeight;
-
-			for (const machine of this.machines) {
-				machine.notifyUpgrade = machine.machineData.hasWholeBuyableUpgrades;
-				machine.notifyPartialUpgrade = machine.machineData.hasPartialBuyableUpgrades;
-				machine.isFullyUpgraded = machine.machineData.isFullyUpgraded;
-			}
-		},
-		render() {
-			if (this.holdingFunction) this.holdingFunction();
-			if (this.holdingKeyFunction) this.holdingKeyFunction();
-			player.display.offset.x = Math.min(player.display.offset.x, this.maxOffsetX - this.width);
-			player.display.offset.y = Math.min(player.display.offset.y, this.maxOffsetY - this.height);
-			this.offsetX = player.display.offset.x;
-			this.offsetY = player.display.offset.y;
-			if (this.ctx === null) this.ctx = this.$refs.canvas.getContext("2d");
-			const ctx = this.ctx;
-			ctx.clearRect(0, 0, this.width, this.height);
-			ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-			for (let i = -2 - this.offsetX % 100; i < this.width; i += 100) {
-				ctx.fillRect(i - 1, 0, 2, this.height);
-			}
-			for (let i = -2 - this.offsetY % 100; i < this.height; i += 100) {
-				ctx.fillRect(0, i - 1, this.width, 2);
-			}
-			ctx.lineCap = "round";
-			ctx.globalAlpha = 0.8;
-			for (const machine of Machines[player.currentlyIn]) {
-				for (let i = 0; i < machine.pipes.length; i++) {
-					const pipes = machine.pipes[i];
-					for (const pipe of pipes) {
-						ctx.lineWidth = 9;
-						ctx.strokeStyle = "#ffffff";
-						ctx.beginPath();
-						ctx.moveTo(
-							machine.data.x + i * 30 + 15 - this.offsetX,
-							machine.data.y + machine.height + 10 - this.offsetY
-						);
-						ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
-							pipe[0].data.y - 10 - this.offsetY);
-						ctx.stroke();
-						ctx.lineWidth = 5;
-						const intermediate = arr(machine.outputHistories).findLast(x => x[i].length);
-						const currency = intermediate ? arr(intermediate[i]).last.resource : "";
-						ctx.strokeStyle = currency ? Currencies[currency].colour : "#0000";
-						ctx.beginPath();
-						ctx.moveTo(
-							machine.data.x + i * 30 + 15 - this.offsetX,
-							machine.data.y + machine.height + 10 - this.offsetY
-						);
-						ctx.lineTo(pipe[0].data.x + pipe[1].id * 30 + 15 - this.offsetX,
-							pipe[0].data.y - 10 - this.offsetY);
-						ctx.stroke();
-					}
-				}
-			}
-			ctx.globalAlpha = 1;
-			ctx.lineWidth = 5;
-			if (this.draggingPipe.type) {
-				ctx.strokeStyle = "#ffffff";
-				ctx.beginPath();
-				ctx.moveTo(this.draggingPipe.machine.data.x + this.draggingPipe.id * 30 + 15 - this.offsetX,
-					this.draggingPipe.machine.data.y + (this.draggingPipe.type === "input" ? -10
-						: this.draggingPipe.machine.height + 10) - this.offsetY);
-				if (this.hoveringPipe.type && this.hoveringPipe.type !== this.draggingPipe.type)
-					ctx.lineTo(this.hoveringPipe.machine.data.x + this.hoveringPipe.id * 30 + 15 - this.offsetX,
-						this.hoveringPipe.machine.data.y + (this.hoveringPipe.type === "input" ? -10
-							: this.hoveringPipe.machine.height + 10) - this.offsetY);
-				else
-					ctx.lineTo(mouseX - this.$refs.machineTab.offsetLeft, mouseY - this.$refs.machineTab.offsetTop);
-				ctx.stroke();
-			}
-		},
-		updateMachines() {
-			this.machines = Machines[player.currentlyIn].map(machine => ({
-				isUpgradeable: machine.isUpgradeable,
-				isFullyUpgraded: machine.isFullyUpgraded,
-				notifyUpgrade: machine.hasWholeBuyableUpgrades,
-				notifyPartialUpgrade: machine.hasPartialBuyableUpgrades,
-				machineData: machine
-			}));
-		},
-		moveMachines() {
-			//
-		},
-		registerOffsetHold(offset) {
-			if (!this.holding) {
-				this.holding = true;
-				this.holdingFunction = function() {
-					player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
-						this.maxOffsetX - this.width), 0);
-					player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
-						this.maxOffsetY - this.height), 0);
-					this.moveMachines();
-				}.bind(this);
-				const stopHolding = function() {
-					this.holding = false;
-					this.holdingFunction = null;
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		registerOffsetKey(offset) {
-			this.holdingKeyFunction = function() {
-				const { x, y } = player.display.offset;
-				player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
-					this.maxOffsetX - this.width), 0);
-				player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
-					this.maxOffsetY - this.height), 0);
-				if (this.holdingMachine) {
-					this.holdingMachine.machineData.data.x += (player.display.offset.x - x);
-					this.holdingMachine.machineData.data.y += (player.display.offset.y - y);
-				}
-				this.moveMachines();
-			}.bind(this);
-		},
-		deregisterOffsetKey() {
-			this.holdingKeyFunction = null;
-		},
-		handlePipeDrag(type, machine, id) {
-			this.holding = true;
-			this.draggingPipe.type = type;
-			this.draggingPipe.machine = machine;
-			this.draggingPipe.id = id;
-			const stopHolding = function() {
-				document.removeEventListener("mouseup", stopHolding);
-				document.removeEventListener("mouseleave", stopHolding);
-				this.handlePipeStopDrag();
-			}.bind(this);
-			document.addEventListener("mouseup", stopHolding);
-			document.addEventListener("mouseleave", stopHolding);
-		},
-		handlePipeStopDrag() {
-			this.holding = false;
-			if (this.draggingPipe.type === "output") {
-				if (this.hoveringPipe.type === "input") {
-					Pipe.removeAllInputPipesTo(this.hoveringPipe.machine, this.hoveringPipe.id);
-					this.draggingPipe.machine.addPipe(
-						this.hoveringPipe.machine,
-						this.hoveringPipe.id,
-						this.draggingPipe.id
-					);
-				}
-			} else if (this.draggingPipe.type === "input") {
-				if (this.hoveringPipe.type === "output") {
-					Pipe.removeAllInputPipesTo(this.draggingPipe.machine, this.draggingPipe.id);
-					this.hoveringPipe.machine.addPipe(
-						this.draggingPipe.machine,
-						this.draggingPipe.id,
-						this.hoveringPipe.id
-					);
-				}
-			}
-			this.draggingPipe.type = "";
-			this.draggingPipe.machine = null;
-		},
-		handlePipeHover(type, machine, id) {
-			this.hoveringPipe.type = type;
-			this.hoveringPipe.machine = machine;
-			this.hoveringPipe.id = id;
-		},
-		handlePipeStopHover() {
-			this.hoveringPipe.type = "";
-			this.hoveringPipe.machine = null;
-		},
-		handleMoveMachineStart(machine, e) {
-			const originalX = machine.machineData.data.x - e.clientX;
-			const originalY = machine.machineData.data.y - e.clientY;
-			if (!this.holding) {
-				this.holding = true;
-				this.holdingMachine = machine;
-				const followMouse = function(event) {
-					machine.machineData.data.x = Math.min(
-						Math.max(originalX + event.clientX, 30),
-						this.maxOffsetX - 270
-					);
-					machine.machineData.data.y = Math.min(
-						Math.max(originalY + event.clientY, 30),
-						this.maxOffsetY - 270
-					);
-				}.bind(this);
-				document.addEventListener("mousemove", followMouse);
-				const stopHolding = function() {
-					this.holding = false;
-					document.removeEventListener("mousemove", followMouse);
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-					this.holdingMachine = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		attemptUseDrag(event) {
-			if (!this.holding) {
-				this.holding = true;
-				let { x, y } = player.display.offset;
-				const followMouse = function(event2) {
-					// Move board position with edge handling, then move reference point if it hits the edge
-					player.display.offset.x = Math.max(Math.min(x + event.clientX - event2.clientX,
-						this.maxOffsetX - this.width), 0);
-					x = player.display.offset.x + event2.clientX - event.clientX;
-					player.display.offset.y = Math.max(Math.min(y + event.clientY - event2.clientY,
-						this.maxOffsetY - this.height), 0);
-					y = player.display.offset.y + event2.clientY - event.clientY;
-					this.moveMachines();
-					this.render();
-				}.bind(this);
-				document.addEventListener("mousemove", followMouse);
-				const stopHolding = function() {
-					this.holding = false;
-					document.removeEventListener("mousemove", followMouse);
-					document.removeEventListener("mouseup", stopHolding);
-					document.removeEventListener("mouseleave", stopHolding);
-					this.beforeDestroy = null;
-					this.holdingMachine = null;
-				}.bind(this);
-				document.addEventListener("mouseup", stopHolding);
-				document.addEventListener("mouseleave", stopHolding);
-				this.beforeDestroy = stopHolding;
-			}
-		},
-		format,
-		formatX
+	update() {
+		width = machineTab.offsetWidth;
+		height = machineTab.offsetHeight;
+	},
+	render() {
+		if (holdingFunction) holdingFunction();
+		if (holdingKeyFunction) holdingKeyFunction();
+		player.display.offset.x = Math.min(player.display.offset.x, maxOffsetX - width);
+		player.display.offset.y = Math.min(player.display.offset.y, maxOffsetY - height);
+		offsetX = player.display.offset.x;
+		offsetY = player.display.offset.y;
+		/* .
+		ctx.globalAlpha = 1;
+		ctx.lineWidth = 5;
+		if (draggingPipe.type) {
+			ctx.strokeStyle = "#ffffff";
+			ctx.beginPath();
+			ctx.moveTo(draggingPipe.machine.data.x + draggingPipe.id * 30 + 15 - offsetX,
+				draggingPipe.machine.data.y + (draggingPipe.type === "input" ? -10
+					: draggingPipe.machine.height + 10) - offsetY);
+			if (hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
+				ctx.lineTo(hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15 - offsetX,
+					hoveringPipe.machine.data.y + (hoveringPipe.type === "input" ? -10
+						: hoveringPipe.machine.height + 10) - offsetY);
+			else
+				ctx.lineTo(mouseX - $refs.machineTab.offsetLeft, mouseY - $refs.machineTab.offsetTop);
+			ctx.stroke();
+		}
+		*/
 	}
-};
+});
+function registerOffsetHold(offset) {
+	if (!holding) {
+		holding = true;
+		holdingFunction = function() {
+			player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
+				maxOffsetX - width), 0);
+			player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
+				maxOffsetY - height), 0);
+		};
+		const stopHolding = function() {
+			holding = false;
+			holdingFunction = null;
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			beforeDestroy = null;
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		beforeDestroy = stopHolding;
+	}
+}
+function registerOffsetKey(offset) {
+	holdingKeyFunction = function() {
+		const { x, y } = player.display.offset;
+		player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
+			maxOffsetX - width), 0);
+		player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
+			maxOffsetY - height), 0);
+		if (holdingMachine) {
+			holdingMachine.data.x += (player.display.offset.x - x);
+			holdingMachine.data.y += (player.display.offset.y - y);
+			holdingMachineX += (player.display.offset.x - x);
+			holdingMachineY += (player.display.offset.y - y);
+		}
+	};
+}
+function deregisterOffsetKey() {
+	holdingKeyFunction = null;
+}
+function handlePipeDrag(type, machine, id) {
+	holding = true;
+	draggingPipe.type = type;
+	draggingPipe.machine = machine;
+	draggingPipe.id = id;
+	const stopHolding = function() {
+		document.removeEventListener("mouseup", stopHolding);
+		document.removeEventListener("mouseleave", stopHolding);
+		handlePipeStopDrag();
+	};
+	document.addEventListener("mouseup", stopHolding);
+	document.addEventListener("mouseleave", stopHolding);
+}
+function handlePipeStopDrag() {
+	holding = false;
+	if (draggingPipe.type === "output") {
+		if (hoveringPipe.type === "input") {
+			Pipe.removeAllInputPipesTo(hoveringPipe.machine, hoveringPipe.id);
+			draggingPipe.machine.addPipe(
+				hoveringPipe.machine,
+				hoveringPipe.id,
+				draggingPipe.id
+			);
+		}
+	} else if (draggingPipe.type === "input") {
+		if (hoveringPipe.type === "output") {
+			Pipe.removeAllInputPipesTo(draggingPipe.machine, draggingPipe.id);
+			hoveringPipe.machine.addPipe(
+				draggingPipe.machine,
+				draggingPipe.id,
+				hoveringPipe.id
+			);
+		}
+	}
+	draggingPipe.type = "";
+	draggingPipe.machine = null;
+}
+function handlePipeHover(type, machine, id) {
+	hoveringPipe.type = type;
+	hoveringPipe.machine = machine;
+	hoveringPipe.id = id;
+}
+function handlePipeStopHover() {
+	hoveringPipe.type = "";
+	hoveringPipe.machine = null;
+}
+function handleMoveMachineStart(machine, e) {
+	holdingMachineX = machine.data.x - e.clientX;
+	holdingMachineY = machine.data.y - e.clientY;
+	if (!holding) {
+		holding = true;
+		holdingMachine = machine;
+		const followMouse = function(event) {
+			machine.data.x = Math.min(
+				Math.max(holdingMachineX + event.clientX, 30),
+				maxOffsetX - 270
+			);
+			machine.data.y = Math.min(
+				Math.max(holdingMachineY + event.clientY, 30),
+				maxOffsetY - 270
+			);
+		};
+		document.addEventListener("mousemove", followMouse);
+		const stopHolding = function() {
+			holding = false;
+			document.removeEventListener("mousemove", followMouse);
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			beforeDestroy = null;
+			holdingMachine = null;
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		beforeDestroy = stopHolding;
+	}
+}
+function attemptUseDrag(event) {
+	if (!holding) {
+		holding = true;
+		let { x, y } = player.display.offset;
+		const followMouse = function(event2) {
+			// Move board position with edge handling, then move reference point if it hits the edge
+			player.display.offset.x = Math.max(Math.min(x + event.clientX - event2.clientX,
+				maxOffsetX - width), 0);
+			x = player.display.offset.x + event2.clientX - event.clientX;
+			player.display.offset.y = Math.max(Math.min(y + event.clientY - event2.clientY,
+				maxOffsetY - height), 0);
+			y = player.display.offset.y + event2.clientY - event.clientY;
+		};
+		document.addEventListener("mousemove", followMouse);
+		const stopHolding = function() {
+			holding = false;
+			document.removeEventListener("mousemove", followMouse);
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			beforeDestroy = null;
+			holdingMachine = null;
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		beforeDestroy = stopHolding;
+	}
+}
 </script>
 
 <template>
@@ -316,18 +245,27 @@ export default {
 		@mousedown="attemptUseDrag"
 	>
 		<span class="c-machine-tab__fast-time-display">
-			Fast Time: {{ format(fastTime, 2, 2) }}s
-			<template v-if="fastTime > 0">
+			Fast Time: {{ format(player.fastTime, 2, 2) }}s
+			<template v-if="player.fastTime > 0">
 				<br>
 				Time speedup: {{ formatX(4, 2, 1) }}
 			</template>
 		</span>
-		<canvas
+		<svg
 			ref="canvas"
 			class="c-machine-tab__canvas"
-			:width="width"
-			:height="height"
-		/>
+			:style="{
+				transform: `translate(-${offsetX}px, -${offsetY}px)`
+			}"
+			:width="maxOffsetX"
+			:height="maxOffsetY"
+		>
+			<pipe-connection
+				v-for="(pipe, id) in pipes"
+				:key="id"
+				:pipe="pipe"
+			/>
+		</svg>
 		<div
 			:style="{
 				transform: `translate(-${offsetX}px, -${offsetY}px)`
@@ -335,7 +273,7 @@ export default {
 		>
 			<machine-container
 				v-for="machine in machines"
-				:key="machine.machineData.id"
+				:key="machine.id"
 				:machine="machine"
 				@input-pipe-drag-start="(machine, id) => handlePipeDrag('input', machine, id)"
 				@output-pipe-drag-start="(machine, id) => handlePipeDrag('output', machine, id)"

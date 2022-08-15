@@ -1,3 +1,5 @@
+import { reactive, toRaw } from "vue";
+
 import { deepAssign, deepClone, objectMap } from "../utils";
 
 import { initializeMachines, MachineTypes } from "./machines/index";
@@ -71,7 +73,7 @@ export const Player = {
 		return fillObject;
 	},
 	savePlayer() {
-		localStorage.setItem(this.storageKey, JSON.stringify(player));
+		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
 		for (const town in player.towns) {
@@ -127,7 +129,7 @@ export const Player = {
 	}
 };
 
-export const player = {};
+export const player = reactive({});
 window.player = player;
 
 window.addEventListener("load", () => Player.loadSave());

@@ -14,8 +14,8 @@ export function onMount(options = {}) {
 			options.render();
 		}
 		if (options.on) {
-			for (const event of options.on) {
-				Eventhub.ui.on(event, options.on[event], tempComponentId);
+			for (const event in options.on) {
+				EventHub.ui.on(event, options.on[event], tempComponentId);
 			}
 		}
 	});

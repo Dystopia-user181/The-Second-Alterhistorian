@@ -18,14 +18,14 @@ const emit = defineEmits([
 const machine = computed(() => props.machine);
 
 function openUpgrades() {
-	Modals.machineUpgrades.show({ machine: machine.value.machineData });
+	Modals.machineUpgrades.show({ machine: machine.value });
 }
 
 function deleteMachine() {
 	if (shiftDown) {
-		Machine.remove(machine.value.machineData);
+		Machine.remove(machine.value);
 	} else {
-		Modals.removeMachine.show({ machine: machine.value.machineData });
+		Modals.removeMachine.show({ machine: machine.value });
 	}
 }
 </script>
@@ -48,19 +48,19 @@ function deleteMachine() {
 		/>
 		<div
 			class="fas fa-info-circle"
-			@mousedown="machine.machineData.showDescription()"
+			@mousedown="machine.showDescription()"
 		/>
 		<div
 			class="fas fa-chart-bar"
-			@mousedown="machine.machineData.showProduction()"
+			@mousedown="machine.showProduction()"
 		/>
 		<div
 			class="fas"
-			:class="machine.machineData.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
-			@mousedown="machine.machineData.toggleMinimized()"
+			:class="machine.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
+			@mousedown="machine.toggleMinimized()"
 		/>
 		<div
-			v-if="!machine.machineData.data.isDefault"
+			v-if="!machine.data.isDefault"
 			class="fas fa-trash"
 			@mousedown="deleteMachine()"
 		/>
