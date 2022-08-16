@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from "vue";
-
 import { Machine } from "@/js/machines/index";
 import { Modals } from "@/js/ui/modals";
+
+import { onMount } from "@/components/mixins";
 
 const props = defineProps({
 	machine: {
@@ -15,23 +15,47 @@ const emit = defineEmits([
 	"move-machine-start"
 ]);
 
-const machine = computed(() => props.machine);
+const machine = $computed(() => props.machine);
+
+let animation = $ref(false);
+let isFullyUpgraded = $ref(false);
+let hasPartialBuyableUpgrades = $ref(false);
+let hasWholeBuyableUpgrades = $ref(false);
+
+
+onMount({
+	onMount() {
+		if (machine.isNew) {
+			animation = true;
+		}
+	},
+	update() {
+		isFullyUpgraded = machine.isFullyUpgraded;
+		hasPartialBuyableUpgrades = machine.hasPartialBuyableUpgrades;
+		hasWholeBuyableUpgrades = machine.hasWholeBuyableUpgrades;
+	}
+});
 
 function openUpgrades() {
-	Modals.machineUpgrades.show({ machine: machine.value });
+	Modals.machineUpgrades.show({ machine });
 }
 
 function deleteMachine() {
 	if (shiftDown) {
-		Machine.remove(machine.value);
+		Machine.remove(machine);
 	} else {
-		Modals.removeMachine.show({ machine: machine.value });
+		Modals.removeMachine.show({ machine });
 	}
 }
 </script>
 
 <template>
-	<div class="c-machine-sidebar">
+	<div
+		class="c-machine-sidebar"
+		:class="{
+			'c-machine-sidebar--new': animation
+		}"
+	>
 		<div
 			class="fas fa-arrows"
 			@mousedown="emit('move-machine-start', $event)"
@@ -40,9 +64,9 @@ function deleteMachine() {
 			v-if="machine.isUpgradeable"
 			class="fas fa-arrow-up"
 			:class="{
-				'c-darker': machine.isFullyUpgraded,
-				'c-glow-green': machine.notifyPartialUpgrade,
-				'c-glow-yellow': machine.notifyUpgrade,
+				'c-darker': isFullyUpgraded,
+				'c-glow-green': hasPartialBuyableUpgrades,
+				'c-glow-yellow': hasWholeBuyableUpgrades,
 			}"
 			@mousedown="openUpgrades()"
 		/>
@@ -74,6 +98,10 @@ function deleteMachine() {
 	flex-direction: column;
 	transform: translateX(calc(0.3px - 100%));
 	z-index: 1;
+}
+
+.c-machine-sidebar--new {
+	animation: a-just-bought 3s;
 }
 
 .c-machine-sidebar .fas {
@@ -114,5 +142,10 @@ function deleteMachine() {
 .c-machine-sidebar .fa-trash {
 	cursor: pointer;
 	color: #cc5555;
+}
+
+@keyframes a-just-bought {
+	0% { filter: brightness(400%) drop-shadow(0 0 50px #ffffff); }
+	100% { filter: brightness(100%) drop-shadow(0 0 0 transparent); }
 }
 </style>

@@ -17,18 +17,20 @@ let offsetX = $ref(0);
 let offsetY = $ref(0);
 let width = $ref(0);
 let height = $ref(0);
+let mouseX = $ref(0);
+let mouseY = $ref(0);
 let holdingFunction = null;
 let holdingKeyFunction = null;
-const draggingPipe = {
+const draggingPipe = $ref({
 	type: "",
 	machine: null,
 	id: 0
-};
-const hoveringPipe = {
+});
+const hoveringPipe = $ref({
 	type: "",
 	machine: null,
 	id: 0
-};
+});
 
 const machineTab = $ref(null);
 
@@ -68,30 +70,14 @@ onMount({
 		height = machineTab.offsetHeight;
 	},
 	render() {
+		mouseX = window.mouseX;
+		mouseY = window.mouseY;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
 		player.display.offset.x = Math.min(player.display.offset.x, maxOffsetX - width);
 		player.display.offset.y = Math.min(player.display.offset.y, maxOffsetY - height);
 		offsetX = player.display.offset.x;
 		offsetY = player.display.offset.y;
-		/* .
-		ctx.globalAlpha = 1;
-		ctx.lineWidth = 5;
-		if (draggingPipe.type) {
-			ctx.strokeStyle = "#ffffff";
-			ctx.beginPath();
-			ctx.moveTo(draggingPipe.machine.data.x + draggingPipe.id * 30 + 15 - offsetX,
-				draggingPipe.machine.data.y + (draggingPipe.type === "input" ? -10
-					: draggingPipe.machine.height + 10) - offsetY);
-			if (hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
-				ctx.lineTo(hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15 - offsetX,
-					hoveringPipe.machine.data.y + (hoveringPipe.type === "input" ? -10
-						: hoveringPipe.machine.height + 10) - offsetY);
-			else
-				ctx.lineTo(mouseX - $refs.machineTab.offsetLeft, mouseY - $refs.machineTab.offsetTop);
-			ctx.stroke();
-		}
-		*/
 	}
 });
 function registerOffsetHold(offset) {
@@ -265,6 +251,23 @@ function attemptUseDrag(event) {
 				:key="id"
 				:pipe="pipe"
 			/>
+			<line
+				v-if="draggingPipe.type"
+				class="c-machine-tab__dragging-pipe"
+				:x1="draggingPipe.machine.data.x + draggingPipe.id * 30 + 15"
+				:y1="draggingPipe.machine.data.y + (draggingPipe.type === 'input' ? -10
+					: draggingPipe.machine.height + 10)"
+				:x2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
+					? hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15
+					: mouseX + machineTab.offsetLeft + offsetX"
+				:y2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
+					? hoveringPipe.machine.data.y + (hoveringPipe.type === 'input' ? -10
+						: hoveringPipe.machine.height + 10)
+					: mouseY - machineTab.offsetTop + offsetY"
+				stroke="gold"
+				stroke-width="10"
+				stroke-linecap="round"
+			/>
 		</svg>
 		<div
 			:style="{
@@ -371,5 +374,15 @@ function attemptUseDrag(event) {
 	padding: 5px;
 	background-color: #24242488;
 	border-bottom-right-radius: 5px;
+}
+
+.c-machine-tab__dragging-pipe {
+	animation: a-opacity 2s infinite;
+}
+
+@keyframes a-opacity {
+	0% { opacity: 1; }
+	50% { opacity: 0.6; }
+	100% { opacity: 1; }
 }
 </style>

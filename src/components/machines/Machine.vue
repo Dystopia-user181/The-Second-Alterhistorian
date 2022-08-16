@@ -1,6 +1,4 @@
 <script setup>
-import { ref, shallowRef } from "vue";
-
 import { onMount } from "@/components/mixins";
 
 import { Pipe } from "@/js/machines/index";
@@ -24,44 +22,45 @@ const emit = defineEmits([
 	"move-machine-start"
 ]);
 
-const inputs = shallowRef([]);
-const inputData = shallowRef([]);
-const outputs = shallowRef([]);
-const outputData = shallowRef([]);
-const animation = ref(false);
-const isMin = ref(false);
-const hasWholeBuyableUpgrades = ref(false);
-const hasPartialBuyableUpgrades = ref(false);
-const unlockedPipes = ref(false);
+let inputs = $shallowRef([]);
+let inputData = $shallowRef([]);
+let outputs = $shallowRef([]);
+let outputData = $shallowRef([]);
+let animation = $ref(false);
+let isMin = $ref(false);
+let hasWholeBuyableUpgrades = $ref(false);
+let hasPartialBuyableUpgrades = $ref(false);
+let unlockedPipes = $ref(false);
 let holdFunction = null, beforeDestroy = null;
+
+const machine = $computed(() => props.machine);
 
 
 onMount({
 	onMount() {
-		if (props.machine.isNew) {
-			animation.value = true;
-			delete props.machine.isNew;
+		if (machine.isNew) {
+			animation = true;
+			requestAnimationFrame(() => delete machine.isNew);
 		}
 	},
 	beforeUnmount() {
 		if (beforeDestroy) beforeDestroy();
 	},
 	update() {
-		const machine = props.machine;
-		unlockedPipes.value = Pipe.isUnlocked;
-		hasWholeBuyableUpgrades.value = machine.hasWholeBuyableUpgrades;
-		hasPartialBuyableUpgrades.value = machine.hasPartialBuyableUpgrades;
-		isMin.value = machine.data.min;
-		inputs.value = machine.inputs.filter(x => x.isUnlocked);
-		outputs.value = machine.outputs.filter(x => x.isUnlocked);
-		inputData.value = inputs.value.map(x => ({
+		unlockedPipes = Pipe.isUnlocked;
+		hasWholeBuyableUpgrades = machine.hasWholeBuyableUpgrades;
+		hasPartialBuyableUpgrades = machine.hasPartialBuyableUpgrades;
+		isMin = machine.data.min;
+		inputs = machine.inputs.filter(x => x.isUnlocked);
+		outputs = machine.outputs.filter(x => x.isUnlocked);
+		inputData = inputs.map(x => ({
 			stack: x.data,
 			resource: str(x.displayResource[0]).capitalize,
 			amount: Stack.volumeOfStack(x.data),
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
-		outputData.value = outputs.value.map(x => ({
+		outputData = outputs.map(x => ({
 			stack: x.data,
 			resource: str(x.displayResource[0]).capitalize,
 			amount: Stack.volumeOfStack(x.data),
