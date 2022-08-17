@@ -31,9 +31,9 @@ GameDatabase.machines.inputMerger = {
 	}],
 	customLoop(diff) {
 		const cycle = [
-			Math.floor(Date.now() / 1000) % 3,
-			Math.floor(Date.now() / 1000 + 1) % 3,
-			Math.floor(Date.now() / 1000 + 2) % 3
+			Math.floor(this.updates / 30) % 3,
+			Math.floor(this.updates / 30 + 1) % 3,
+			Math.floor(this.updates / 30 + 2) % 3
 		];
 		// eslint-disable-next-line no-nested-ternary
 		const inputResource = this.inputItem(cycle[0]) ? this.inputItem(cycle[0]).resource : (
