@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { computed, reactive } from "vue";
 
 import { MachinesById, Pipes } from "./player-proxy";
 
@@ -6,7 +6,7 @@ import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { areArraysEqualSets, arr, formatX, objectMap, run, str } from "@/utils";
+import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, str } from "@/utils";
 
 function acceptsAll(accepts) {
 	return areArraysEqualSets(accepts, Object.keys(Currencies));
@@ -16,6 +16,14 @@ class MachineUpgrade {
 	constructor(config, parentMachine) {
 		this.config = config;
 		this.parentMachine = parentMachine;
+
+		this._count = computed(() => this.parentMachine.data.upgrades[this.id]);
+		this._effect = computed(() => run(this.config.effect, this.count));
+		this._isUnlocked = computed(
+			this.config.isUnlocked === undefined
+				? () => true
+				: () => run(this.config.isUnlocked, this.parentMachine)
+		);
 	}
 
 	get id() {
@@ -23,7 +31,7 @@ class MachineUpgrade {
 	}
 
 	get count() {
-		return this.parentMachine.data.upgrades[this.id];
+		return this._count.value;
 	}
 
 	set count(x) {
@@ -47,7 +55,7 @@ class MachineUpgrade {
 	}
 
 	get effect() {
-		return run(this.config.effect, this.count);
+		return this._effect.value;
 	}
 
 	get formattedEffect() {
@@ -63,7 +71,7 @@ class MachineUpgrade {
 	}
 
 	get isUnlocked() {
-		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this.parentMachine);
+		return this._isUnlocked.value;
 	}
 
 	get canAfford() {
@@ -122,41 +130,23 @@ export function MachineType(data) {
 
 			this.pipes = [];
 			this.updates = 0;
-			// Have to use alias to make it available for use in inputs and outputs
+			// Need inconsistent this because of "isUnlocked" property
 			// eslint-disable-next-line consistent-this
 			const machine = this;
-			this.inputs = this.type.inputs.map((x, id) => ({
+			this.inputs = this.type.inputs.map((input, id) => ({
 				id,
-				get config() {
-					return objectMap(x, y => y, (item, propName) => {
-						switch (propName) {
-							case "capacity": case "consumes": case "accepts": case "label":
-								return run(item, machine);
-							default:
-								return item;
-						}
-					});
-				},
+				config: BulkRun(input, [this], ["capacity", "consumes", "accepts", "label"]),
 				get isUnlocked() {
-					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
+					return input.isUnlocked === undefined ? true : run(input.isUnlocked, machine);
 				},
 				data: this.data.inputs[id],
 				displayResource: reactive(["none", Infinity])
 			}));
-			this.outputs = this.type.outputs.map((x, id) => ({
+			this.outputs = this.type.outputs.map((output, id) => ({
 				id,
-				get config() {
-					return objectMap(x, y => y, (item, propName) => {
-						switch (propName) {
-							case "capacity": case "produces": case "requires": case "requiresList": case "label":
-								return run(item, machine);
-							default:
-								return item;
-						}
-					});
-				},
+				config: BulkRun(output, [this], ["capacity", "produces", "requires", "requiresList", "label"]),
 				get isUnlocked() {
-					return x.isUnlocked === undefined ? true : run(x.isUnlocked, machine);
+					return output.isUnlocked === undefined ? true : run(output.isUnlocked, machine);
 				},
 				data: this.data.outputs[id],
 				displayResource: reactive(["none", Infinity])

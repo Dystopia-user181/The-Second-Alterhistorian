@@ -16,7 +16,7 @@ export function gameLoop(_diff) {
 	EventHub.dispatch(GAME_EVENTS.GAME_TICK_AFTER);
 }
 
-window.gameLoopInterval = setInterval(gameLoop, 50);
+window.gameLoopInterval = setInterval(gameLoop, 30);
 
 function render() {
 	GameUI.render();

@@ -36,7 +36,7 @@ export function deepClone(object) {
 	let fillObject;
 	if (object.constructor === Array) fillObject = [];
 	else fillObject = {};
-	for (const prop of Object.keys(object)) {
+	for (const prop in object) {
 		fillObject[prop] = deepClone(object[prop]);
 	}
 	return fillObject;
