@@ -3,7 +3,7 @@ import { reactive, toRaw } from "vue";
 import { deepAssign, deepClone, objectMap } from "../utils";
 
 import { initializeMachines, MachineTypes } from "./machines/index";
-import { Currencies } from "./database/currencies";
+import { Currencies } from "./database/currencies.ts";
 import { migrations } from "./migrations";
 import { Towns } from "./towns/index";
 

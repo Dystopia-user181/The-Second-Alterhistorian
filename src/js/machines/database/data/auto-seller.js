@@ -1,6 +1,6 @@
 import { Machine, Pipe } from "../../logic";
 
-import { Currencies } from "@/js/database/currencies";
+import { Currencies } from "@/js/database/currencies.ts";
 import { GameDatabase } from "@/js/database/index";
 
 import { Stack } from "@/utils";

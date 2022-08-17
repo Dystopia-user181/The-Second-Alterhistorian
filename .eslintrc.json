@@ -16,6 +16,42 @@
 	"plugins": [
 		"vue"
 	],
+	"ignorePatterns": [
+		"dist/"
+	],
+	"overrides": [
+		{
+			"files": [
+				"src/**/*.ts",
+				"src/**/*.tsx"
+			],
+			"extends": [
+				"eslint:recommended",
+				"plugin:@typescript-eslint/eslint-recommended",
+				"plugin:@typescript-eslint/recommended",
+				"plugin:@typescript-eslint/recommended-requiring-type-checking",
+				"plugin:vue/essential",
+				"plugin:import/recommended",
+				"plugin:vue/recommended"
+			],
+			"parserOptions": {
+				"parser": "@typescript-eslint/parser",
+				"project": "./tsconfig.eslint.json",
+				"sourceType": "module",
+				"ecmaVersion": "latest"
+			},
+			"plugins": [
+				"@typescript-eslint",
+				"vue"
+			],
+			"rules": {
+				"import/no-unresolved": "off",
+				"no-shadow": "off",
+				"no-unused-vars": "off",
+				"no-use-before-define": "off"
+			}
+		}
+	],
 	"settings": {
 		"import/resolver": {
 			"alias": {
