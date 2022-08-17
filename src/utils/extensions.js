@@ -31,6 +31,17 @@ export function mergeUnique(a, b) {
 	return a.concat(b.filter(item => a.indexOf(item) < 0));
 }
 
+export function shallowClone(object) {
+	if (typeof object !== "object" || object === null) return object;
+	let fillObject;
+	if (object.constructor === Array) fillObject = [];
+	else fillObject = {};
+	for (const prop in object) {
+		fillObject[prop] = object[prop];
+	}
+	return fillObject;
+}
+
 export function deepClone(object) {
 	if (typeof object !== "object" || object === null) return object;
 	let fillObject;

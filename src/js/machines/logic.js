@@ -1,6 +1,6 @@
 import { player } from "@/js/player";
 
-import { arr, deepClone, Stack } from "@/utils";
+import { arr, deepClone, shallowClone, Stack } from "@/utils";
 
 import { Towns } from "@/js/towns/index";
 
@@ -43,15 +43,15 @@ export const Machine = {
 		}
 	},
 	addInputHistory(machine) {
-		machine.inputHistories.push(deepClone((machine.data.inputs || []).map(x => x.slice(-20))));
+		machine.inputHistories.push((machine.data.inputs || []).map(x => x.slice(-20)));
 		if (machine.inputHistories.length > 10) machine.inputHistories.shift();
-		machine.inputConfHistories.push(deepClone(machine.inputs.map(x => x.config)));
+		machine.inputConfHistories.push(machine.inputs.map(x => shallowClone(x.config)));
 		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
 	},
 	addOutputHistory(machine) {
-		machine.outputHistories.push(deepClone((machine.data.outputs || []).map(x => x.slice(-20))));
+		machine.outputHistories.push((machine.data.outputs || []).map(x => x.slice(-20)));
 		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
-		machine.outputConfHistories.push(deepClone(machine.outputs.map(x => x.config)));
+		machine.outputConfHistories.push(machine.outputs.map(x => shallowClone(x.config)));
 		if (machine.outputConfHistories.length > 10) machine.outputConfHistories.shift();
 	},
 	tickThisMachine(machine, diff) {
