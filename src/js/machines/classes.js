@@ -1,4 +1,4 @@
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 
 import { MachinesById, Pipes } from "./player-proxy";
 
@@ -6,7 +6,7 @@ import { Currencies } from "@/js/database/currencies";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, str } from "@/utils";
+import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, Stack, str } from "@/utils";
 
 function acceptsAll(accepts) {
 	return areArraysEqualSets(accepts, Object.keys(Currencies));
@@ -140,6 +140,28 @@ export function MachineType(data) {
 					return input.isUnlocked === undefined ? true : run(input.isUnlocked, machine);
 				},
 				data: this.data.inputs[id],
+				_volume: ref(Stack.volumeOfStack(this.data.inputs[id])),
+				get volume() { return this._volume.value; },
+				set volume(x) { this._volume.value = x; },
+				addToStack(item) {
+					// Skip capacity because it's only used in spaceLeft
+					const amt = Stack.addToStack(this.data, item, 0, {
+						spaceLeft: this.spaceLeft
+					});
+					this.volume += amt;
+					return amt;
+				},
+				removeFromStack(item) {
+					const amt = Stack.removeFromStack(this.data, item);
+					this.volume -= amt;
+					return amt;
+				},
+				get spaceLeft() {
+					return this.config.capacity - this.volume;
+				},
+				get isCapped() {
+					return this.spaceLeft <= Number.EPSILON;
+				},
 				displayResource: reactive(["none", Infinity])
 			}));
 			this.outputs = this.type.outputs.map((output, id) => ({
@@ -149,6 +171,28 @@ export function MachineType(data) {
 					return output.isUnlocked === undefined ? true : run(output.isUnlocked, machine);
 				},
 				data: this.data.outputs[id],
+				_volume: ref(Stack.volumeOfStack(this.data.outputs[id])),
+				get volume() { return this._volume.value; },
+				set volume(x) { this._volume.value = x; },
+				addToStack(item) {
+					// Skip capacity because it's only used in spaceLeft
+					const amt = Stack.addToStack(this.data, item, 0, {
+						spaceLeft: this.spaceLeft
+					});
+					this.volume += amt;
+					return amt;
+				},
+				removeFromStack(item) {
+					const amt = Stack.removeFromStack(this.data, item);
+					this.volume -= amt;
+					return amt;
+				},
+				get spaceLeft() {
+					return this.config.capacity - this.volume;
+				},
+				get isCapped() {
+					return this.spaceLeft <= Number.EPSILON;
+				},
 				displayResource: reactive(["none", Infinity])
 			}));
 			Promise.resolve().then(() => this.updatePipes());

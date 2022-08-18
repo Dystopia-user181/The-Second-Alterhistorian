@@ -26,9 +26,10 @@ let shouldExist = $ref(false);
 
 onMount({
 	update() {
-		if (rx2 < player.display.offset.x || ry2 < player.display.offset.y)
+		const offsetX = player.display.offset.x, offsetY = player.display.offset.y;
+		if (rx2 < offsetX || ry2 < offsetY)
 			shouldExist = false;
-		else if (rx1 > player.display.offset.x + innerWidth || ry1 > player.display.offset.y + innerHeight)
+		else if (rx1 > offsetX + window.innerWidth || ry1 > offsetY + window.innerHeight)
 			shouldExist = false;
 		else
 			shouldExist = true;

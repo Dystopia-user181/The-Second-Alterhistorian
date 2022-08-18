@@ -4,7 +4,7 @@ import { onMount } from "@/components/mixins";
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, Stack, str } from "@/utils";
+import { arr, format, str } from "@/utils";
 
 import ResourceStack from "./ResourceStack.vue";
 
@@ -56,14 +56,12 @@ onMount({
 		inputData = inputs.map(x => ({
 			stack: x.data,
 			resource: str(x.displayResource[0]).capitalize,
-			amount: Stack.volumeOfStack(x.data),
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
 		outputData = outputs.map(x => ({
 			stack: x.data,
 			resource: str(x.displayResource[0]).capitalize,
-			amount: Stack.volumeOfStack(x.data),
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
@@ -77,7 +75,7 @@ function transferFromOutputToHolding(output) {
 	if (!output.data.length) return;
 	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
 	else if (player.holding.resource !== arr(output.data).last.resource) return;
-	player.holding.amount += Stack.removeFromStack(output.data, output.config.capacity * 0.007);
+	player.holding.amount += output.removeFromStack(output.config.capacity * 0.007);
 	if (player.holding.amount < 0.001) player.holding.amount = 0;
 }
 
@@ -104,16 +102,16 @@ function allToHolding(output) {
 	if (!output.data.length) return;
 	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
 	else if (player.holding.resource !== arr(output.data).last.resource) return;
-	player.holding.amount += Stack.removeFromStack(output.data, arr(output.data).last.amount);
+	player.holding.amount += output.removeFromStack(Infinity);
 	if (player.holding.amount < 0.001) player.holding.amount = 0;
 }
 
 function transferFromHoldingToInput(input) {
 	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-	player.holding.amount -= Stack.addToStack(input.data, {
+	player.holding.amount -= input.addToStack({
 		resource: player.holding.resource,
 		amount: Math.min(input.config.capacity * 0.007, player.holding.amount)
-	}, input.config.capacity);
+	});
 }
 
 function registerInputHold(input, e) {
@@ -137,10 +135,10 @@ function registerInputHold(input, e) {
 
 function allToInput(input) {
 	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
-	player.holding.amount -= Stack.addToStack(input.data, {
+	player.holding.amount -= input.addToStack({
 		resource: player.holding.resource,
 		amount: player.holding.amount
-	}, input.config.capacity);
+	});
 }
 
 function inputClassObject(input) {
@@ -218,10 +216,10 @@ function emitOutputPipeHover(id) {
 					@mousedown="registerInputHold(input, $event)"
 				>
 					<resource-stack
-						:stack="inputData[id].stack"
+						:stack="input.data"
 						:capacity="inputData[id].capacity"
 					>
-						{{ format(inputData[id].amount, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
+						{{ format(input.volume, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
 						<br>
 						Input {{ id + 1 }}
 						<br>
@@ -244,10 +242,10 @@ function emitOutputPipeHover(id) {
 					@mousedown="registerOutputHold(output, $event)"
 				>
 					<resource-stack
-						:stack="outputData[id].stack"
+						:stack="output.data"
 						:capacity="outputData[id].capacity"
 					>
-						{{ format(outputData[id].amount, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
+						{{ format(output.volume, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
 						<br>
 						Output {{ id + 1 }}
 						<br>

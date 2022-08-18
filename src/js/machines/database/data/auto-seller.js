@@ -3,8 +3,6 @@ import { Machine, Pipe } from "../../logic";
 import { Currencies } from "@/js/database/currencies";
 import { GameDatabase } from "@/js/database/index";
 
-import { Stack } from "@/utils";
-
 GameDatabase.machines.autoSeller = {
 	name: "autoSeller",
 	inputs: [{
@@ -18,8 +16,8 @@ GameDatabase.machines.autoSeller = {
 		Machine.addOutputHistory(this);
 		if (!this.inputItem(0)) return;
 		const currency = this.inputItem(0).resource;
-		const amt = Stack.removeFromStack(this.inputs[0].data, 20 * diff);
-		player.money += Currencies[currency].value * amt;
+		const amount = this.inputs[0].removeFromStack(20 * diff);
+		player.money += Currencies[currency].value * amount;
 		Pipe.tickPipes(this, diff);
 	},
 	description: `Automagically sells things.`

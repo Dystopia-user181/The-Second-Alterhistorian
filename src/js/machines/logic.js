@@ -65,12 +65,12 @@ export const Machine = {
 		machine.outputDiffs = {};
 		const outputs = machine.outputs.filter(x => x.isUnlocked);
 		let inputs = deepClone(machine.inputs.filter(x => x.isUnlocked));
-		outputs.forEach(x => {
-			const conf = x.config;
-			x.otherwiseDiff = diff;
-			x.maxDiff = (conf.capacity - Stack.volumeOfStack(x.data)) / conf.produces.amount;
-			if (isNaN(x.maxDiff)) {
-				x.maxDiff = 0;
+		outputs.forEach(output => {
+			const conf = output.config;
+			output.otherwiseDiff = diff;
+			output.maxDiff = (conf.capacity - Stack.volumeOfStack(output.data)) / conf.produces.amount;
+			if (isNaN(output.maxDiff)) {
+				output.maxDiff = 0;
 				return;
 			}
 			if (!conf.requires && !conf.requiresList) return;
@@ -79,46 +79,46 @@ export const Machine = {
 			for (const requirement of requiresList) {
 				const input = arr(inputs[requirement.inputId].data).last;
 				if (!input) {
-					x.maxDiff = 0;
+					output.maxDiff = 0;
 					return;
 				}
 				if (requirement.resource) {
 					if (input.resource !== requirement.resource) {
-						x.maxDiff = 0;
+						output.maxDiff = 0;
 						return;
 					}
-					x.maxDiff = Math.min(x.maxDiff, input.amount / requirement.amount);
+					output.maxDiff = Math.min(output.maxDiff, input.amount / requirement.amount);
 				} else if (requirement.resourceList) {
 					const resource = requirement.resourceList.find(required => required.resource === input.resource);
 					if (!resource) {
-						x.maxDiff = 0;
+						output.maxDiff = 0;
 						return;
 					}
-					x.maxDiff = Math.min(x.maxDiff, input.amount / resource.amount);
+					output.maxDiff = Math.min(output.maxDiff, input.amount / resource.amount);
 				}
 			}
 		});
-		outputs.forEach((x, id) => {
-			const conf = x.config;
+		outputs.forEach((output, id) => {
+			const conf = output.config;
 			const produces = {
 				resource: conf.produces.resource,
-				amount: conf.produces.amount * Math.min(x.maxDiff, diff)
+				amount: conf.produces.amount * Math.min(output.maxDiff, diff)
 			};
 			if (produces.amount) player.unlockedCurrencies[produces.resource] = true;
-			Stack.addToStack(x.data, produces);
-			machine.outputDiffs[conf.id === undefined ? id : conf.id] = Math.min(x.maxDiff, diff);
+			output.addToStack(produces);
+			machine.outputDiffs[conf.id === undefined ? id : conf.id] = Math.min(output.maxDiff, diff);
 		});
 		Machine.addInputHistory(machine);
 		Machine.addOutputHistory(machine);
 		// Re-calculate inputs
 		inputs = machine.inputs.filter(x => x.isUnlocked);
-		inputs.forEach(x => {
-			x.otherwiseDiff = diff;
-			const conf = x.config;
+		inputs.forEach(input => {
+			input.otherwiseDiff = diff;
+			const conf = input.config;
 			const amount = typeof conf.consumes === "object"
 				? Math.min(conf.consumes.amount * diff, conf.consumes.maximum)
 				: conf.consumes * diff;
-			if (x.data.length) Stack.removeFromStack(x.data, amount);
+			if (input.data.length) input.removeFromStack(amount);
 		});
 	}
 };
@@ -152,11 +152,11 @@ export const Pipe = {
 				const input = pipe[1];
 				if (!input.config.accepts.includes(outputLast.resource)) continue;
 				const amount = amtLeftMultiplier * ratios.shift();
-				Stack.removeFromStack(output.data,
-					Stack.addToStack(input.data, {
+				output.removeFromStack(
+					input.addToStack({
 						resource: outputLast.resource,
 						amount
-					}, input.config.capacity)
+					})
 				);
 			}
 		}
