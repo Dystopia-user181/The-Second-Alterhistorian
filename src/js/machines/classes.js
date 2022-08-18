@@ -1,4 +1,4 @@
-import { computed, reactive, ref } from "vue";
+import { computed, markRaw, reactive, ref } from "vue";
 
 import { MachinesById, Pipes } from "./player-proxy";
 
@@ -17,13 +17,24 @@ class MachineUpgrade {
 		this.config = config;
 		this.parentMachine = parentMachine;
 
-		this._count = computed(() => this.parentMachine.data.upgrades[this.id]);
-		this._effect = computed(() => run(this.config.effect, this.count));
-		this._isUnlocked = computed(
-			this.config.isUnlocked === undefined
-				? () => true
-				: () => run(this.config.isUnlocked, this.parentMachine)
-		);
+		// `markRaw` is needed to prevent vue from auto unwrapping computed getters when this is
+		// passed as a prop
+		this._ = markRaw((upgrade => ({
+			count: computed(() => upgrade.parentMachine.data.upgrades[upgrade.id]),
+			effect: computed(() => run(upgrade.config.effect, upgrade.count)),
+			cost: computed(() => run(upgrade.config.cost, upgrade.count) - upgrade.prepay),
+			currencyType: computed(() => run(upgrade.config.currencyType, upgrade.count)),
+			isUnlocked: computed(
+				upgrade.config.isUnlocked === undefined
+					? () => true
+					: () => run(upgrade.config.isUnlocked, upgrade.parentMachine)
+			),
+			formattedEffect: computed(upgrade.config.formatEffect
+				? () => upgrade.config.formatEffect(upgrade.effect)
+				: () => formatX(upgrade.effect, 2, 1)),
+			title: computed(() => run(upgrade.config.title, upgrade)),
+			description: computed(() => run(upgrade.config.description, upgrade)),
+		}))(this));
 	}
 
 	get id() {
@@ -31,7 +42,7 @@ class MachineUpgrade {
 	}
 
 	get count() {
-		return this._count.value;
+		return this._.count.value;
 	}
 
 	set count(x) {
@@ -47,31 +58,23 @@ class MachineUpgrade {
 	}
 
 	get cost() {
-		return run(this.config.cost, this.count) - this.prepay;
+		return this._.cost.value;
 	}
 
 	get currencyType() {
-		return run(this.config.currencyType, this.count);
+		return this._.currencyType.value;
 	}
 
 	get effect() {
-		return this._effect.value;
+		return this._.effect.value;
 	}
 
 	get formattedEffect() {
-		return this.config.formatEffect ? this.config.formatEffect(this.effect) : formatX(this.effect, 2, 1);
-	}
-
-	get title() {
-		return run(this.config.title, this);
-	}
-
-	get description() {
-		return run(this.config.description, this);
+		return this._.formattedEffect.value;
 	}
 
 	get isUnlocked() {
-		return this._isUnlocked.value;
+		return this._.isUnlocked.value;
 	}
 
 	get canAfford() {
@@ -84,6 +87,14 @@ class MachineUpgrade {
 		if (this.maxed) return false;
 		if (!this.currencyType) return player.money >= this.cost;
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+	}
+
+	get title() {
+		return this._.title.value;
+	}
+
+	get description() {
+		return this._.description.value;
 	}
 
 	get prepay() {
@@ -141,7 +152,8 @@ export function MachineType(data) {
 				},
 				data: this.data.inputs[id],
 				_volume: ref(Stack.volumeOfStack(this.data.inputs[id])),
-				get volume() { return this._volume.value; },
+				// Tiny inconsistencies make it display as -0.0 sometimes
+				get volume() { return Math.max(this._volume.value, 0); },
 				set volume(x) { this._volume.value = x; },
 				addToStack(item) {
 					// Skip capacity because it's only used in spaceLeft
@@ -172,7 +184,8 @@ export function MachineType(data) {
 				},
 				data: this.data.outputs[id],
 				_volume: ref(Stack.volumeOfStack(this.data.outputs[id])),
-				get volume() { return this._volume.value; },
+				// Tiny inconsistencies make it display as -0.0 sometimes
+				get volume() { return Math.max(this._volume.value, 0); },
 				set volume(x) { this._volume.value = x; },
 				addToStack(item) {
 					// Skip capacity because it's only used in spaceLeft

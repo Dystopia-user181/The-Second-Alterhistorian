@@ -4,9 +4,9 @@ export const Stack = {
 	volumeOfStack(stack) {
 		return stack.reduce((v, item) => v + item.amount, 0);
 	},
-	addToStack(stack, item, capacity = Infinity, additionalData = {}) {
+	addToStack(stack, item, capacity = Infinity, precalculations = {}) {
 		if (item.amount <= 0) return 0;
-		const spaceLeft = additionalData.spaceLeft ?? capacity - Stack.volumeOfStack(stack);
+		const spaceLeft = precalculations.spaceLeft ?? capacity - Stack.volumeOfStack(stack);
 		if (spaceLeft <= 0) return 0;
 		const amount = Math.min(spaceLeft, item.amount);
 		if (stack[0] && stack[0].resource === item.resource) {

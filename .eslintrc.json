@@ -90,6 +90,7 @@
 		"vue/no-static-inline-styles": "warn",
 		"vue/no-v-html": "off",
 		"vue/no-multiple-template-root": "off",
+		"vue/no-setup-props-destructure": "off",
 		"no-empty-function": "error",
 		"no-eval": "error",
 		"no-extra-bind": "error",

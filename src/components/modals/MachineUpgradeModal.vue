@@ -1,30 +1,17 @@
-<script>
+<script setup>
+import { computed } from "vue";
+
 import MachineUpgrade from "./MachineUpgrade.vue";
 import ModalWrapper from "./ModalWrapper.vue";
 
-export default {
-	name: "MachineUpgradeModal",
-	components: {
-		MachineUpgrade,
-		ModalWrapper
-	},
-	props: {
-		machine: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			upgrades: []
-		};
-	},
-	methods: {
-		update() {
-			this.upgrades = Object.values(this.machine.upgrades || {}).filter(x => x.isUnlocked);
-		}
-	},
-};
+const { machine } = defineProps({
+	machine: {
+		type: Object,
+		required: true
+	}
+});
+
+const upgrades = computed(() => Object.values(machine.upgrades || {}).filter(x => x.isUnlocked));
 </script>
 
 <template>

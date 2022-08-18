@@ -1,59 +1,35 @@
-<script>
+<script setup>
 import { format } from "@/utils";
 
-export default {
-	name: "MachineUpgrade",
-	props: {
-		upgrade: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			cost: 0,
-			effect: "",
-			title: "",
-			description: "",
-			maxed: false,
-			canAfford: false,
-			currencyType: ""
-		};
-	},
-	methods: {
-		update() {
-			this.cost = this.upgrade.cost;
-			this.effect = this.upgrade.formattedEffect;
-			this.title = this.upgrade.title;
-			this.description = this.upgrade.description;
-			this.maxed = this.upgrade.maxed;
-			this.canAfford = this.upgrade.canAfford;
-			this.currencyType = this.upgrade.currencyType || "";
-		},
-		format
-	},
-};
+const { upgrade } = defineProps({
+	upgrade: {
+		type: Object,
+		required: true
+	}
+});
 </script>
 
 <template>
 	<button
 		class="c-machine-upgrade"
 		:class="{
-			'c-machine-upgrade--bought': maxed,
-			disabled: !maxed && !canAfford
+			'c-machine-upgrade--bought': upgrade.maxed,
+			disabled: !upgrade.maxed && !upgrade.canAfford
 		}"
 		@click="upgrade.buy()"
 	>
-		<span class="c-emphasise-text"> {{ title }} </span>
+		<span class="c-emphasise-text"> {{ upgrade.title }} </span>
 		<br>
-		{{ description }}
-		<span v-if="effect">
+		{{ upgrade.description }}
+		<span v-if="upgrade.formattedEffect">
 			<br>
-			Currently: {{ effect }}
+			Currently: {{ upgrade.formattedEffect }}
 		</span>
-		<span v-if="!maxed">
+		<span v-if="!upgrade.maxed">
 			<br>
-			Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
+			Cost: {{ !upgrade.currencyType ? "$" : "" }}
+			{{ format(upgrade.cost, 2, 1) }}
+			{{ upgrade.currencyType }}
 		</span>
 	</button>
 </template>
