@@ -1,7 +1,7 @@
 import "./js/database";
 import "./js/eventhub";
-import "./js/machines/index";
-import "./js/towns/index";
+import "./js/machines";
+import "./js/towns";
 import "./js/player";
 import "./js/keyboard";
 import "./js/game";

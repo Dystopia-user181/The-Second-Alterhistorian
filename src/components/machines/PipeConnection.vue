@@ -1,5 +1,5 @@
 <script setup>
-import { Currencies } from "@/js/database/currencies";
+import { Currencies } from "@/js/database/currencies.ts";
 import { onMount } from "@/components/mixins";
 
 const props = defineProps({

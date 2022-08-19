@@ -2,7 +2,7 @@ import { computed, markRaw, reactive, ref } from "vue";
 
 import { MachinesById, Pipes } from "./player-proxy";
 
-import { Currencies } from "@/js/database/currencies";
+import { Currencies } from "@/js/database/currencies.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 

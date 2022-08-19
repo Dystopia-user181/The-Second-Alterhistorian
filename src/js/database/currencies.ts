@@ -1,4 +1,11 @@
-export const Currencies = {
+import { ResourceType } from "./resources";
+
+export interface Currency {
+	readonly colour: string
+	readonly value: number
+}
+
+export const Currencies: Record<ResourceType, Currency> = {
 	earth: {
 		colour: "#008800",
 		value: 0.1
