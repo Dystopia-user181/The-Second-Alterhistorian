@@ -29,9 +29,9 @@ window.EventHub = class EventHub {
 	}
 
 	// eslint-disable-next-line max-params
-	static dispatch(event, ...args) {
-		EventHub.logic.dispatch(event, ...args);
-		GameUI.dispatch(event, ...args);
+	static dispatch(event, args) {
+		EventHub.logic.dispatch(event, args);
+		GameUI.dispatch(event, args);
 	}
 };
 
