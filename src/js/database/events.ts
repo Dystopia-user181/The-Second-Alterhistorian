@@ -1,15 +1,15 @@
 import { EventHub } from "@/js/eventhub";
 
 export interface GameEvents {
-  // Machines
-  MACHINE_ADDED: (value: string) => void
-  MACHINE_DELETED: (id: number, value: string) => void
+	// Machines
+	MACHINE_ADDED: (value: string) => void
+	MACHINE_DELETED: (id: number, value: string) => void
 
-  // Ticks
+	// Ticks
 	GAME_TICK_BEFORE: void
 	GAME_TICK_AFTER: void
 
-  // Keyboard Events
+	// Keyboard Events
 	ARROW_KEYDOWN: string
 	ARROW_KEYUP: string
 	ESCAPE_PRESSED: void
