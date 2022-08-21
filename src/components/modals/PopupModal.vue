@@ -10,7 +10,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.on$(GAME_EVENTS.ESCAPE_PRESSED, () => {
+		this.on$("ESCAPE_PRESSED", () => {
 			if (!Modals.isOpen) return;
 			if (Modals.current.value.hide) Modals.current.value.hide();
 			else Modals.hide();
