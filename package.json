@@ -1,35 +1,39 @@
 {
-	"name": "the-second-alterhistorian",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"lint": "eslint .",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"@fortawesome/fontawesome-free": "^6.1.1",
-		"@rollup/pluginutils": "^4.2.1",
-		"@types/eslint": "^8.4.5",
-		"rollup": "^2.77.3",
-		"vue": "^3.2.37"
-	},
-	"devDependencies": {
-		"@types/node": "^18.7.6",
-		"@typescript-eslint/eslint-plugin": "^5.33.1",
-		"@typescript-eslint/parser": "^5.33.1",
-		"@vitejs/plugin-vue": "^3.0.0",
-		"eslint": "^8.22.0",
-		"eslint-import-resolver-alias": "^1.1.2",
-		"eslint-plugin-import": "^2.26.0",
-		"eslint-plugin-vue": "^9.3.0",
-		"typescript": "^4.6.4",
-		"vite": "^3.0.0",
-		"vite-plugin-checker": "^0.4.9",
-		"vite-plugin-eslint": "^1.7.0",
-		"vite-tsconfig-paths": "^3.5.0",
-		"vue-tsc": "^0.39.5"
-	}
+  "name": "the-second-alterhistorian",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.1.1",
+    "@rollup/pluginutils": "^4.2.1",
+    "@types/eslint": "^8.4.5",
+    "rollup": "^2.77.3",
+    "vue": "^3.2.37"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.2",
+    "@types/node": "^18.7.6",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "@vitejs/plugin-vue": "^3.0.0",
+    "eslint": "^8.22.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.5",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0",
+    "vite-plugin-checker": "^0.4.9",
+    "vite-plugin-eslint": "^1.7.0",
+    "vite-tsconfig-paths": "^3.5.0",
+    "vue-tsc": "^0.39.5"
+  }
 }
