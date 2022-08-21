@@ -1,6 +1,7 @@
 <script>
 import { Currencies } from "@/js/database/currencies.ts";
 
+
 export default {
 	name: "ResourceStack",
 	props: {

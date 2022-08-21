@@ -5,6 +5,7 @@ import MachineUpgradeModal from "@/components/modals/MachineUpgradeModal.vue";
 import MessageModal from "@/components/modals/MessageModal.vue";
 import RemoveMachineModal from "@/components/modals/RemoveMachineModal.vue";
 
+
 class Modal {
 	constructor(component, priority = 0) {
 		this._component = component;

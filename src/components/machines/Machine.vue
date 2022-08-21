@@ -4,9 +4,10 @@ import { onMount } from "@/components/mixins";
 import { Pipe } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, format, str } from "@/utils";
-
 import ResourceStack from "./ResourceStack.vue";
+
+import { arr, format, str } from "@utils";
+
 
 const props = defineProps({
 	machine: {

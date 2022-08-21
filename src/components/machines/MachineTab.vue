@@ -2,12 +2,13 @@
 import { Machines, Pipe, Pipes } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { format, formatX } from "@/utils";
-
 import { onMount } from "@/components/mixins";
 
 import MachineContainer from "./MachineContainer.vue";
 import PipeConnection from "./PipeConnection.vue";
+
+import { format, formatX } from "@utils";
+
 
 let holding = $ref(false);
 let holdingMachine = null;

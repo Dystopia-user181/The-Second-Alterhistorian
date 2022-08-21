@@ -2,6 +2,7 @@
 import { Currencies } from "@/js/database/currencies.ts";
 import { onMount } from "@/components/mixins";
 
+
 const props = defineProps({
 	pipe: {
 		type: Object,

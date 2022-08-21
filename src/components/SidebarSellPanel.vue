@@ -1,7 +1,9 @@
 <script>
 import { Currencies } from "@/js/database/currencies.ts";
-import { format } from "@/utils";
 import { player } from "@/js/player";
+
+import { format } from "@utils";
+
 
 export default {
 	name: "SidebarSellPanel",

@@ -2,6 +2,7 @@
 import SidebarSellPanel from "./SidebarSellPanel.vue";
 import SidebarShop from "./SidebarShop.vue";
 
+
 export default {
 	name: "Sidebar",
 	components: {

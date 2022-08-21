@@ -1,8 +1,9 @@
 import { player } from "@/js/player";
 
-import { arr, deepClone, shallowClone, Stack } from "@/utils";
-
 import { Towns } from "@/js/towns/index";
+
+import { arr, deepClone, shallowClone } from "@utils";
+
 
 export const Machine = {
 	gameLoop(realDiff, machines = []) {
@@ -68,7 +69,7 @@ export const Machine = {
 		outputs.forEach(output => {
 			const conf = output.config;
 			output.otherwiseDiff = diff;
-			output.maxDiff = (conf.capacity - Stack.volumeOfStack(output.data)) / conf.produces.amount;
+			output.maxDiff = (output.spaceLeft) / conf.produces.amount;
 			if (isNaN(output.maxDiff)) {
 				output.maxDiff = 0;
 				return;
@@ -143,7 +144,7 @@ export const Pipe = {
 			for (const pipe of machine.pipes[outputId]) {
 				const input = pipe[1];
 				if (!input.config.accepts.includes(outputLast.resource)) continue;
-				ratios.push(Stack.volumeOfStack(input.data) >= input.config.capacity ? 0
+				ratios.push(input.isCapped ? 0
 					: input.config.capacity * this.capacityPerSecond * diff);
 				whole += input.config.capacity * this.capacityPerSecond * diff;
 			}

@@ -1,5 +1,6 @@
 <script>
-import { format } from "@/utils";
+import { format } from "@utils";
+
 
 export default {
 	name: "SidebarShopUpgradeItem",

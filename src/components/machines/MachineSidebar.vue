@@ -4,6 +4,7 @@ import { Modals } from "@/js/ui/modals";
 
 import { onMount } from "@/components/mixins";
 
+
 const props = defineProps({
 	machine: {
 		type: Object,

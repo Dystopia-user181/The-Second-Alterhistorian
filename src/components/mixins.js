@@ -1,5 +1,6 @@
 import { onBeforeUnmount, onMounted } from "vue";
 
+
 let componentId = 0;
 export function onMount(options = {}) {
 	const tempComponentId = componentId;

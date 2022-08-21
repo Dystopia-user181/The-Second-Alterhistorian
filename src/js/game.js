@@ -1,6 +1,7 @@
 import { Machine, Machines } from "@/js/machines/index";
 import { player } from "@/js/player";
 
+
 let lastTick = Date.now();
 
 export function gameLoop(_diff) {

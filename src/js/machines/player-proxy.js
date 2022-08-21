@@ -1,5 +1,6 @@
 import { shallowReactive } from "vue";
 
+
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
@@ -7,7 +8,8 @@ import { GameDatabase } from "@/js/database";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, objectMap } from "@/utils";
+import { arr, objectMap } from "@utils";
+
 
 export const Machines = {};
 export const MachinesById = {};

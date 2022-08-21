@@ -22,4 +22,9 @@ export type ResourceType =
 	"stoneDust" |
 	"vitriol" |
 	"water" |
-	"wood"
+	"wood";
+
+export interface ResourceData {
+	resource: ResourceType,
+	amount: number
+}

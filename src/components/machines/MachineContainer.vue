@@ -6,6 +6,7 @@ import { onMount } from "@/components/mixins";
 import MachineSidebar from "./MachineSidebar.vue";
 import MachineVue from "./Machine.vue";
 
+
 const props = defineProps({
 	machine: {
 		type: Object,

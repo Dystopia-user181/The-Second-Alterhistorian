@@ -2,7 +2,7 @@ import { machineUpg } from "../init";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { Stack } from "@/utils";
+import { Stack } from "@utils";
 
 
 GameDatabase.machines.steamEngine = {

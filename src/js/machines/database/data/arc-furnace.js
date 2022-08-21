@@ -3,7 +3,8 @@ import { machineUpg } from "../init";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { arr, run } from "@/utils";
+import { arr, run } from "@utils";
+
 
 const metals = ["iron", "lead", "copper", "silver", "gold", "quicksilver"];
 

@@ -1,4 +1,5 @@
-import { ResourceType } from "./resources";
+import { ResourceType } from "@/types/resources";
+
 
 export interface Currency {
 	readonly colour: string

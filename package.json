@@ -29,6 +29,7 @@
 		"vite": "^3.0.0",
 		"vite-plugin-checker": "^0.4.9",
 		"vite-plugin-eslint": "^1.7.0",
+		"vite-tsconfig-paths": "^3.5.0",
 		"vue-tsc": "^0.39.5"
 	}
 }

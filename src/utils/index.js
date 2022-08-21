@@ -1,4 +1,7 @@
-export * from "./extensions";
+import * as Stack from "./stack.ts";
+
+export * from "./extensions.ts";
 export * from "./formatting";
-export * from "./stack";
 export * from "./proxies";
+
+export { Stack };

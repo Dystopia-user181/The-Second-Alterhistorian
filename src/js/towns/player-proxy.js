@@ -2,7 +2,8 @@ import { Machine, MachineTypes } from "@/js/machines/index";
 import { GameDatabase } from "@/js/database/index";
 import { player } from "@/js/player";
 
-import { arr, formatX, LazyLoad, objectMap, run } from "@/utils";
+import { arr, formatX, LazyLoad, objectMap, run } from "@utils";
+
 
 class SidebarShopItem {
 	constructor(config, townId, id) {

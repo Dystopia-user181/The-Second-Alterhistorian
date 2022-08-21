@@ -4,6 +4,7 @@ import { defineConfig } from "vite";
 
 import checker from "vite-plugin-checker";
 import eslint from "vite-plugin-eslint";
+import tsconfigPaths from "vite-tsconfig-paths";
 import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
@@ -13,12 +14,15 @@ export default defineConfig({
 			reactivityTransform: true
 		}),
 		eslint(),
-		checker({ typescript: true })
+		checker({ typescript: true }),
+		tsconfigPaths()
 	],
 	base: "./",
 	resolve: {
 		alias: {
-			"@": resolve(__dirname, "./src")
+			"@": resolve(__dirname, "./src"),
+			"@types": resolve(__dirname, "./src/types"),
+			"@utils": resolve(__dirname, "./src/utils")
 		},
 	},
 });

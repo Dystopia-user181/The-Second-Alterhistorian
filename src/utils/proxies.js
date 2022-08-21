@@ -1,4 +1,4 @@
-import { run } from "./extensions";
+import { run } from "./extensions.ts";
 
 /**
   * Creates a proxy which only evaluates and abstracts database values once something else requires it.

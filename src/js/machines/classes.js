@@ -6,7 +6,8 @@ import { Currencies } from "@/js/database/currencies.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, Stack, str } from "@/utils";
+import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, Stack, str } from "@utils";
+
 
 function acceptsAll(accepts) {
 	return areArraysEqualSets(accepts, Object.keys(Currencies));
