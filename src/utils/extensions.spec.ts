@@ -1,4 +1,4 @@
-import { deepClone, shallowClone } from "./extensions";
+import { deepAssign, deepClone, shallowClone } from "./extensions";
 
 describe("shallowClone", () => {
 	it("shallow clones arrays", () => {
@@ -41,5 +41,45 @@ describe("deepClone", () => {
 		clone.one.obj.val = "change";
 
 		expect(clone).not.toEqual(subject);
+	});
+});
+
+describe("message", () => {
+	it("deep assigns a blank object", () => {
+		const target = {};
+		const source = { one: 1, two: { three: () => 128 } };
+
+		deepAssign(target, source);
+
+		expect(target).toStrictEqual(source);
+	});
+
+	it("overwrites existing values", () => {
+		const target = { one: 5, two: { three: () => 8 } };
+		const source = { one: 1, two: { three: () => 64 } };
+
+		deepAssign(target, source);
+
+		expect(target).toStrictEqual(source);
+	});
+
+	it("deep clones inner objects", () => {
+		const innerSourceObject = { three: 1024 };
+
+		const target = { one: 5, two: { three: 8 } };
+		const source = { one: 1, two: innerSourceObject };
+
+		deepAssign(target, source);
+		target.two.three = 2;
+
+		expect(source.two.three).not.toStrictEqual(target.two.three);
+	});
+
+	it("does not apply to a different object type", () => {
+		const target = { five: 5, other: (name: string) => name.toUpperCase() };
+		const source = { one: 1, two: { three: () => 256 } };
+
+		// @ts-expect-error - target is a different type than source
+		deepAssign(target, source);
 	});
 });
