@@ -14,10 +14,10 @@ export const Player = {
 			money: 0,
 			towns: {
 				home: {
-					machines: Towns.home.defaultMachines,
+					machines: Towns("home").defaultMachines,
 					upgrades: 0,
-					machinesPrepay: Towns.home.defaultMachinesPrepay,
-					upgradesPrepay: Towns.home.defaultUpgradesPrepay
+					machinesPrepay: Towns("home").defaultMachinesPrepay,
+					upgradesPrepay: Towns("home").defaultUpgradesPrepay
 				}
 			},
 			currentlyIn: "home",

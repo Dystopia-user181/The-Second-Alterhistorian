@@ -126,11 +126,11 @@ export const Machine = {
 
 export const Pipe = {
 	get isUnlocked() {
-		return Towns.home.upgrades.pipesBasic.isBought;
+		return Towns("home").upgrades.pipesBasic.isBought;
 	},
 	get capacityPerSecond() {
-		return this.isUnlocked ? Towns.home.upgrades.pipesSpeed1.effectOrDefault(1) *
-			Towns.home.upgrades.pipesSpeed2.effectOrDefault(1) * 0.02
+		return this.isUnlocked ? Towns("home").upgrades.pipesSpeed1.effectOrDefault(1) *
+			Towns("home").upgrades.pipesSpeed2.effectOrDefault(1) * 0.02
 			: 0;
 	},
 	tickPipes(machine, diff) {

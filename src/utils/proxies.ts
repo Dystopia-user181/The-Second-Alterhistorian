@@ -1,25 +1,4 @@
 import { key } from "@/types/objects";
-
-/**
-  * Creates a proxy which only evaluates and abstracts database values once something else requires it.
-  * @param {object} data      Database value to be evaluated.
-  * @param {function} propfun A function which determines the value of the new property. Takes in two parameters- First
-  * is the value of the original property and second is the key of the original property.
-  */
-export function LazyLoad<initialType, finalType>(
-	data : Record<key, initialType>,
-	propfun : (prop: initialType, key: key) => finalType
-) {
-	return new Proxy({}, {
-		get(target : Record<key, finalType>, prop : string) {
-			if (!(prop in target)) {
-				target[prop] = propfun(data[prop], prop);
-			}
-			return target[prop];
-		}
-	});
-}
-
 /**
   * Creates a proxy which evaluates properties in an object if they are functions.
   * Returns their original value otherwise.
