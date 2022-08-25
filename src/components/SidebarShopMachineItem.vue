@@ -4,9 +4,14 @@ import { player } from "@/js/player";
 
 import { format, formatInt } from "@/utils";
 
+import CostDisplay from "@/components/CostDisplay.vue";
+
 
 export default {
 	name: "SidebarShopMachineItem",
+	components: {
+		CostDisplay
+	},
 	props: {
 		shopItem: {
 			type: Object,
@@ -50,7 +55,10 @@ export default {
 		<hr>
 		{{ description }}
 		<br>
-		Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
+		<CostDisplay
+			:cost="cost"
+			:type="currencyType"
+		/>
 	</button>
 </template>
 

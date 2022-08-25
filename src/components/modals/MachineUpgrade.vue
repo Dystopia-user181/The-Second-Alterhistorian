@@ -1,5 +1,5 @@
 <script setup>
-import { format } from "@/utils";
+import CostDisplay from "@/components/CostDisplay.vue";
 
 
 const { upgrade } = defineProps({
@@ -28,9 +28,10 @@ const { upgrade } = defineProps({
 		</span>
 		<span v-if="!upgrade.maxed">
 			<br>
-			Cost: {{ !upgrade.currencyType ? "$" : "" }}
-			{{ format(upgrade.cost, 2, 1) }}
-			{{ upgrade.currencyType }}
+			<cost-display
+				:cost="upgrade.cost"
+				:type="upgrade.currencyType || ''"
+			/>
 		</span>
 	</button>
 </template>

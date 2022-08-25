@@ -1,9 +1,14 @@
 <script>
+import CostDisplay from "@/components/CostDisplay.vue";
+
 import { format } from "@/utils";
 
 
 export default {
 	name: "SidebarShopUpgradeItem",
+	components: {
+		CostDisplay
+	},
 	props: {
 		shopItem: {
 			type: Object,
@@ -49,7 +54,10 @@ export default {
 		<hr>
 		{{ description }}
 		<br>
-		Cost: {{ !currencyType ? "$" : "" }} {{ format(cost, 2, 1) }} {{ currencyType }}
+		<cost-display
+			:cost="cost"
+			:type="currencyType"
+		/>
 	</button>
 </template>
 
