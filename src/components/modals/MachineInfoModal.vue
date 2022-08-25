@@ -62,6 +62,7 @@ onMount({
 			)
 		</span>
 		<br>
+		<br>
 		{{ machine.type.description }}
 		<br>
 		<div class="c-info__table">
@@ -69,10 +70,10 @@ onMount({
 				v-for="input in machine.inputs.filter(x => x.isUnlocked)"
 				:key="input.id"
 			>
-				Input {{ input.id + 1 }} accepts:
-				{{ acceptsAll(input.config.accepts) ? "all"
-					: input.config.accepts.map(x => str(x).capitalize).join(", ") }}
 				<br>
+				Input {{ input.id + 1 }} accepts:
+				{{ acceptsAll(input.accepts) ? "all"
+					: input.accepts.map(x => str(x).capitalize).join(", ") }}
 			</span>
 		</div>
 	</modal-wrapper>

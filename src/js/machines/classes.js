@@ -4,7 +4,7 @@ import { MachinesById, Pipes } from "./player-proxy";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, BulkRun, formatX, objectMap, run, Stack, str } from "@utils";
+import { arr, formatX, objectMap, run, Stack, str } from "@utils";
 
 
 class MachineUpgrade {
@@ -118,6 +118,201 @@ class MachineUpgrade {
 	}
 }
 
+class GenericStackState {
+	constructor(data) {
+		this.data = data;
+		this._volume = ref(Stack.volumeOfStack(this.data));
+		this.displayResource = reactive(["none", Infinity]);
+	}
+
+	get capacity() {
+		return Infinity;
+	}
+
+	get volume() {
+		// Tiny inconsistencies make it display as -0.0 sometimes
+		return Math.max(this._volume.value, 0);
+	}
+
+	set volume(x) {
+		this._volume.value = x;
+	}
+
+	get spaceLeft() {
+		return this.capacity - this.volume;
+	}
+
+	get isCapped() {
+		return this.spaceLeft <= Number.EPSILON;
+	}
+
+	addToStack(item) {
+		// Skip capacity because it's only used for spaceLeft
+		const amt = Stack.addToStack(this.data, item, 0, {
+			spaceLeft: this.spaceLeft
+		});
+		this.volume += amt;
+		return amt;
+	}
+
+	removeFromStack(item) {
+		const amt = Stack.removeFromStack(this.data, item);
+		this.volume -= amt;
+		return amt;
+	}
+}
+
+class InputConfigState {
+	constructor(config, machine) {
+		Object.defineProperty(this, "config", {
+			value: config,
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
+		Object.defineProperty(this, "_machine", {
+			value: machine,
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
+		this.addProperty("capacity");
+		this.addProperty("consumes");
+		this.addProperty("accepts");
+	}
+
+	get capacity() {
+		return run(this.config.capacity, this._machine);
+	}
+
+	get consumes() {
+		return run(this.config.consumes, this._machine);
+	}
+
+	get accepts() {
+		return run(this.config.accepts, this._machine);
+	}
+
+	get label() {
+		return run(this.config.label, this._machine);
+	}
+
+	get id() {
+		return this.config.id;
+	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
+	}
+
+	addProperty(prop) {
+		Object.defineProperty(this, prop, {
+			get() { return run(this.config[prop], this._machine); },
+			enumerable: true
+		});
+	}
+}
+
+class InputState extends GenericStackState {
+	constructor(machine, id) {
+		super(machine.data.inputs[id]);
+		this.config = new InputConfigState(machine.type.inputs[id], machine);
+		this.id = id;
+	}
+
+	get capacity() {
+		return this.config.capacity;
+	}
+
+	get consumes() {
+		return this.config.consumes;
+	}
+
+	get accepts() {
+		return this.config.accepts;
+	}
+
+	get label() {
+		return this.config.label;
+	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked;
+	}
+}
+
+class OutputConfigState {
+	constructor(config, machine) {
+		Object.defineProperty(this, "config", {
+			value: config,
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
+		Object.defineProperty(this, "_machine", {
+			value: machine,
+			writable: false,
+			enumerable: false,
+			configurable: true
+		});
+		this.addProperty("capacity");
+		this.addProperty("produces");
+		this.addProperty("requires");
+		this.addProperty("requiresList");
+	}
+
+	get label() {
+		return run(this.config.label, this._machine);
+	}
+
+	get id() {
+		return this.config.id;
+	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
+	}
+
+	addProperty(prop) {
+		Object.defineProperty(this, prop, {
+			get() { return run(this.config[prop], this._machine); },
+			enumerable: true
+		});
+	}
+}
+
+class OutputState extends GenericStackState {
+	constructor(machine, id) {
+		super(machine.data.outputs[id]);
+		this.config = new OutputConfigState(machine.type.outputs[id], machine);
+		this.id = id;
+	}
+
+	get capacity() {
+		return this.config.capacity;
+	}
+
+	get produces() {
+		return this.config.produces;
+	}
+
+	get requires() {
+		return this.config.requires;
+	}
+
+	get requiresList() {
+		return this.config.requiresList;
+	}
+
+	get label() {
+		return this.config.label;
+	}
+
+	get isUnlocked() {
+		return this.config.isUnlocked;
+	}
+}
+
 export function MachineType(data) {
 	const type = class {
 		constructor(town, machineId) {
@@ -136,73 +331,8 @@ export function MachineType(data) {
 
 			this.pipes = [];
 			this.updates = 0;
-			// Need inconsistent this because of "isUnlocked" property
-			// eslint-disable-next-line consistent-this
-			const machine = this;
-			this.inputs = this.type.inputs.map((input, id) => ({
-				id,
-				config: BulkRun(input, [this], ["capacity", "consumes", "accepts", "label"]),
-				get isUnlocked() {
-					return input.isUnlocked === undefined ? true : run(input.isUnlocked, machine);
-				},
-				data: this.data.inputs[id],
-				_volume: ref(Stack.volumeOfStack(this.data.inputs[id])),
-				// Tiny inconsistencies make it display as -0.0 sometimes
-				get volume() { return Math.max(this._volume.value, 0); },
-				set volume(x) { this._volume.value = x; },
-				addToStack(item) {
-					// Skip capacity because it's only used in spaceLeft
-					const amt = Stack.addToStack(this.data, item, 0, {
-						spaceLeft: this.spaceLeft
-					});
-					this.volume += amt;
-					return amt;
-				},
-				removeFromStack(item) {
-					const amt = Stack.removeFromStack(this.data, item);
-					this.volume -= amt;
-					return amt;
-				},
-				get spaceLeft() {
-					return this.config.capacity - this.volume;
-				},
-				get isCapped() {
-					return this.spaceLeft <= Number.EPSILON;
-				},
-				displayResource: reactive(["none", Infinity])
-			}));
-			this.outputs = this.type.outputs.map((output, id) => ({
-				id,
-				config: BulkRun(output, [this], ["capacity", "produces", "requires", "requiresList", "label"]),
-				get isUnlocked() {
-					return output.isUnlocked === undefined ? true : run(output.isUnlocked, machine);
-				},
-				data: this.data.outputs[id],
-				_volume: ref(Stack.volumeOfStack(this.data.outputs[id])),
-				// Tiny inconsistencies make it display as -0.0 sometimes
-				get volume() { return Math.max(this._volume.value, 0); },
-				set volume(x) { this._volume.value = x; },
-				addToStack(item) {
-					// Skip capacity because it's only used in spaceLeft
-					const amt = Stack.addToStack(this.data, item, 0, {
-						spaceLeft: this.spaceLeft
-					});
-					this.volume += amt;
-					return amt;
-				},
-				removeFromStack(item) {
-					const amt = Stack.removeFromStack(this.data, item);
-					this.volume -= amt;
-					return amt;
-				},
-				get spaceLeft() {
-					return this.config.capacity - this.volume;
-				},
-				get isCapped() {
-					return this.spaceLeft <= Number.EPSILON;
-				},
-				displayResource: reactive(["none", Infinity])
-			}));
+			this.inputs = this.type.inputs.map((_, id) => new InputState(this, id));
+			this.outputs = this.type.outputs.map((_, id) => new OutputState(this, id));
 			Promise.resolve().then(() => this.updatePipes());
 		}
 

@@ -211,10 +211,10 @@ export const Towns = new TownsLazyLoader().createAccessor();
 
 export const SidebarShop = {
 	get currentMachines() {
-		return Towns[player.currentlyIn].sidebarShop;
+		return Towns(player.currentlyIn).sidebarShop;
 	},
 
 	get currentUpgrades() {
-		return Towns[player.currentlyIn].upgrades;
+		return Towns(player.currentlyIn).upgrades;
 	}
 };

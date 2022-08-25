@@ -81,7 +81,7 @@ export const Player = {
 				const machine = player.towns[town].machines[machineId];
 				Player.fixMachineData(machine);
 			}
-			const defaultMachines = Towns[town].defaultMachines;
+			const defaultMachines = Towns(town).defaultMachines;
 			for (const defaultMachine of Object.values(defaultMachines)) {
 				if (Object.values(player.towns[town].machines)
 					.find(x => x.type === defaultMachine.type && x.isDefault)) {

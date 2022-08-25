@@ -14,6 +14,7 @@ import { arr, objectMap } from "@utils";
 
 
 export const Machines = {};
+window.Machines = Machines;
 export const MachinesById = {};
 export const MachineCounts = {};
 export const Pipes = {};
