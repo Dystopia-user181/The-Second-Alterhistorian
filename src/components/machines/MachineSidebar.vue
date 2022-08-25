@@ -72,10 +72,12 @@ function deleteMachine() {
 			@mousedown="openUpgrades()"
 		/>
 		<div
+			v-if="!machine.data.min"
 			class="fas fa-info-circle"
-			@mousedown="machine.showDescription()"
+			@mousedown="machine.showInfo()"
 		/>
 		<div
+			v-if="!machine.data.min"
 			class="fas fa-chart-bar"
 			@mousedown="machine.showProduction()"
 		/>

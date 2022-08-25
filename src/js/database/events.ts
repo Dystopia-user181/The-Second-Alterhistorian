@@ -12,6 +12,7 @@ export interface GameEvents {
 	// Keyboard Events
 	ARROW_KEYDOWN: string
 	ARROW_KEYUP: string
+	ENTER_PRESSED: void
 	ESCAPE_PRESSED: void
 }
 

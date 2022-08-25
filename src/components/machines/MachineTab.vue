@@ -1,5 +1,6 @@
 <script setup>
 import { Machines, Pipe, Pipes } from "@/js/machines/index";
+import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
 import { onMount } from "@/components/mixins";
@@ -43,7 +44,8 @@ const pipes = $computed(() => Pipes[player.currentlyIn]);
 
 onMount({
 	on: {
-		ARROW_KEYDOWN(key) {
+		ARROW_KEYDOWN([key]) {
+			if (Modals.isOpen) return;
 			switch (key) {
 				case "up":
 					registerOffsetKey([0, -1]);
