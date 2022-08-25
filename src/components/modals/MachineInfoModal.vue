@@ -3,6 +3,8 @@ import { Currencies } from "@/js/database/currencies.ts";
 
 import { areArraysEqualSets, str } from "@/utils";
 
+import { onMount } from "@/components/mixins";
+
 import ModalWrapper from "./ModalWrapper.vue";
 
 const { machine } = defineProps({
@@ -26,7 +28,15 @@ const machineNameEditable = $computed({
 	}
 });
 
-const isEditingName = $ref(false);
+let isEditingName = $ref(false);
+
+onMount({
+	on: {
+		ENTER_PRESSED() {
+			isEditingName = false;
+		}
+	}
+});
 </script>
 
 <template>
@@ -71,6 +81,8 @@ const isEditingName = $ref(false);
 <style scoped>
 .c-info__table {
 	display: inline-block;
+	padding: 10px;
+	max-width: 400px;
 	text-align: left;
 }
 

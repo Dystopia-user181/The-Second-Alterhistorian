@@ -44,7 +44,7 @@ const pipes = $computed(() => Pipes[player.currentlyIn]);
 
 onMount({
 	on: {
-		ARROW_KEYDOWN(key) {
+		ARROW_KEYDOWN([key]) {
 			if (Modals.isOpen) return;
 			switch (key) {
 				case "up":
