@@ -202,11 +202,16 @@ function emitOutputPipeHover(id) {
 			class="c-emphasise-text c-machine__title"
 			@mousedown="emit('move-machine-start', $event)"
 		>
-			{{ machine.displayName }}
+			<!-- This is a zws so it doesn't get collapsed -->
+			<!-- eslint-disable-next-line no-irregular-whitespace -->
+			{{ isMin ? "​" : machine.displayName }}
 		</div>
 		<div class="l-machine__inner">
-			<span v-if="isMin">
-				Collapsed
+			<span
+				v-if="isMin"
+				class="c-collapsed-text"
+			>
+				<b>{{ machine.displayName }}</b> (Collapsed)
 			</span>
 			<template v-else>
 				<div
@@ -404,8 +409,16 @@ hr {
 }
 
 .c-machine-container--min {
-	height: 160px;
-	width: 250px;
+	height: 110px;
+	width: 160px;
+}
+
+.c-machine-container--min .l-machine__inner {
+	min-width: 160px;
+}
+
+.c-collapsed-text {
+	text-align: center;
 }
 
 @keyframes a-just-bought {

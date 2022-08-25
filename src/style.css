@@ -24,8 +24,20 @@ a {
 	text-decoration: inherit;
 	transition: text-shadow 0.5s;
 }
+
 a:hover {
 	text-shadow: 0 0 7px #9096ff;
+}
+
+input {
+	background-color: transparent;
+	color: inherit;
+	font: inherit;
+	border: none;
+	border-bottom: 1px solid;
+	border-radius: 2px;
+	outline: none;
+	font-weight: 400;
 }
 
 body {

@@ -1,17 +1,11 @@
 import { computed, markRaw, reactive, ref } from "vue";
 
 import { MachinesById, Pipes } from "./player-proxy";
-
-import { Currencies } from "@/js/database/currencies.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { areArraysEqualSets, arr, BulkRun, formatX, objectMap, run, Stack, str } from "@utils";
+import { arr, BulkRun, formatX, objectMap, run, Stack, str } from "@utils";
 
-
-function acceptsAll(accepts) {
-	return areArraysEqualSets(accepts, Object.keys(Currencies));
-}
 
 class MachineUpgrade {
 	constructor(config, parentMachine) {
@@ -232,7 +226,7 @@ export function MachineType(data) {
 		}
 
 		get height() {
-			return this.data.min ? 160 : 250;
+			return this.data.min ? 110 : 250;
 		}
 
 		get name() {
@@ -240,7 +234,7 @@ export function MachineType(data) {
 		}
 
 		get displayName() {
-			return str(this.name).capitalize;
+			return this.data.name || str(this.name).capitalize;
 		}
 
 		addPipe(machine, inputId, outputId) {
@@ -301,16 +295,8 @@ export function MachineType(data) {
 			return arr(this.outputs[id].data).last;
 		}
 
-		showDescription() {
-			const acceptsTable = this.inputs.find(x => x.isUnlocked) ? `
-<br>
-<div style="display: inline-block; text-align: left;">
-	${this.inputs.filter(x => x.isUnlocked).map(x => x.config.accepts)
-		.map((x, id) => `Input ${id + 1} accepts: ${acceptsAll(x) ? "All"
-			: x.map(y => str(y).capitalize).join(", ")}`)
-		.join("<br>")}
-</div>` : "";
-			Modals.message.show(`${this.type.description}${acceptsTable}`);
+		showInfo() {
+			Modals.machineInfo.show({ machine: this });
 		}
 
 		showProduction() {
