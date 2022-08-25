@@ -1,5 +1,6 @@
 import { ref, shallowRef } from "vue";
 
+import InfoModal from "@/components/modals/InfoModal.vue";
 import MachineProductionModal from "@/components/modals/MachineProductionModal.vue";
 import MachineUpgradeModal from "@/components/modals/MachineUpgradeModal.vue";
 import MessageModal from "@/components/modals/MessageModal.vue";
@@ -79,6 +80,7 @@ export const Modals = {
 	}
 };
 
+Modals.info = new Modal(InfoModal);
 Modals.machineUpgrades = new Modal(MachineUpgradeModal);
 Modals.machineProduction = new Modal(MachineProductionModal);
 Modals.removeMachine = new Modal(RemoveMachineModal);

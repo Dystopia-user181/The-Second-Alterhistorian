@@ -70,7 +70,13 @@ onMount({
 		@mousemove="updateMousePos"
 	>
 		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
-			<h1>The Second Alterhistorian</h1>
+			<h1>
+				The Second Alterhistorian
+				<i
+					class="fas fa-circle-info"
+					@click="Modals.info.show()"
+				/>
+			</h1>
 			<div class="c-main-tabs">
 				<machine-tab />
 				<sidebar />
@@ -122,6 +128,10 @@ onMount({
 	display: flex;
 	width: 100%;
 	flex: 1 0 auto;
+}
+
+.fa-circle-info {
+	cursor: pointer;
 }
 
 .c-held-item {
