@@ -1,5 +1,6 @@
 import { shallowReactive } from "vue";
 
+import { LogicEvent } from "@/js/database/events.ts";
 
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
@@ -60,7 +61,7 @@ Machine.add = function(townName, type, x, y) {
 			MachinesById[townName][i] = constructed;
 			MachineCounts[townName][type]++;
 			arr(Machines[townName]).last.isNew = true;
-			EventHub.dispatch(GAME_EVENTS.MACHINE_ADDED);
+			LogicEvent.dispatch("MACHINE_ADDED");
 			return true;
 		}
 		i++;
@@ -76,7 +77,7 @@ Machine.remove = function(machine) {
 	Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	delete MachinesById[machine.town][machine.id];
 	MachineCounts[machine.town][machine.type]--;
-	EventHub.dispatch(GAME_EVENTS.MACHINE_REMOVED);
+	LogicEvent.dispatch("MACHINE_REMOVED");
 };
 
 Pipe.removeAllInputPipesTo = function(machine, inputId) {

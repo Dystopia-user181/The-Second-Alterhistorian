@@ -1,5 +1,6 @@
 import { onBeforeUnmount, onMounted } from "vue";
 
+import { UIEvent } from "@/js/ui/events.ts";
 
 let componentId = 0;
 export function onMount(options = {}) {
@@ -7,22 +8,22 @@ export function onMount(options = {}) {
 	onMounted(() => {
 		if (options.onMount) options.onMount();
 		if (options.update) {
-			EventHub.ui.on(GAME_EVENTS.UPDATE, options.update, tempComponentId);
+			UIEvent.on(tempComponentId, "UPDATE", options.update);
 			options.update();
 		}
 		if (options.render) {
-			EventHub.ui.on(GAME_EVENTS.RENDER, options.render, tempComponentId);
+			UIEvent.on(tempComponentId, "RENDER", options.render);
 			options.render();
 		}
 		if (options.on) {
 			for (const event in options.on) {
-				EventHub.ui.on(event, options.on[event], tempComponentId);
+				UIEvent.on(tempComponentId, event, options.on[event]);
 			}
 		}
 	});
 	onBeforeUnmount(() => {
 		if (options.beforeUnmount) options.beforeUnmount();
-		EventHub.ui.offAll(tempComponentId);
+		UIEvent.offAll(tempComponentId);
 	});
 	componentId++;
 }

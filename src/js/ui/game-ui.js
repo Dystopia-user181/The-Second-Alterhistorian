@@ -3,26 +3,27 @@ import { createApp } from "vue";
 
 import App from "@/App.vue";
 
+import { UIEvent } from "@/js/ui/events.ts";
 
 const vueApp = createApp(App);
 
 vueApp.mixin({
 	mounted() {
 		if (this.update) {
-			this.on$(GAME_EVENTS.UPDATE, this.update);
+			this.on$("UPDATE", this.update);
 			this.update();
 		}
 		if (this.render) {
-			this.on$(GAME_EVENTS.RENDER, this.render);
+			this.on$("RENDER", this.render);
 			this.render();
 		}
 	},
 	beforeUnmount() {
-		EventHub.ui.offAll(this);
+		UIEvent.offAll(this);
 	},
 	methods: {
 		on$(event, fn) {
-			EventHub.ui.on(event, fn, this);
+			UIEvent.on(this, event, fn);
 		}
 	}
 });
@@ -38,7 +39,7 @@ export const GameUI = {
 		if (index !== -1) {
 			this.events.splice(index, 1);
 		}
-		if (event !== GAME_EVENTS.UPDATE) {
+		if (event !== "UPDATE") {
 			this.events.push([event, args]);
 		}
 		if (this.flushPromise) return;
@@ -47,16 +48,16 @@ export const GameUI = {
 	flushEvents() {
 		this.flushPromise = undefined;
 		for (const event of this.events) {
-			EventHub.ui.dispatch(event[0], event[1]);
+			UIEvent.dispatch(event[0], event[1]);
 		}
-		EventHub.ui.dispatch(GAME_EVENTS.UPDATE);
+		UIEvent.dispatch("UPDATE");
 		this.events = [];
 	},
 	update() {
-		this.dispatch(GAME_EVENTS.UPDATE);
+		this.dispatch("UPDATE");
 	},
 	render() {
-		EventHub.ui.dispatch(GAME_EVENTS.RENDER);
+		UIEvent.dispatch("RENDER");
 	}
 };
 
