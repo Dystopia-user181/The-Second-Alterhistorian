@@ -76,6 +76,12 @@ Machine.remove = function(machine) {
 	Pipe.removeAllInputPipesTo(machine);
 	requestAnimationFrame(() => Pipe.removeAllInputPipesTo(machine));
 	delete player.towns[machine.town].machines[machine.id];
+	const pipes = Pipes[machine.town];
+	for (let i = 0; i < pipes.length; i++) {
+		while (pipes[i] && pipes[i].out[0].id === machine.id) {
+			pipes.splice(i, 1);
+		}
+	}
 	Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	delete MachinesById[machine.town][machine.id];
 	MachineCounts[machine.town][machine.type]--;

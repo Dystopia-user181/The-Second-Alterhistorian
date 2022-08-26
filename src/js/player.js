@@ -88,6 +88,10 @@ export const Player = {
 					continue;
 				}
 				let i = 0;
+				if (!player.towns[town].machines[i]) {
+					player.towns[town].machines[i] = defaultMachine;
+					continue;
+				}
 				while (player.towns[town].machines[i]) {
 					i++;
 					if (!player.towns[town].machines[i]) {
