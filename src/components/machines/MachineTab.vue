@@ -70,8 +70,8 @@ onMount({
 		if (beforeDestroy) beforeDestroy();
 	},
 	render() {
-		mouseX = window.mouseX;
-		mouseY = window.mouseY;
+		mouseX = window.mouseX - machineTab.offsetLeft;
+		mouseY = window.mouseY - machineTab.offsetTop;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
 		player.towns[player.currentlyIn].display.offset.x = Math.max(-maxOffsetX,
@@ -283,11 +283,11 @@ function changeZoom({ deltaY }) {
 					: draggingPipe.machine.height + 10)"
 				:x2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15
-					: mouseX + machineTab.offsetLeft + offsetX"
+					: mouseX / zoom + offsetX - tabWidth / 2 / zoom"
 				:y2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.y + (hoveringPipe.type === 'input' ? -10
 						: hoveringPipe.machine.height + 10)
-					: mouseY - machineTab.offsetTop + offsetY"
+					: mouseY / zoom + offsetY - tabHeight / 2 / zoom"
 				stroke="gold"
 				stroke-width="10"
 				stroke-linecap="round"
