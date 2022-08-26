@@ -382,8 +382,10 @@ export function MachineType(data) {
 					if (this.data.pipes[i][j][0].toString() === machine.id.toString() &&
 						this.data.pipes[i][j][1] === inputId) {
 						const idx = Pipes[this.town].findIndex(pipe =>
-							pipe.out[0].id === this.id && pipe.out[1].id === this.outputs[i].id &&
-							pipe.in[0].id === machine.id && pipe.in[1].id === machine.inputs[inputId].id
+							pipe.out[0].id.toString() === this.id.toString() &&
+							pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
+							pipe.in[0].id.toString() === machine.id.toString() &&
+							pipe.in[1].id.toString() === machine.inputs[inputId].id.toString()
 						);
 						if (idx === -1) {
 							Modals.message.show("Something probably went wrong when deleting this pipe.");
@@ -404,10 +406,13 @@ export function MachineType(data) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
-						Pipes[this.town].splice(Pipes[this.town].findIndex(pipe =>
-							pipe.out[0] === this.id && pipe.out[1] === this.outputs[i].id &&
-							pipe.in[0] === machine.id && pipe.in[1] === this.data.pipes[i][j][1]
-						), 1);
+						const idx = Pipes[this.town].findIndex(pipe =>
+							pipe.out[0].id.toString() === this.id.toString() &&
+							pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
+							pipe.in[0].id.toString() === machine.id.toString() &&
+							pipe.in[1].id.toString() === this.data.pipes[i][j][1].toString()
+						);
+						Pipes[this.town].splice(idx, 1);
 						this.data.pipes[i].splice(j, 1);
 					}
 				}
