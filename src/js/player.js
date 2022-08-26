@@ -38,13 +38,11 @@ export const Player = {
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
 	load(playerObj) {
 		if (playerObj) {
-			const beforeMigrations = !playerObj.migrations;
 			const savedPlayer = this.coercePlayer(playerObj, this.defaultStart());
 			deepAssign(player, savedPlayer);
 			for (const town in Towns) {
 				player.towns[town].machines = savedPlayer.towns[town].machines;
 			}
-			if (beforeMigrations) player.migrations = 0;
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
 			}
