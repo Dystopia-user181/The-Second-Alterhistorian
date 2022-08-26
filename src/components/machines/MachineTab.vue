@@ -256,9 +256,12 @@ function changeZoom({ deltaY }) {
 		<svg
 			ref="canvas"
 			class="c-machine-tab__canvas"
+			:viewBox="`-${maxOffsetX} -${maxOffsetY} ${2 * maxOffsetX} ${2 * maxOffsetY}`"
 			:style="{
-				transform: `translate(-50%), calc(${-offsetY}px - 50%))
-				scale(${zoom})`
+				transform: `
+				translate(${tabWidth / 2 - maxOffsetX}px, ${tabHeight / 2 - maxOffsetY}px)
+				scale(${zoom})
+				translate(${-offsetX}px, ${-offsetY}px)`
 			}"
 			:width="2 * maxOffsetX"
 			:height="2 * maxOffsetY"
