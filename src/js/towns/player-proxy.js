@@ -58,8 +58,8 @@ class SidebarShopItem {
 		if (!Machine.add(
 			player.currentlyIn,
 			this.config.type,
-			player.display.offset.x + 60,
-			player.display.offset.y + 60
+			player.towns[player.currentlyIn].display.offset.x + 60,
+			player.towns[player.currentlyIn].display.offset.y + 60
 		))
 			return;
 

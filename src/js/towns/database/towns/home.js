@@ -6,23 +6,23 @@ import { player } from "@/js/player";
 GameDatabase.towns.home = {
 	defaultMachines: [{
 		type: "shoveller",
-		x: 50,
-		y: 50
+		x: -125,
+		y: -125
 	},
 	{
 		type: "cistern",
-		x: 50,
-		y: 350
+		x: -425,
+		y: -125
 	},
 	{
 		type: "quarry",
-		x: 50,
-		y: 650
+		x: 125,
+		y: -125
 	},
 	{
 		type: "essencePurifier",
-		x: 350,
-		y: 50
+		x: -125,
+		y: -425
 	}],
 	sidebarShop: [
 		{

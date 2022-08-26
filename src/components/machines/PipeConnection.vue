@@ -27,10 +27,14 @@ let shouldExist = $ref(false);
 
 onMount({
 	update() {
-		const offsetX = player.display.offset.x, offsetY = player.display.offset.y;
-		if (rx2 < offsetX || ry2 < offsetY)
+		const offsetX = player.towns[player.currentlyIn].display.offset.x;
+		const offsetY = player.towns[player.currentlyIn].display.offset.y;
+		const z = player.towns[player.currentlyIn].display.zoom;
+		const w2 = innerWidth / 2 / z;
+		const h2 = innerHeight / 2 / z;
+		if (rx2 < offsetX - w2 || ry2 < offsetY - h2)
 			shouldExist = false;
-		else if (rx1 > offsetX + window.innerWidth || ry1 > offsetY + window.innerHeight)
+		else if (rx1 > offsetX + w2 || ry1 > offsetY + h2)
 			shouldExist = false;
 		else
 			shouldExist = true;

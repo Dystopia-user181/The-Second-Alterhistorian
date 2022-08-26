@@ -17,16 +17,17 @@ export const Player = {
 					machines: Towns("home").defaultMachines,
 					upgrades: 0,
 					machinesPrepay: Towns("home").defaultMachinesPrepay,
-					upgradesPrepay: Towns("home").defaultUpgradesPrepay
+					upgradesPrepay: Towns("home").defaultUpgradesPrepay,
+					display: {
+						offset: { x: 0, y: 0 },
+						zoom: 1
+					},
 				}
 			},
 			currentlyIn: "home",
 			holding: {
 				resource: "earth",
 				amount: 0
-			},
-			display: {
-				offset: { x: 0, y: 0 }
 			},
 			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
 			fastTime: 0,
