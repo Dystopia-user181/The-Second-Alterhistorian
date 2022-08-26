@@ -1,7 +1,7 @@
 <script>
 import { Player } from "@/js/player";
 
-import { str } from "@utils";
+import { str } from "@/utils";
 
 
 function predictableRandom(x) {

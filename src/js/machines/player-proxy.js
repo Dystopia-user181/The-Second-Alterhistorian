@@ -10,15 +10,13 @@ import { GameDatabase } from "@/js/database";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, objectMap } from "@utils";
+import { arr, objectMap } from "@/utils";
 
 
 export const Machines = {};
-window.Machines = Machines;
 export const MachinesById = {};
 export const MachineCounts = {};
 export const Pipes = {};
-window.Pipes = Pipes;
 
 export function initializeMachines() {
 	for (const town in GameDatabase.towns) {

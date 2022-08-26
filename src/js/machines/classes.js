@@ -4,7 +4,7 @@ import { MachinesById, Pipes } from "./player-proxy";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 
-import { arr, formatX, objectMap, run, Stack, str } from "@utils";
+import { arr, formatX, objectMap, run, Stack, str } from "@/utils";
 
 
 class MachineUpgrade {

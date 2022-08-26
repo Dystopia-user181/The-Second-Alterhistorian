@@ -1,5 +1,5 @@
 <script setup>
-import { format } from "@utils";
+import { format } from "@/utils";
 
 
 const { upgrade } = defineProps({

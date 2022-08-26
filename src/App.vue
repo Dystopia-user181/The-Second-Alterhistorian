@@ -12,7 +12,7 @@ import MachineTab from "@/components/machines/MachineTab.vue";
 import PopupModal from "@/components/modals/PopupModal.vue";
 import Sidebar from "@/components/Sidebar.vue";
 
-import { format } from "@utils";
+import { format } from "@/utils";
 
 
 const mouseX = ref(0), mouseY = ref(0);

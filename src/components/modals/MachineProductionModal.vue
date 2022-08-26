@@ -1,7 +1,7 @@
 <script>
 import ModalWrapper from "./ModalWrapper.vue";
 
-import { arr, format, str } from "@utils";
+import { arr, format, str } from "@/utils";
 
 
 export default {

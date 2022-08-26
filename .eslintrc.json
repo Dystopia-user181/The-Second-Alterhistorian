@@ -58,10 +58,9 @@
 		"import/resolver": {
 			"alias": {
 				"map": [
-					["@", "./src"],
-					["@utils", "./src/utils"]
+					["@", "./src"]
 				],
-				"extensions": [".js", ".vue"]
+				"extensions": [".js", ".ts", ".vue"]
 			}
 		}
 	},

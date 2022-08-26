@@ -2,7 +2,7 @@ import { player } from "@/js/player";
 
 import { Towns } from "@/js/towns/index";
 
-import { arr, deepClone, shallowClone } from "@utils";
+import { arr, deepClone, shallowClone } from "@/utils";
 
 
 export const Machine = {

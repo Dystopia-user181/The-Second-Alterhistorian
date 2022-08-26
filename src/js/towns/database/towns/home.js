@@ -60,12 +60,12 @@ GameDatabase.towns.home = {
 		{
 			type: "essencePurifier",
 			cost: 5,
-			currencyType: "gold",
-			isUnlocked: () => player.unlockedCurrencies.gold
+			currencyType: "silver",
+			isUnlocked: () => player.unlockedCurrencies.copper
 		},
 		{
 			type: "elixirMaker",
-			cost: 25,
+			cost: 20,
 			currencyType: "gold",
 			isUnlocked: () => player.unlockedCurrencies.gold
 		},
@@ -78,9 +78,8 @@ GameDatabase.towns.home = {
 		{
 			type: "autoSeller",
 			cost: 0.2,
-			currencyType: "essence",
-			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought &&
-				(player.unlockedCurrencies.essence || player.unlockedCurrencies.fire)
+			currencyType: "energy",
+			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
 		}
 	],
 	upgrades: {

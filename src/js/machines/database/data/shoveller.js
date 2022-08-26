@@ -2,7 +2,7 @@ import { machineUpg } from "../init";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { formatX } from "@utils";
+import { formatX } from "@/utils";
 
 
 GameDatabase.machines.shoveller = {

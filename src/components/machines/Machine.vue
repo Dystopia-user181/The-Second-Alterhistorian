@@ -6,7 +6,7 @@ import { player } from "@/js/player";
 
 import ResourceStack from "./ResourceStack.vue";
 
-import { arr, format, str } from "@utils";
+import { arr, format, str } from "@/utils";
 
 
 const props = defineProps({

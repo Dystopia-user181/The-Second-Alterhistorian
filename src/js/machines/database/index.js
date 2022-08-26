@@ -18,7 +18,7 @@ import { MachineType } from "../classes";
 
 import { GameDatabase } from "@/js/database/index";
 
-import { objectMap } from "@utils";
+import { objectMap } from "@/utils";
 
 
 export const MachineTypes = objectMap(GameDatabase.machines, x => x, x => MachineType(x));

@@ -8,7 +8,7 @@ import { onMount } from "@/components/mixins";
 import MachineContainer from "./MachineContainer.vue";
 import PipeConnection from "./PipeConnection.vue";
 
-import { format, formatX } from "@utils";
+import { format, formatX } from "@/utils";
 
 
 let holding = $ref(false);
