@@ -30,12 +30,15 @@ let shouldExist = $ref(false);
 
 onMount({
 	update() {
-		const offsetX = player.display.offset.x, offsetY = player.display.offset.y;
+		const offsetX = player.towns[player.currentlyIn].display.offset.x;
+		const offsetY = player.towns[player.currentlyIn].display.offset.y;
+		const z = player.towns[player.currentlyIn].display.zoom;
 		const machX = props.machine.data.x, machY = props.machine.data.y;
-		shouldExist = machX > offsetX - 600 &&
-			machX < offsetX + window.innerWidth &&
-			machY > offsetY - 300 &&
-			machY < offsetY + window.innerHeight;
+		const w2 = innerWidth / 2 / z, h2 = innerHeight / 2 / z;
+		shouldExist = machX > offsetX - w2 - 600 / z &&
+			machX < offsetX + w2 &&
+			machY > offsetY - h2 - 300 / z &&
+			machY < offsetY + h2;
 	}
 });
 </script>

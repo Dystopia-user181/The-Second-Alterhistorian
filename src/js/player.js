@@ -17,16 +17,17 @@ export const Player = {
 					machines: Towns("home").defaultMachines,
 					upgrades: 0,
 					machinesPrepay: Towns("home").defaultMachinesPrepay,
-					upgradesPrepay: Towns("home").defaultUpgradesPrepay
+					upgradesPrepay: Towns("home").defaultUpgradesPrepay,
+					display: {
+						offset: { x: 0, y: 0 },
+						zoom: 1
+					},
 				}
 			},
 			currentlyIn: "home",
 			holding: {
 				resource: "earth",
 				amount: 0
-			},
-			display: {
-				offset: { x: 0, y: 0 }
 			},
 			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
 			fastTime: 0,
@@ -37,13 +38,11 @@ export const Player = {
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
 	load(playerObj) {
 		if (playerObj) {
-			const beforeMigrations = !playerObj.migrations;
 			const savedPlayer = this.coercePlayer(playerObj, this.defaultStart());
 			deepAssign(player, savedPlayer);
 			for (const town in Towns) {
 				player.towns[town].machines = savedPlayer.towns[town].machines;
 			}
-			if (beforeMigrations) player.migrations = 0;
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
 			}

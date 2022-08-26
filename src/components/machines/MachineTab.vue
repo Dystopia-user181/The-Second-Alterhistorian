@@ -17,10 +17,11 @@ let holdingMachineX, holdingMachineY;
 let beforeDestroy = null;
 let offsetX = $ref(0);
 let offsetY = $ref(0);
-let width = $ref(0);
-let height = $ref(0);
+let zoom = $ref(1);
 let mouseX = $ref(0);
 let mouseY = $ref(0);
+let tabWidth = $ref(0);
+let tabHeight = $ref(0);
 let holdingFunction = null;
 let holdingKeyFunction = null;
 const draggingPipe = $ref({
@@ -36,8 +37,8 @@ const hoveringPipe = $ref({
 
 const machineTab = $ref(null);
 
-const maxOffsetX = 5998;
-const maxOffsetY = 2998;
+const maxOffsetX = 5000;
+const maxOffsetY = 4000;
 
 const machines = $computed(() => Machines[player.currentlyIn]);
 const pipes = $computed(() => Pipes[player.currentlyIn]);
@@ -68,29 +69,30 @@ onMount({
 	beforeUnmount() {
 		if (beforeDestroy) beforeDestroy();
 	},
-	update() {
-		width = machineTab.offsetWidth;
-		height = machineTab.offsetHeight;
-	},
 	render() {
 		mouseX = window.mouseX;
 		mouseY = window.mouseY;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
-		player.display.offset.x = Math.min(player.display.offset.x, maxOffsetX - width);
-		player.display.offset.y = Math.min(player.display.offset.y, maxOffsetY - height);
-		offsetX = player.display.offset.x;
-		offsetY = player.display.offset.y;
+		player.towns[player.currentlyIn].display.offset.x = Math.max(-maxOffsetX,
+			Math.min(player.towns[player.currentlyIn].display.offset.x, maxOffsetX)
+		);
+		player.towns[player.currentlyIn].display.offset.y = Math.max(-maxOffsetY,
+			Math.min(player.towns[player.currentlyIn].display.offset.y, maxOffsetY)
+		);
+		offsetX = player.towns[player.currentlyIn].display.offset.x;
+		offsetY = player.towns[player.currentlyIn].display.offset.y;
+		zoom = player.towns[player.currentlyIn].display.zoom;
+		tabWidth = machineTab.offsetWidth;
+		tabHeight = machineTab.offsetHeight;
 	}
 });
 function registerOffsetHold(offset) {
 	if (!holding) {
 		holding = true;
 		holdingFunction = function() {
-			player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
-				maxOffsetX - width), 0);
-			player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
-				maxOffsetY - height), 0);
+			player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
+			player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
 		};
 		const stopHolding = function() {
 			holding = false;
@@ -106,16 +108,14 @@ function registerOffsetHold(offset) {
 }
 function registerOffsetKey(offset) {
 	holdingKeyFunction = function() {
-		const { x, y } = player.display.offset;
-		player.display.offset.x = Math.max(Math.min(player.display.offset.x + offset[0] * 15,
-			maxOffsetX - width), 0);
-		player.display.offset.y = Math.max(Math.min(player.display.offset.y + offset[1] * 15,
-			maxOffsetY - height), 0);
+		const { x, y } = player.towns[player.currentlyIn].display.offset;
+		player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
+		player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
 		if (holdingMachine) {
-			holdingMachine.data.x += (player.display.offset.x - x);
-			holdingMachine.data.y += (player.display.offset.y - y);
-			holdingMachineX += (player.display.offset.x - x);
-			holdingMachineY += (player.display.offset.y - y);
+			holdingMachine.data.x += (player.towns[player.currentlyIn].display.offset.x - x);
+			holdingMachine.data.y += (player.towns[player.currentlyIn].display.offset.y - y);
+			holdingMachineX += (player.towns[player.currentlyIn].display.offset.x - x);
+			holdingMachineY += (player.towns[player.currentlyIn].display.offset.y - y);
 		}
 	};
 }
@@ -169,19 +169,19 @@ function handlePipeStopHover() {
 	hoveringPipe.machine = null;
 }
 function handleMoveMachineStart(machine, e) {
-	holdingMachineX = machine.data.x - e.clientX;
-	holdingMachineY = machine.data.y - e.clientY;
+	holdingMachineX = machine.data.x;
+	holdingMachineY = machine.data.y;
 	if (!holding) {
 		holding = true;
 		holdingMachine = machine;
 		const followMouse = function(event) {
 			machine.data.x = Math.min(
-				Math.max(holdingMachineX + event.clientX, 30),
-				maxOffsetX - 270
+				Math.max(holdingMachineX + (event.clientX - e.clientX) / zoom, -maxOffsetX),
+				maxOffsetX
 			);
 			machine.data.y = Math.min(
-				Math.max(holdingMachineY + event.clientY, 30),
-				maxOffsetY - 270
+				Math.max(holdingMachineY + (event.clientY - e.clientY) / zoom, -maxOffsetY),
+				maxOffsetY
 			);
 		};
 		document.addEventListener("mousemove", followMouse);
@@ -201,15 +201,18 @@ function handleMoveMachineStart(machine, e) {
 function attemptUseDrag(event) {
 	if (!holding) {
 		holding = true;
-		let { x, y } = player.display.offset;
+		let { x, y } = player.towns[player.currentlyIn].display.offset;
 		const followMouse = function(event2) {
 			// Move board position with edge handling, then move reference point if it hits the edge
-			player.display.offset.x = Math.max(Math.min(x + event.clientX - event2.clientX,
-				maxOffsetX - width), 0);
-			x = player.display.offset.x + event2.clientX - event.clientX;
-			player.display.offset.y = Math.max(Math.min(y + event.clientY - event2.clientY,
-				maxOffsetY - height), 0);
-			y = player.display.offset.y + event2.clientY - event.clientY;
+			player.towns[player.currentlyIn].display.offset.x = Math.max(Math.min(x +
+				(event.clientX - event2.clientX) / zoom,
+			maxOffsetX), -maxOffsetX);
+			x = player.towns[player.currentlyIn].display.offset.x + (event2.clientX - event.clientX) / zoom;
+
+			player.towns[player.currentlyIn].display.offset.y = Math.max(Math.min(y +
+				(event.clientY - event2.clientY) / zoom,
+			maxOffsetY), -maxOffsetY);
+			y = player.towns[player.currentlyIn].display.offset.y + (event2.clientY - event.clientY) / zoom;
 		};
 		document.addEventListener("mousemove", followMouse);
 		const stopHolding = function() {
@@ -225,6 +228,15 @@ function attemptUseDrag(event) {
 		beforeDestroy = stopHolding;
 	}
 }
+
+function changeZoom({ deltaY }) {
+	const magnitude = Math.pow(0.9, Math.sign(deltaY));
+	player.towns[player.currentlyIn].display.zoom *= magnitude;
+	player.towns[player.currentlyIn].display.zoom = Math.min(
+		Math.max(player.towns[player.currentlyIn].display.zoom, Math.pow(0.9, 6)),
+		Math.pow(0.9, -6)
+	);
+}
 </script>
 
 <template>
@@ -232,6 +244,7 @@ function attemptUseDrag(event) {
 		ref="machineTab"
 		class="c-machine-tab"
 		@mousedown="attemptUseDrag"
+		@wheel="changeZoom"
 	>
 		<span class="c-machine-tab__fast-time-display">
 			Fast Time: {{ format(player.fastTime, 2, 2) }}s
@@ -243,11 +256,15 @@ function attemptUseDrag(event) {
 		<svg
 			ref="canvas"
 			class="c-machine-tab__canvas"
+			:viewBox="`-${maxOffsetX} -${maxOffsetY} ${2 * maxOffsetX} ${2 * maxOffsetY}`"
 			:style="{
-				transform: `translate(-${offsetX}px, -${offsetY}px)`
+				transform: `
+				translate(${tabWidth / 2 - maxOffsetX}px, ${tabHeight / 2 - maxOffsetY}px)
+				scale(${zoom})
+				translate(${-offsetX}px, ${-offsetY}px)`
 			}"
-			:width="maxOffsetX"
-			:height="maxOffsetY"
+			:width="2 * maxOffsetX"
+			:height="2 * maxOffsetY"
 		>
 			<pipe-connection
 				v-for="(pipe, id) in pipes"
@@ -274,8 +291,12 @@ function attemptUseDrag(event) {
 		</svg>
 		<div
 			:style="{
-				transform: `translate(-${offsetX}px, -${offsetY}px)`
+				transform: `
+				translate(${tabWidth / 2}px, ${tabHeight / 2}px)
+				scale(${zoom})
+				translate(${-offsetX}px, ${-offsetY}px)`
 			}"
+			class="l-machines-container"
 		>
 			<machine-container
 				v-for="machine in machines"
@@ -290,22 +311,22 @@ function attemptUseDrag(event) {
 			/>
 		</div>
 		<div
-			v-if="offsetX > 0"
+			v-if="offsetX > -maxOffsetX"
 			class="fas fa-chevron-left c-machine-tab__offset c-machine-tab__offset-left"
 			@mousedown="registerOffsetHold([-1, 0])"
 		/>
 		<div
-			v-if="offsetY > 0"
+			v-if="offsetY > -maxOffsetY"
 			class="fas fa-chevron-up c-machine-tab__offset c-machine-tab__offset-up"
 			@mousedown="registerOffsetHold([0, -1])"
 		/>
 		<div
-			v-if="offsetX < maxOffsetX - width"
+			v-if="offsetX < maxOffsetX"
 			class="fas fa-chevron-right c-machine-tab__offset c-machine-tab__offset-right"
 			@mousedown="registerOffsetHold([1, 0])"
 		/>
 		<div
-			v-if="offsetY < maxOffsetY - height"
+			v-if="offsetY < maxOffsetY"
 			class="fas fa-chevron-down c-machine-tab__offset c-machine-tab__offset-down"
 			@mousedown="registerOffsetHold([0, 1])"
 		/>
@@ -320,6 +341,11 @@ function attemptUseDrag(event) {
 	flex: 1 0 auto;
 	align-self: stretch;
 	justify-self: stretch;
+}
+
+.l-machines-container {
+	width: 0;
+	height: 0;
 }
 
 .c-machine-tab__offset {

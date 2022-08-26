@@ -25,5 +25,9 @@ export const migrations = [
 				if (machine.outputs[0]) player.producedElixir += machine.outputs[0].amount;
 			}
 		}
+	},
+	player => {
+		player.towns.home.display.offset = player.display.offset;
+		delete player.display;
 	}
 ];
