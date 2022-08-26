@@ -73,13 +73,13 @@ GameDatabase.towns.home = {
 			type: "inputMerger",
 			cost: 10,
 			currencyType: "stone",
-			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought
+			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
 		},
 		{
 			type: "autoSeller",
 			cost: 0.2,
 			currencyType: "essence",
-			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought &&
+			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought &&
 				(player.unlockedCurrencies.essence || player.unlockedCurrencies.fire)
 		}
 	],
@@ -99,7 +99,7 @@ GameDatabase.towns.home = {
 			title: "Pipes II",
 			description: "Increase efficiency of pipes by x4.",
 			effect: 4,
-			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought
+			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
 		},
 		pipesSpeed2: {
 			id: 2,
@@ -108,7 +108,7 @@ GameDatabase.towns.home = {
 			title: "Pipes III",
 			description: "Increase efficiency of pipes by x2.",
 			effect: 2,
-			isUnlocked: () => Towns.home.upgrades.pipesBasic.isBought
+			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
 		}
 	}
 };

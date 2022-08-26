@@ -2,7 +2,7 @@ import { Machine, MachineTypes } from "@/js/machines/index";
 import { GameDatabase } from "@/js/database/index";
 import { player } from "@/js/player";
 
-import { arr, formatX, LazyLoad, objectMap, run } from "@utils";
+import { arr, formatX, objectMap, run } from "@utils";
 
 
 class SidebarShopItem {
@@ -194,14 +194,27 @@ class Town {
 	}
 }
 
-export const Towns = LazyLoad(GameDatabase.towns, (x, id) => new Town(x, id));
+class TownsLazyLoader {
+	constructor() {
+		this._towns = GameDatabase.towns;
+		this.towns = {};
+	}
+
+	createAccessor() {
+		return id => {
+			if (!this.towns[id]) this.towns[id] = new Town(this._towns[id], id);
+			return this.towns[id];
+		};
+	}
+}
+export const Towns = new TownsLazyLoader().createAccessor();
 
 export const SidebarShop = {
 	get currentMachines() {
-		return Towns[player.currentlyIn].sidebarShop;
+		return Towns(player.currentlyIn).sidebarShop;
 	},
 
 	get currentUpgrades() {
-		return Towns[player.currentlyIn].upgrades;
+		return Towns(player.currentlyIn).upgrades;
 	}
 };
