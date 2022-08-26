@@ -229,6 +229,10 @@ function attemptUseDrag(event) {
 	}
 }
 
+function gotoHome() {
+	player.towns[player.currentlyIn].display.offset = { x: 0, y: 0 };
+}
+
 function changeZoom({ deltaY }) {
 	const magnitude = Math.pow(0.9, Math.sign(deltaY));
 	player.towns[player.currentlyIn].display.zoom *= magnitude;
@@ -330,6 +334,10 @@ function changeZoom({ deltaY }) {
 			class="fas fa-chevron-down c-machine-tab__offset c-machine-tab__offset-down"
 			@mousedown="registerOffsetHold([0, 1])"
 		/>
+		<div
+			class="fas fa-house c-machine-tab__goto-home"
+			@mousedown="gotoHome"
+		/>
 	</div>
 </template>
 
@@ -392,6 +400,19 @@ function changeZoom({ deltaY }) {
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.c-machine-tab__goto-home {
+	position: absolute;
+	opacity: 0.5;
+	right: 15px;
+	bottom: 15px;
+	font-size: 30px;
+	cursor: pointer;
+}
+
+.c-machine-tab__goto-home:hover {
+	opacity: 1;
 }
 
 .c-machine-tab__fast-time-display {
