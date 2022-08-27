@@ -32,7 +32,8 @@ export const Player = {
 			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
 			fastTime: 0,
 			migrations: migrations.length,
-			producedElixir: 0
+			producedElixir: 0,
+			vitalMarker: Player.storageKey
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
@@ -72,6 +73,7 @@ export const Player = {
 		return fillObject;
 	},
 	savePlayer() {
+		if (player.vitalMarker !== Player.storageKey) return;
 		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
