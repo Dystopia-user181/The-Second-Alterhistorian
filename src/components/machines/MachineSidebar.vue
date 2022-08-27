@@ -62,6 +62,11 @@ function deleteMachine() {
 			@mousedown="emit('move-machine-start', $event)"
 		/>
 		<div
+			class="fas"
+			:class="machine.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
+			@mousedown="machine.toggleMinimized()"
+		/>
+		<div
 			v-if="machine.isUpgradeable"
 			class="fas fa-arrow-up"
 			:class="{
@@ -80,11 +85,6 @@ function deleteMachine() {
 			v-if="!machine.data.min"
 			class="fas fa-chart-bar"
 			@mousedown="machine.showProduction()"
-		/>
-		<div
-			class="fas"
-			:class="machine.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
-			@mousedown="machine.toggleMinimized()"
 		/>
 		<div
 			v-if="!machine.data.isDefault"
