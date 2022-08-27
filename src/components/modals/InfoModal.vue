@@ -40,7 +40,7 @@ import ModalWrapper from "./ModalWrapper.vue";
 	</ModalWrapper>
 </template>
 
-<style>
+<style scoped>
 .c-info {
 	width: 600px;
 }

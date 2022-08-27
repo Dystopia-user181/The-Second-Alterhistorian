@@ -39,7 +39,7 @@ import ModalWrapper from "./ModalWrapper.vue";
 	</modal-wrapper>
 </template>
 
-<style>
+<style scoped>
 .c-h2p {
 	width: 600px;
 }
