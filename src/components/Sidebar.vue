@@ -1,15 +1,6 @@
-<script>
+<script setup>
 import SidebarSellPanel from "./SidebarSellPanel.vue";
 import SidebarShop from "./SidebarShop.vue";
-
-
-export default {
-	name: "Sidebar",
-	components: {
-		SidebarSellPanel,
-		SidebarShop,
-	}
-};
 </script>
 
 <template>

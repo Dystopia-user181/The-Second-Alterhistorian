@@ -27,7 +27,7 @@ GameDatabase.towns.home = {
 	sidebarShop: [
 		{
 			type: "waterMixer",
-			cost: 8
+			cost: 6
 		},
 		{
 			type: "furnaceBasic",
@@ -85,7 +85,7 @@ GameDatabase.towns.home = {
 	upgrades: {
 		pipesBasic: {
 			id: 0,
-			cost: 36,
+			cost: 30,
 			currencyType: "bricks",
 			title: "Pipes",
 			description: `Unlock basic pipes.

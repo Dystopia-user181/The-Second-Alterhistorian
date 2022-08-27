@@ -76,6 +76,10 @@ onMount({
 					class="fas fa-circle-info"
 					@click="Modals.info.show()"
 				/>
+				<i
+					class="fas fa-question-circle"
+					@click="Modals.h2p.show()"
+				/>
 			</h1>
 			<div class="c-main-tabs">
 				<machine-tab />
@@ -130,8 +134,9 @@ onMount({
 	flex: 1 0 auto;
 }
 
-.fa-circle-info {
+.fa-circle-info, .fa-question-circle {
 	cursor: pointer;
+	padding-left: 10px;
 }
 
 .c-held-item {
