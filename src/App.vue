@@ -70,17 +70,6 @@ onMount({
 		@mousemove="updateMousePos"
 	>
 		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
-			<h1>
-				The Second Alterhistorian
-				<i
-					class="fas fa-circle-info"
-					@click="Modals.info.show()"
-				/>
-				<i
-					class="fas fa-question-circle"
-					@click="Modals.h2p.show()"
-				/>
-			</h1>
 			<div class="c-main-tabs">
 				<machine-tab />
 				<sidebar />
@@ -120,7 +109,6 @@ onMount({
 <style scoped>
 .c-game-ui {
 	min-height: 100vh;
-	padding-top: 20px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -132,11 +120,6 @@ onMount({
 	display: flex;
 	width: 100%;
 	flex: 1 0 auto;
-}
-
-.fa-circle-info, .fa-question-circle {
-	cursor: pointer;
-	padding-left: 10px;
 }
 
 .c-held-item {
