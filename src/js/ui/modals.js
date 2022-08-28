@@ -1,5 +1,6 @@
 import { ref, shallowRef } from "vue";
 
+import H2PModal from "@/components/modals/H2PModal.vue";
 import InfoModal from "@/components/modals/InfoModal.vue";
 import MachineInfoModal from "@/components/modals/MachineInfoModal.vue";
 import MachineProductionModal from "@/components/modals/MachineProductionModal.vue";
@@ -81,6 +82,7 @@ export const Modals = {
 	}
 };
 
+Modals.h2p = new Modal(H2PModal);
 Modals.info = new Modal(InfoModal);
 Modals.machineInfo = new Modal(MachineInfoModal);
 Modals.machineUpgrades = new Modal(MachineUpgradeModal);

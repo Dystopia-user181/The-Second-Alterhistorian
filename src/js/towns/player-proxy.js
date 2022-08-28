@@ -58,8 +58,8 @@ class SidebarShopItem {
 		if (!Machine.add(
 			player.currentlyIn,
 			this.config.type,
-			player.towns[player.currentlyIn].display.offset.x + 60,
-			player.towns[player.currentlyIn].display.offset.y + 60
+			player.towns[player.currentlyIn].display.offset.x,
+			player.towns[player.currentlyIn].display.offset.y
 		))
 			return;
 
@@ -192,6 +192,19 @@ class Town {
 	get isUnlocked() {
 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked);
 	}
+
+	get isFullyUpgraded() {
+		return Object.values(this.upgrades).every(upgrade => !upgrade.isUnlocked || upgrade.isBought);
+	}
+
+	get hasPartialBuyableUpgrades() {
+		return !this.hasWholeBuyableUpgrades &&
+			Object.values(this.upgrades).find(x => x.canAfford) !== undefined;
+	}
+
+	get hasWholeBuyableUpgrades() {
+		return Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
+	}
 }
 
 class TownsLazyLoader {
@@ -201,20 +214,24 @@ class TownsLazyLoader {
 	}
 
 	createAccessor() {
-		return id => {
+		const func = id => {
 			if (!this.towns[id]) this.towns[id] = new Town(this._towns[id], id);
 			return this.towns[id];
 		};
+		Object.defineProperty(func, "current", {
+			get: () => Towns(player.currentlyIn)
+		});
+		return func;
 	}
 }
 export const Towns = new TownsLazyLoader().createAccessor();
 
 export const SidebarShop = {
 	get currentMachines() {
-		return Towns(player.currentlyIn).sidebarShop;
+		return Towns.current.sidebarShop;
 	},
 
 	get currentUpgrades() {
-		return Towns(player.currentlyIn).upgrades;
+		return Towns.current.upgrades;
 	}
 };
