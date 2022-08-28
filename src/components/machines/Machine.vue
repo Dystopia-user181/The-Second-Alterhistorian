@@ -199,6 +199,7 @@ function emitOutputPipeHover(id) {
 			</div>
 		</div>
 		<div
+			v-if="unlockedPipes || !isMin"
 			class="c-emphasise-text c-machine__title"
 			@mousedown="emit('move-machine-start', $event)"
 		>
