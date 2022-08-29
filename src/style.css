@@ -85,7 +85,8 @@ hr {
 }
 
 .c-glow-yellow,
-.c-glow-green {
+.c-glow-green,
+.c-tint {
 	position: relative;
 }
 
@@ -120,4 +121,25 @@ hr {
 
 .c-darker::before {
 	color: rgb(80, 80, 80);
+}
+
+.c-tint::after {
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-radius: inherit;
+	background: var(--tint-background);
+	opacity: 0.3;
+	pointer-events: none;
+}
+
+.c-tint--green {
+	--tint-background: #3ea23e;
+}
+
+.c-tint--red {
+	--tint-background: #a23e3e;
 }

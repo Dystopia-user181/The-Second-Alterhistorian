@@ -1,11 +1,12 @@
 import { reactive, toRaw } from "vue";
 
-import { deepClone, objectMap } from "../utils";
-
 import { initializeMachines, MachineTypes } from "./machines/index";
 import { Currencies } from "./database/currencies.ts";
 import { migrations } from "./migrations";
+import { Modals } from "./ui/modals";
 import { Towns } from "./towns/index";
+
+import { deepClone, downloadAsFile, objectMap } from "@/utils";
 
 
 export const Player = {
@@ -33,7 +34,11 @@ export const Player = {
 			fastTime: 0,
 			migrations: migrations.length,
 			producedElixir: 0,
-			vitalMarker: Player.storageKey
+			vitalMarker: Player.storageKey,
+			options: {
+				autosave: 1,
+				exportCount: 0
+			}
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
@@ -130,9 +135,40 @@ export const Player = {
 	reset() {
 		Player.load();
 		Player.savePlayer();
+	},
+	exportSave() {
+		const dateString = `${new Date(Date.now() - (new Date().getTimezoneOffset() * 60 * 1000))
+			.toISOString().split("T")[0]} ${new Date().toLocaleTimeString(undefined, { hour12: false })}`;
+		player.options.exportCount++;
+		downloadAsFile(
+			`Alterhistorian Save #${player.options.exportCount} (${dateString})`,
+			window.btoa(JSON.stringify(toRaw(player)))
+		);
+	},
+	importSave(event) {
+		// This happens if the file dialog is canceled instead of a file being selected
+		if (event.target.files.length === 0) return;
+
+		const reader = new FileReader();
+		reader.onload = function() {
+			let text = reader.result;
+			try {
+				text = window.atob(text);
+			} catch {
+				Modals.message.show("Invalid savefile format.");
+				return;
+			}
+			const playerObj = JSON.parse(text);
+			if (typeof playerObj !== "object" || playerObj.vitalMarker !== Player.storageKey) {
+				Modals.message.show("Invalid savefile format.");
+				return;
+			}
+			Player.load(playerObj);
+			Player.savePlayer();
+		};
+		reader.readAsText(event.target.files[0]);
 	}
 };
-window.Player = Player;
 
 export const player = reactive({});
 window.player = player;
