@@ -9,6 +9,10 @@ import SidebarShop from "./SidebarShop.vue";
 	<div class="c-sidebar">
 		<h2 class="c-sidebar__header">
 			<i
+				class="fas fa-gear"
+				@click="Modals.settings.show()"
+			/>
+			<i
 				class="fas fa-circle-info"
 				@click="Modals.info.show()"
 			/>
@@ -38,7 +42,9 @@ import SidebarShop from "./SidebarShop.vue";
 	width: 100%;
 }
 
-.c-sidebar__header .fa-circle-info, .c-sidebar__header .fa-question-circle {
+.c-sidebar__header .fa-circle-info,
+.c-sidebar__header .fa-question-circle,
+.c-sidebar__header .fa-gear {
 	cursor: pointer;
 	position: absolute;
 }
@@ -49,5 +55,14 @@ import SidebarShop from "./SidebarShop.vue";
 
 .c-sidebar__header .fa-question-circle {
 	right: 10px;
+}
+
+.c-sidebar__header .fa-gear {
+	left: 10px;
+	transition: transform 0.6s;
+}
+
+.c-sidebar__header .fa-gear:hover {
+	transform: rotate(120deg);
 }
 </style>
