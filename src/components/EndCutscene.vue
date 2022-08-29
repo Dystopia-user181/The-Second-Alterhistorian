@@ -1,7 +1,9 @@
-<script>
+<script setup>
 import { Player } from "@/js/player";
 
 import { str } from "@/utils";
+
+import { onMount } from "@/components/mixins";
 
 
 function predictableRandom(x) {
@@ -28,12 +30,13 @@ const WordShift = {
 		let v = list[largeTick];
 
 		if (mod5 < 0.6) {
-			v = this.blendWords(list[(largeTick + list.length - 1) % list.length], list[largeTick], (mod5 + 0.6) / 1.2);
+			v = WordShift.blendWords(list[(largeTick + list.length - 1) % list.length], list[largeTick],
+				(mod5 + 0.6) / 1.2);
 		} else if (mod5 > 4.4) {
-			v = this.blendWords(list[largeTick], list[(largeTick + 1) % list.length], (mod5 - 4.4) / 1.2);
+			v = WordShift.blendWords(list[largeTick], list[(largeTick + 1) % list.length], (mod5 - 4.4) / 1.2);
 		}
 
-		v = this.randomCrossWords(v, 0.1 * Math.pow(mod5 - 2.5, 4) - 0.6);
+		v = WordShift.randomCrossWords(v, 0.1 * Math.pow(mod5 - 2.5, 4) - 0.6);
 		if (noBuffer) return v;
 
 		const maxWordLen = Math.max(...list.map(x => x.length));
@@ -115,39 +118,33 @@ const Quotes = [{
 	line: () => "To punish them eternally for their hubris."
 }];
 
-export default {
-	name: "EndCutscene",
-	data() {
-		return {
-			lineNumber: 0,
-			brightness: -0.5,
-			currentLine: "",
-			currentCel: "???",
-			updateCycle: 0
-		};
-	},
-	methods: {
-		render() {
-			if (this.lineNumber >= Quotes.length) {
-				this.brightness -= 0.003;
-				if (this.brightness <= -0.2) Player.reset();
-			} else this.brightness = Math.min(this.brightness + 0.005, 1);
-			if (this.brightness < 1) return;
-			this.updateCycle = !this.updateCycle;
-			if (this.updateCycle) return;
-			const line = Quotes[this.lineNumber];
-			this.currentCel = line.cel;
-			const lineAnim = this.currentLine.length;
-			this.currentLine = line.line().slice(0, lineAnim + 1);
-		},
-		nextLine() {
-			if (this.currentLine.length !== Quotes[this.lineNumber].line().length) return;
-			this.lineNumber++;
-			this.currentLine = "";
-		},
-		str
+let lineNumber = $ref(0);
+let brightness = $ref(-0.5);
+let currentLine = $ref("");
+let currentCel = $ref("???");
+let updateCycle = $ref(0);
+
+function nextLine() {
+	if (currentLine.length !== Quotes[lineNumber].line().length) return;
+	lineNumber++;
+	currentLine = "";
+}
+
+onMount({
+	render() {
+		if (lineNumber >= Quotes.length) {
+			brightness -= 0.003;
+			if (brightness <= -0.2) Player.reset();
+		} else brightness = Math.min(brightness + 0.005, 1);
+		if (brightness < 1) return;
+		updateCycle = !updateCycle;
+		if (updateCycle) return;
+		const line = Quotes[lineNumber];
+		currentCel = line.cel;
+		const lineAnim = currentLine.length;
+		currentLine = line.line().slice(0, lineAnim + 1);
 	}
-};
+});
 </script>
 
 <template>

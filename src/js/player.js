@@ -48,7 +48,7 @@ export const Player = {
 				migrations[player.migrations](player);
 			}
 		} else {
-			deepAssign(player, Player.defaultStart());
+			Object.assign(player, Player.defaultStart());
 		}
 		this.fixMachines();
 		initializeMachines();
@@ -62,13 +62,15 @@ export const Player = {
 		let fillObject;
 		if (source.constructor === Array) fillObject = [];
 		else fillObject = {};
-		for (const prop of Object.keys(target)) {
+		for (const prop in target) {
 			fillObject[prop] = deepClone(target[prop]);
 		}
-		for (const prop of Object.keys(source)) {
+		for (const prop in source) {
 			// I LOVE HARDCODING THINGS!!!!!!!!!!
-			if (prop === "machines") fillObject[prop] = deepClone(target[prop]);
-			else fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
+			if (prop === "machines")
+				fillObject[prop] = deepClone(target[prop]);
+			else
+				fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
 		}
 		return fillObject;
 	},
@@ -129,7 +131,7 @@ export const Player = {
 		}
 	},
 	reset() {
-		Player.load(Player.defaultStart());
+		Player.load();
 		Player.savePlayer();
 	}
 };
