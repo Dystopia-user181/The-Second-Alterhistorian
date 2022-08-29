@@ -148,6 +148,10 @@ class Arr<T> {
 		return undefined;
 	}
 
+	clear() {
+		this.array.splice(0, this.array.length);
+	}
+
 	// Not sure about the usage for this one, seems like index is always a string
 	// FIXME: Similar to objectToMap, this is can only result in a loosely typed union
 	mapToObject<K extends string, R>(

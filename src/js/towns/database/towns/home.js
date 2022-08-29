@@ -16,7 +16,7 @@ GameDatabase.towns.home = {
 	},
 	{
 		type: "quarry",
-		x: 125,
+		x: 175,
 		y: -125
 	},
 	{

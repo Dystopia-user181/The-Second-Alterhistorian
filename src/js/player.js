@@ -1,6 +1,6 @@
 import { reactive, toRaw } from "vue";
 
-import { deepAssign, deepClone, objectMap } from "../utils";
+import { deepClone, objectMap } from "../utils";
 
 import { initializeMachines, MachineTypes } from "./machines/index";
 import { Currencies } from "./database/currencies.ts";
@@ -40,10 +40,7 @@ export const Player = {
 	load(playerObj) {
 		if (playerObj) {
 			const savedPlayer = this.coercePlayer(playerObj, this.defaultStart());
-			deepAssign(player, savedPlayer);
-			for (const town in Towns) {
-				player.towns[town].machines = savedPlayer.towns[town].machines;
-			}
+			Object.assign(player, savedPlayer);
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
 			}
@@ -135,6 +132,7 @@ export const Player = {
 		Player.savePlayer();
 	}
 };
+window.Player = Player;
 
 export const player = reactive({});
 window.player = player;

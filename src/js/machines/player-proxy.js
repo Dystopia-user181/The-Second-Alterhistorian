@@ -20,8 +20,10 @@ export const Pipes = {};
 
 export function initializeMachines() {
 	for (const town in GameDatabase.towns) {
-		Machines[town] = shallowReactive([]);
-		Pipes[town] = shallowReactive([]);
+		if (Machines[town]) arr(Machines[town]).clear();
+		else Machines[town] = shallowReactive([]);
+		if (Pipes[town]) arr(Pipes[town]).clear();
+		else Pipes[town] = shallowReactive([]);
 		MachinesById[town] = {};
 		MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
 		for (const machineId in player.towns[town].machines) {
