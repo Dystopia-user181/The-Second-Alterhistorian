@@ -137,6 +137,6 @@ export const Player = {
 export const player = reactive({});
 window.player = player;
 
-window.addEventListener("load", () => Player.loadSave());
+Promise.resolve().then(() => Player.loadSave());
 
 window.saveInterval = setInterval(() => Player.savePlayer(), 10000);

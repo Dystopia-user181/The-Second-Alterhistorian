@@ -47,7 +47,7 @@ export function initializeMachines() {
 
 Machine.add = function(townName, type, x, y) {
 	const machines = player.towns[townName].machines;
-	if (Object.values(machines).length > 50) {
+	if (Object.values(machines).length >= 50) {
 		Modals.message.show("Reached machine cap in this town!");
 		return false;
 	}
