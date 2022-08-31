@@ -123,6 +123,7 @@ class GenericStackState {
 		this.data = data;
 		this._volume = ref(Stack.volumeOfStack(this.data));
 		this.displayResource = reactive(["none", Infinity]);
+		this.lastItem = null;
 	}
 
 	get capacity() {
@@ -152,12 +153,15 @@ class GenericStackState {
 			spaceLeft: this.spaceLeft
 		});
 		this.volume += amt;
+		this.lastItem = arr(this.data).last || null;
 		return amt;
 	}
 
 	removeFromStack(item) {
 		const amt = Stack.removeFromStack(this.data, item);
-		this.volume -= amt;
+		if (this.data.length) this.volume -= amt;
+		else this.volume = 0;
+		this.lastItem = arr(this.data).last || null;
 		return amt;
 	}
 }

@@ -3,7 +3,7 @@ import { player } from "@/js/player";
 import { Currencies } from "@/js/currencies/currencies";
 import { Towns } from "@/js/towns/index";
 
-import { arr, deepClone, shallowClone } from "@/utils";
+import { arr, shallowClone } from "@/utils";
 
 
 export const Machine = {
@@ -66,11 +66,11 @@ export const Machine = {
 	tickMachineProcesses(machine, diff) {
 		machine.outputDiffs = {};
 		const outputs = machine.outputs.filter(x => x.isUnlocked);
-		let inputs = deepClone(machine.inputs.filter(x => x.isUnlocked));
+		const inputs = machine.inputs.filter(x => x.isUnlocked);
 		outputs.forEach(output => {
 			const conf = output.config;
 			output.otherwiseDiff = diff;
-			output.maxDiff = (output.spaceLeft) / conf.produces.amount;
+			output.maxDiff = output.spaceLeft / conf.produces.amount;
 			if (isNaN(output.maxDiff)) {
 				output.maxDiff = 0;
 				return;
@@ -79,7 +79,7 @@ export const Machine = {
 			if (!inputs.length) return;
 			const requiresList = conf.requiresList ? conf.requiresList : [conf.requires];
 			for (const requirement of requiresList) {
-				const input = arr(inputs[requirement.inputId].data).last;
+				const input = inputs[requirement.inputId].lastItem;
 				if (!input) {
 					output.maxDiff = 0;
 					return;
@@ -112,8 +112,6 @@ export const Machine = {
 		});
 		Machine.addInputHistory(machine);
 		Machine.addOutputHistory(machine);
-		// Re-calculate inputs
-		inputs = machine.inputs.filter(x => x.isUnlocked);
 		inputs.forEach(input => {
 			input.otherwiseDiff = diff;
 			const conf = input.config;

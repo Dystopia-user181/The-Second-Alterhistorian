@@ -176,10 +176,13 @@ const CurrenciesDB: Record<ResourceType, CurrencyDBEntry> = {
 	}
 };
 
+export const CurrenciesList: Currency[] = [];
 export const Currencies: Record<ResourceType, Currency> = (function() {
 	const Currencies: Record<any, Currency> = {};
 	for (const i of ResourceTypes) {
-		Currencies[i] = new Currency(CurrenciesDB[i], i);
+		const newC = new Currency(CurrenciesDB[i], i);
+		Currencies[i] = newC;
+		CurrenciesList.push(newC);
 	}
 	return Currencies as Record<ResourceType, Currency>;
 }());

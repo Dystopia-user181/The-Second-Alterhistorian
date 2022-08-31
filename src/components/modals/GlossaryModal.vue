@@ -1,5 +1,5 @@
 <script setup>
-import { Currencies } from "@/js/currencies/currencies";
+import { CurrenciesList } from "@/js/currencies/currencies";
 
 import { format, str } from "@/utils";
 
@@ -14,12 +14,12 @@ import ModalWrapper from "./ModalWrapper.vue";
 		<br>
 		<div class="c-modal__currencies">
 			<div
-				v-for="(currency, currencyType) in Currencies"
-				:key="currencyType"
+				v-for="currency in CurrenciesList.filter(x => x.isUnlocked)"
+				:key="currency.type"
 				class="c-modal__currency-entry c-tint"
 				:style="{ '--tint-background': currency.colour }"
 			>
-				<i class="c-emphasise-text">{{ str(currencyType).capitalize }}</i>
+				<i class="c-emphasise-text">{{ str(currency.type).capitalize }}</i>
 				<br>
 				Selling Price: ${{ format(currency.value, 2, 1) }}
 				<br>
