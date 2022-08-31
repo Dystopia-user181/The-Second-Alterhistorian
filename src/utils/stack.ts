@@ -33,7 +33,7 @@ export function removeFromStack(stack : ResourceData[], amount : number, isBotto
 	}
 
 	removed.amount -= amount;
-	if (arr(stack).last.amount < Number.EPSILON) {
+	if (removed.amount < Number.EPSILON) {
 		if (isBottom) stack.pop();
 		else stack.shift();
 	}

@@ -1,5 +1,8 @@
 <script setup>
 import { Currencies } from "@/js/currencies/currencies.ts";
+import { player } from "@/js/player";
+
+
 import { onMount } from "@/components/mixins";
 
 
@@ -23,21 +26,25 @@ const rx2 = $computed(() => Math.max(x1, x2));
 const ry1 = $computed(() => Math.min(y1, y2));
 const ry2 = $computed(() => Math.max(y1, y2));
 
-let shouldExist = $ref(false);
+let w2 = $ref(0);
+let h2 = $ref(0);
+const shouldExist = $computed(() => {
+	const offsetX = player.towns[player.currentlyIn].display.offset.x;
+	const offsetY = player.towns[player.currentlyIn].display.offset.y;
+	const z = player.towns[player.currentlyIn].display.zoom;
+	if (rx2 < offsetX - w2 / z || ry2 < offsetY - h2 / z)
+		return false;
+
+	if (rx1 > offsetX + w2 / z || ry1 > offsetY + h2 / z)
+		return false;
+
+	return true;
+});
 
 onMount({
 	update() {
-		const offsetX = player.towns[player.currentlyIn].display.offset.x;
-		const offsetY = player.towns[player.currentlyIn].display.offset.y;
-		const z = player.towns[player.currentlyIn].display.zoom;
-		const w2 = innerWidth / 2 / z;
-		const h2 = innerHeight / 2 / z;
-		if (rx2 < offsetX - w2 || ry2 < offsetY - h2)
-			shouldExist = false;
-		else if (rx1 > offsetX + w2 || ry1 > offsetY + h2)
-			shouldExist = false;
-		else
-			shouldExist = true;
+		w2 = innerWidth / 2;
+		h2 = innerHeight / 2;
 	}
 });
 </script>

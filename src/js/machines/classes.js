@@ -168,21 +168,8 @@ class GenericStackState {
 
 class InputConfigState {
 	constructor(config, machine) {
-		Object.defineProperty(this, "config", {
-			value: config,
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
-		Object.defineProperty(this, "_machine", {
-			value: machine,
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
-		this.addProperty("capacity");
-		this.addProperty("consumes");
-		this.addProperty("accepts");
+		this.config = config;
+		this._machine = machine;
 	}
 
 	get capacity() {
@@ -209,11 +196,12 @@ class InputConfigState {
 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
 	}
 
-	addProperty(prop) {
-		Object.defineProperty(this, prop, {
-			get() { return run(this.config[prop], this._machine); },
-			enumerable: true
-		});
+	get raw() {
+		return {
+			capacity: this.capacity,
+			consumes: this.consumes,
+			id: this.id,
+		};
 	}
 }
 
@@ -247,22 +235,24 @@ class InputState extends GenericStackState {
 
 class OutputConfigState {
 	constructor(config, machine) {
-		Object.defineProperty(this, "config", {
-			value: config,
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
-		Object.defineProperty(this, "_machine", {
-			value: machine,
-			writable: false,
-			enumerable: false,
-			configurable: true
-		});
-		this.addProperty("capacity");
-		this.addProperty("produces");
-		this.addProperty("requires");
-		this.addProperty("requiresList");
+		this.config = config;
+		this._machine = machine;
+	}
+
+	get capacity() {
+		return run(this.config.capacity, this._machine);
+	}
+
+	get produces() {
+		return run(this.config.produces, this._machine);
+	}
+
+	get requires() {
+		return run(this.config.requires, this._machine);
+	}
+
+	get requiresList() {
+		return run(this.config.requiresList, this._machine);
 	}
 
 	get label() {
@@ -277,11 +267,12 @@ class OutputConfigState {
 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
 	}
 
-	addProperty(prop) {
-		Object.defineProperty(this, prop, {
-			get() { return run(this.config[prop], this._machine); },
-			enumerable: true
-		});
+	get raw() {
+		return {
+			capacity: this.capacity,
+			produces: this.produces,
+			id: this.id,
+		};
 	}
 }
 
@@ -353,10 +344,6 @@ export function MachineType(data) {
 
 		get hasWholeBuyableUpgrades() {
 			return this.isUpgradeable && Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
-		}
-
-		get params() {
-			return this.data.params;
 		}
 
 		get height() {
@@ -432,11 +419,11 @@ export function MachineType(data) {
 		}
 
 		inputItem(id) {
-			return arr(this.inputs[id].data).last;
+			return this.inputs[id].lastResource;
 		}
 
 		outputItem(id) {
-			return arr(this.outputs[id].data).last;
+			return this.outputs[id].lastResource;
 		}
 
 		showInfo() {

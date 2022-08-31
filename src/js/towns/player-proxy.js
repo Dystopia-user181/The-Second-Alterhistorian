@@ -1,3 +1,5 @@
+import { computed, markRaw } from "vue";
+
 import { Machine, MachineTypes } from "@/js/machines/index";
 import { GameDatabase } from "@/js/database/index";
 import { player } from "@/js/player";
@@ -76,6 +78,9 @@ class TownUpgrade {
 	constructor(config, townId) {
 		this.config = config;
 		this.townId = townId;
+		this._ = markRaw({
+			bits: computed(() => player.towns[this.townId].upgrades)
+		});
 	}
 
 	get id() {
@@ -83,7 +88,7 @@ class TownUpgrade {
 	}
 
 	get bits() {
-		return player.towns[this.townId].upgrades;
+		return this._.bits.value;
 	}
 
 	set bits(x) {
