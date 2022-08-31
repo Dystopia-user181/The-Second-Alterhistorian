@@ -1,7 +1,7 @@
 import { Towns } from "../../player-proxy";
 
+import { Currencies } from "@/js/currencies/currencies";
 import { GameDatabase } from "@/js/database/index";
-import { player } from "@/js/player";
 
 GameDatabase.towns.home = {
 	defaultMachines: [{
@@ -37,37 +37,37 @@ GameDatabase.towns.home = {
 		{
 			type: "steamEngine",
 			cost: 800,
-			isUnlocked: () => player.unlockedCurrencies.coal
+			isUnlocked: () => Currencies.coal.isUnlocked
 		},
 		{
 			type: "pulverizer",
 			cost: 15,
 			currencyType: "energy",
-			isUnlocked: () => player.unlockedCurrencies.energy
+			isUnlocked: () => Currencies.energy.isUnlocked
 		},
 		{
 			type: "arcFurnace",
 			cost: 15,
 			currencyType: "fire",
-			isUnlocked: () => player.unlockedCurrencies.essence || player.unlockedCurrencies.fire
+			isUnlocked: () => Currencies.essence.isUnlocked || Currencies.fire.isUnlocked
 		},
 		{
 			type: "transmuter",
 			cost: 20,
 			currencyType: "essence",
-			isUnlocked: () => player.unlockedCurrencies.vitriol
+			isUnlocked: () => Currencies.vitriol.isUnlocked
 		},
 		{
 			type: "essencePurifier",
 			cost: 5,
 			currencyType: "silver",
-			isUnlocked: () => player.unlockedCurrencies.copper
+			isUnlocked: () => Currencies.copper.isUnlocked
 		},
 		{
 			type: "elixirMaker",
 			cost: 20,
 			currencyType: "gold",
-			isUnlocked: () => player.unlockedCurrencies.gold
+			isUnlocked: () => Currencies.gold.isUnlocked
 		},
 		{
 			type: "inputMerger",

@@ -1,5 +1,5 @@
 <script setup>
-import { Currencies } from "@/js/database/currencies.ts";
+import { Currencies } from "@/js/currencies/currencies.ts";
 
 const { type, size } = defineProps({
 	type: {

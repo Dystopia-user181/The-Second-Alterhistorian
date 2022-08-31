@@ -1,8 +1,8 @@
 import { Machine } from "../../logic";
 import { machineUpg } from "../init";
 
+import { Currencies } from "@/js/currencies/currencies";
 import { GameDatabase } from "@/js/database/index";
-import { player } from "@/js/player";
 
 import { arr, run } from "@/utils";
 
@@ -99,7 +99,7 @@ GameDatabase.machines.essencePurifier = {
 	upgrades: machineUpg([{
 		name: "unlock",
 		cost: 150,
-		currencyType: () => (player.unlockedCurrencies.energy ? "energy" : "???"),
+		currencyType: () => (Currencies.energy.isUnlocked ? "energy" : "???"),
 		max: 1,
 		title: "Power",
 		description: "Supply Power to the EssencePurifier.",
@@ -137,7 +137,7 @@ GameDatabase.machines.essencePurifier = {
 		description: "Increase capacity",
 		effect: count => Math.pow(2, count - 1) + count + 0.5,
 		isUnlocked: machine => machine.upgrades.unlock.effect &&
-			(machine.upgrades.power.count || player.unlockedCurrencies.vitriol)
+			(machine.upgrades.power.count || Currencies.vitriol.isUnlocked)
 	}]),
 	customLoop(diff) {
 		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";

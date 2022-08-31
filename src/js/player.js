@@ -1,7 +1,7 @@
 import { reactive, toRaw } from "vue";
 
 import { initializeMachines, MachineTypes } from "./machines/index";
-import { Currencies } from "./database/currencies.ts";
+import { Currencies } from "./currencies/currencies.ts";
 import { migrations } from "./migrations";
 import { Modals } from "./ui/modals";
 import { Towns } from "./towns/index";

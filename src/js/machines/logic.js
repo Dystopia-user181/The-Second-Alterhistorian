@@ -1,5 +1,6 @@
 import { player } from "@/js/player";
 
+import { Currencies } from "@/js/currencies/currencies";
 import { Towns } from "@/js/towns/index";
 
 import { arr, deepClone, shallowClone } from "@/utils";
@@ -105,7 +106,7 @@ export const Machine = {
 				resource: conf.produces.resource,
 				amount: conf.produces.amount * Math.min(output.maxDiff, diff)
 			};
-			if (produces.amount) player.unlockedCurrencies[produces.resource] = true;
+			if (produces.amount) Currencies[produces.resource].isUnlocked = true;
 			output.addToStack(produces);
 			machine.outputDiffs[conf.id === undefined ? id : conf.id] = Math.min(output.maxDiff, diff);
 		});

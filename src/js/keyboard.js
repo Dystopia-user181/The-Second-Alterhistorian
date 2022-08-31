@@ -1,11 +1,15 @@
 import { GameUI } from "@/js/ui/game-ui";
 import { LogicEvent } from "@/js/database/events.ts";
 
+const isKeydown = {};
+
 window.shiftDown = false;
 
 window.addEventListener("keydown", e => {
 	shiftDown = e.shiftKey;
 	const key = e.key.toLowerCase();
+	if (isKeydown[key]) return;
+	isKeydown[key] = true;
 	if (key.startsWith("arrow")) {
 		LogicEvent.dispatch("ARROW_KEYDOWN", key.slice(5));
 		GameUI.dispatch("ARROW_KEYDOWN", key.slice(5));
@@ -41,6 +45,7 @@ window.addEventListener("keydown", e => {
 window.addEventListener("keyup", e => {
 	shiftDown = e.shiftKey;
 	const key = e.key.toLowerCase();
+	isKeydown[key] = false;
 	if (key.startsWith("arrow")) {
 		LogicEvent.dispatch("ARROW_KEYUP", key.slice(5));
 		GameUI.dispatch("ARROW_KEYUP", key.slice(5));

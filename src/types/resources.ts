@@ -1,28 +1,31 @@
-export type ResourceType =
-	"bricks" |
-	"clay" |
-	"coal" |
-	"copper" |
-	"earth" |
-	"elixir" |
-	"energy" |
-	"essence" |
-	"fire" |
-	"glass" |
-	"gold" |
-	"iron" |
-	"lava" |
-	"lead" |
-	"purity" |
-	"quicksilver" |
-	"sand" |
-	"silver" |
-	"steam" |
-	"stone" |
-	"stoneDust" |
-	"vitriol" |
-	"water" |
-	"wood";
+export const ResourceTypes = [
+	"earth",
+	"water",
+	"clay",
+	"wood",
+	"bricks",
+	"stone",
+	"coal",
+	"steam",
+	"energy",
+	"fire",
+	"essence",
+	"sand",
+	"glass",
+	"lava",
+	"stoneDust",
+	"vitriol",
+	"iron",
+	"lead",
+	"copper",
+	"silver",
+	"gold",
+	"quicksilver",
+	"purity",
+	"elixir",
+] as const;
+
+export type ResourceType = typeof ResourceTypes[number];
 
 export interface ResourceData {
 	resource: ResourceType,

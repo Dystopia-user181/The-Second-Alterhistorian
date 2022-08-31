@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 
-import { Currencies } from "@/js/database/currencies.ts";
+import { Currencies } from "@/js/currencies/currencies.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 

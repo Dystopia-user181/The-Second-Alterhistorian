@@ -1,5 +1,5 @@
 <script>
-import { Currencies } from "@/js/database/currencies.ts";
+import { Currencies } from "@/js/currencies/currencies.ts";
 
 
 export default {

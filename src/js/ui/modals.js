@@ -1,5 +1,6 @@
 import { ref, shallowRef } from "vue";
 
+import GlossaryModal from "@/components/modals/GlossaryModal.vue";
 import H2PModal from "@/components/modals/H2PModal.vue";
 import HardResetModal from "@/components/modals/HardResetModal.vue";
 import InfoModal from "@/components/modals/InfoModal.vue";
@@ -84,6 +85,7 @@ export const Modals = {
 	}
 };
 
+Modals.glossary = new Modal(GlossaryModal);
 Modals.h2p = new Modal(H2PModal);
 Modals.hardReset = new Modal(HardResetModal);
 Modals.info = new Modal(InfoModal);

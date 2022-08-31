@@ -1,5 +1,6 @@
 import { machineUpg } from "../init";
 
+import { Currencies } from "@/js/currencies/currencies";
 import { GameDatabase } from "@/js/database/index";
 
 import { Stack } from "@/utils";
@@ -44,7 +45,7 @@ GameDatabase.machines.steamEngine = {
 	upgrades: machineUpg([{
 		name: "harness",
 		cost: count => Math.pow(5, count) * 6,
-		currencyType: () => (player.unlockedCurrencies.fire ? "lava" : "???"),
+		currencyType: () => (Currencies.fire.isUnlocked ? "lava" : "???"),
 		max: 3,
 		title: "Harness",
 		description: "Increase operation speed",

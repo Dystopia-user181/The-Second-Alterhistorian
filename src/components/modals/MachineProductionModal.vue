@@ -38,16 +38,13 @@ export default {
 				return this.machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
 					output.otherwiseDiff;
 			}).bind(this);
-			this.inputs = this.machine.inputs.map((x, id) => {
-				const input = arr(this.machine.inputHistories.map(y => y[id])).findLast(y => y.length);
-				return x.isUnlocked ? {
-					resource: input ? arr(input).last.resource : "",
-					amount: this.machine.inputConfHistories.map(y => y[id])
-						.reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0) /
+			this.inputs = this.machine.inputs.map((x, id) => (x.isUnlocked ? {
+				resource: x.displayResource[0],
+				amount: this.machine.inputConfHistories.map(y => y[id])
+					.reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0) /
 						this.machine.inputConfHistories.length,
-					id
-				} : null;
-			}).filter(x => x);
+				id
+			} : null)).filter(x => x);
 			this.outputs = this.machine.outputs.map((x, id) => (x.isUnlocked ? {
 				resource: x.config.produces.resource,
 				amount: this.machine.outputConfHistories.map(y => y[id])
@@ -127,7 +124,7 @@ export default {
 				:key="input.id"
 			>
 				Input {{ input.id + 1 }}:
-				<span v-if="input.amount">
+				<span v-if="input.amount && input.resource !== 'none'">
 					Consumes {{ format(input.amount, 2, 2, true) }} {{ str(input.resource).capitalize }}/s
 				</span>
 				<span v-else>
@@ -166,7 +163,7 @@ export default {
 					:key="input.id"
 				>
 					Input {{ input.id + 1 }}:
-					<span v-if="input.value">
+					<span v-if="input.value && input.lastResource !== 'none'">
 						Consumes {{ format(input.value, 2, 2, true) }} {{ str(input.lastResource).capitalize }}/s
 					</span>
 					<span v-else>

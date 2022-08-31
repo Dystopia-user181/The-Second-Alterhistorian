@@ -132,7 +132,7 @@ hr {
 	left: 0;
 	border-radius: inherit;
 	background: var(--tint-background);
-	opacity: 0.3;
+	opacity: var(--tint-opacity, 0.3);
 	pointer-events: none;
 }
 

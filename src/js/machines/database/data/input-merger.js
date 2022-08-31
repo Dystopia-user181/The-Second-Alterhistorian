@@ -1,6 +1,6 @@
 import { Machine, Pipe } from "../../logic";
 
-import { Currencies } from "@/js/database/currencies.ts";
+import { Currencies } from "@/js/currencies/currencies.ts";
 import { GameDatabase } from "@/js/database/index";
 
 GameDatabase.machines.inputMerger = {

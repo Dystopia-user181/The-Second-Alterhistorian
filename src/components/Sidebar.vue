@@ -13,6 +13,10 @@ import SidebarShop from "./SidebarShop.vue";
 				@click="Modals.settings.show()"
 			/>
 			<i
+				class="fas fa-map"
+				@click="Modals.glossary.show()"
+			/>
+			<i
 				class="fas fa-circle-info"
 				@click="Modals.info.show()"
 			/>
@@ -44,7 +48,8 @@ import SidebarShop from "./SidebarShop.vue";
 
 .c-sidebar__header .fa-circle-info,
 .c-sidebar__header .fa-question-circle,
-.c-sidebar__header .fa-gear {
+.c-sidebar__header .fa-gear,
+.c-sidebar__header .fa-map {
 	cursor: pointer;
 	position: absolute;
 }
@@ -64,5 +69,9 @@ import SidebarShop from "./SidebarShop.vue";
 
 .c-sidebar__header .fa-gear:hover {
 	transform: rotate(120deg);
+}
+
+.c-sidebar__header .fa-map {
+	left: 45px;
 }
 </style>

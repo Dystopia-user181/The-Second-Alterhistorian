@@ -1,6 +1,7 @@
 import { Machine } from "../../logic";
 import { machineUpg } from "../init";
 
+import { Currencies } from "@/js/currencies/currencies";
 import { GameDatabase } from "@/js/database/index";
 
 import { arr, run } from "@/utils";
@@ -20,7 +21,7 @@ const recipes = [{
 	input: { resource: "sand", amount: 0.5 },
 	output: { resource: "glass", amount: 0.32 },
 	fuelUsage: 0.4,
-	isUnlocked: () => player.unlockedCurrencies.energy
+	isUnlocked: () => Currencies.energy.isUnlocked
 },
 {
 	input: { resource: "none", amount: 0 },
