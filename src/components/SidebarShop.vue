@@ -19,9 +19,9 @@ onMount({
 	update() {
 		currentMachines = SidebarShop.currentMachines.filter(x => x.isUnlocked);
 		currentUpgrades = Object.values(SidebarShop.currentUpgrades).filter(x => x.isUnlocked);
-		isFullyUpgraded = Towns.current.isFullyUpgraded;
-		hasPartialBuyableUpgrades = Towns.current.hasPartialBuyableUpgrades;
-		hasWholeBuyableUpgrades = Towns.current.hasWholeBuyableUpgrades;
+		isFullyUpgraded = Towns("current").isFullyUpgraded;
+		hasPartialBuyableUpgrades = Towns("current").hasPartialBuyableUpgrades;
+		hasWholeBuyableUpgrades = Towns("current").hasWholeBuyableUpgrades;
 	}
 });
 </script>

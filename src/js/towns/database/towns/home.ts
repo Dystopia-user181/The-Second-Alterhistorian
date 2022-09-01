@@ -1,9 +1,10 @@
 import { Towns } from "../../player-proxy";
 
-import { Currencies } from "@/js/currencies/currencies";
-import { GameDatabase } from "@/js/database/index";
+import { TownsDatabase } from "../init";
 
-GameDatabase.towns.home = {
+import { Currencies } from "@/js/currencies/currencies";
+
+TownsDatabase.set("home", {
 	defaultMachines: [{
 		type: "shoveller",
 		x: -125,
@@ -89,7 +90,8 @@ GameDatabase.towns.home = {
 			currencyType: "bricks",
 			title: "Pipes",
 			description: `Unlock basic pipes.
-				They transport resources based on the capacity of the attached input containers.`
+				They transport resources based on the capacity of the attached input containers.`,
+			effect: 0.02
 		},
 		pipesSpeed1: {
 			id: 1,
@@ -110,4 +112,4 @@ GameDatabase.towns.home = {
 			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
 		}
 	}
-};
+});
