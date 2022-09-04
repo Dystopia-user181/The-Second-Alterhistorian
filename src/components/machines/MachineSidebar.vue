@@ -78,13 +78,8 @@ function deleteMachine() {
 		/>
 		<div
 			v-if="!machine.data.min"
-			class="fas fa-info-circle"
-			@mousedown="machine.showInfo()"
-		/>
-		<div
-			v-if="!machine.data.min"
 			class="fas fa-chart-bar"
-			@mousedown="machine.showProduction()"
+			@mousedown="machine.showStatistics()"
 		/>
 		<div
 			v-if="!machine.data.isDefault"

@@ -6,9 +6,9 @@ import { LogicEvent } from "@/js/database/events.ts";
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
-import { GameDatabase } from "@/js/database";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
+import { TownsDatabase } from "@/js/towns/database";
 
 import { arr, objectMap } from "@/utils";
 
@@ -19,7 +19,7 @@ export const MachineCounts = {};
 export const Pipes = {};
 
 export function initializeMachines() {
-	for (const town in GameDatabase.towns) {
+	for (const town of TownsDatabase.keys()) {
 		if (Machines[town]) arr(Machines[town]).clear();
 		else Machines[town] = shallowReactive([]);
 		if (Pipes[town]) arr(Pipes[town]).clear();

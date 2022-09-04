@@ -426,12 +426,8 @@ export function MachineType(data) {
 			return this.outputs[id].lastResource;
 		}
 
-		showInfo() {
-			Modals.machineInfo.show({ machine: this });
-		}
-
-		showProduction() {
-			Modals.machineProduction.show({ machine: this });
+		showStatistics() {
+			Modals.machineStatistics.show({ machine: this });
 		}
 
 		toggleMinimized() {
