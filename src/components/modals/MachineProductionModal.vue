@@ -101,45 +101,10 @@ onMount({
 </script>
 
 <template>
-	<template v-if="inputs.length">
-		<span class="c-emphasise-text">Inputs</span>
-		<br>
-		<span
-			v-for="input in inputs"
-			:key="input.id"
-		>
-			Input {{ input.id + 1 }}:
-			<span v-if="input.amount && input.resource !== 'none'">
-				Consumes {{ format(input.amount, 2, 2, true) }} {{ str(input.resource).capitalize }}/s
-			</span>
-			<span v-else>
-				IDLE
-			</span>
-			<br>
-		</span>
-	</template>
-	<template v-if="outputs.length">
-		<span class="c-emphasise-text">Outputs</span>
-		<br>
-		<span
-			v-for="output in outputs"
-			:key="output.id"
-		>
-			Output {{ output.id + 1 }}:
-			<span v-if="output.amount">
-				Consumes {{ format(output.amount, 2, 2, true) }} {{ str(output.resource).capitalize }}/s
-			</span>
-			<span v-else>
-				IDLE
-			</span>
-			<br>
-		</span>
-	</template>
-	<button @click="takingAvg ? stopAvg() : startAvg()">
-		{{ takingAvg ? "Taking Average..." : "Take Average" }}
-	</button>
-	<template v-if="takingAvg">
-		<br>
+	<span
+		v-if="takingAvg"
+		class="c-production--average"
+	>
 		<template v-if="inputs.length">
 			<span class="c-emphasise-text">Inputs</span>
 			<br>
@@ -156,6 +121,7 @@ onMount({
 				</span>
 				<br>
 			</span>
+			<br>
 		</template>
 		<template v-if="outputs.length">
 			<span class="c-emphasise-text">Outputs</span>
@@ -173,13 +139,54 @@ onMount({
 				</span>
 				<br>
 			</span>
+			<br>
+		</template>
+	</span>
+	<template v-else>
+		<template v-if="inputs.length">
+			<span class="c-emphasise-text">Inputs</span>
+			<br>
+			<span
+				v-for="input in inputs"
+				:key="input.id"
+			>
+				Input {{ input.id + 1 }}:
+				<span v-if="input.amount && input.resource !== 'none'">
+					Consumes {{ format(input.amount, 2, 2, true) }} {{ str(input.resource).capitalize }}/s
+				</span>
+				<span v-else>
+					IDLE
+				</span>
+				<br>
+			</span>
+			<br>
+		</template>
+		<template v-if="outputs.length">
+			<span class="c-emphasise-text">Outputs</span>
+			<br>
+			<span
+				v-for="output in outputs"
+				:key="output.id"
+			>
+				Output {{ output.id + 1 }}:
+				<span v-if="output.amount">
+					Consumes {{ format(output.amount, 2, 2, true) }} {{ str(output.resource).capitalize }}/s
+				</span>
+				<span v-else>
+					IDLE
+				</span>
+				<br>
+			</span>
+			<br>
 		</template>
 	</template>
+	<button @click="takingAvg ? stopAvg() : startAvg()">
+		{{ takingAvg ? "Taking Average..." : "Take Average" }}
+	</button>
 </template>
 
 <style scoped>
-.c-machine-production-modal {
-	min-width: 400px;
-	min-height: 250px;
+.c-production--average {
+	color: #ffffa0;
 }
 </style>

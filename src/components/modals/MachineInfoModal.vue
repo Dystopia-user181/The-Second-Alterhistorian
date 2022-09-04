@@ -17,16 +17,15 @@ function acceptsAll(accepts) {
 
 <template>
 	{{ machine.type.description }}
-	<br>
 	<div class="c-info__table">
 		<span
 			v-for="input in machine.inputs.filter(x => x.isUnlocked)"
 			:key="input.id"
 		>
-			<br>
 			Input {{ input.id + 1 }} accepts:
 			{{ acceptsAll(input.accepts) ? "all"
 				: input.accepts.map(x => str(x).capitalize).join(", ") }}
+			<br>
 		</span>
 	</div>
 </template>
