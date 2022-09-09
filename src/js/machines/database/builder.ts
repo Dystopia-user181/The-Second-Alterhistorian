@@ -12,51 +12,51 @@ function mapObject<T extends Record<K, unknown>, K extends string, R>(
 // ============= Config ============ //
 
 export type InputConfig<Instance> = {
-  accepts: ResourceType[] | (() => ResourceType[]);
-  capacity: number | ((machine: Instance) => number);
-  consumes:
-    | number
-    | ((machine: Instance) => number)
-    | ((machine: Instance) => { amount: number; maximum: number });
-  label?: string;
-  isUnlocked?: boolean | ((machine: Instance) => boolean);
+	accepts: ResourceType[] | (() => ResourceType[]);
+	capacity: number | ((machine: Instance) => number);
+	consumes:
+		| number
+		| ((machine: Instance) => number)
+		| ((machine: Instance) => { amount: number; maximum: number });
+	label?: string;
+	isUnlocked?: boolean | ((machine: Instance) => boolean);
 };
 
 export interface OutputConfig<Instance> {
-  capacity: number | ((machine: Instance) => number);
-  produces: (machine: Instance) => {
-    resource: ResourceType;
-    amount: number;
-  };
-  isUnlocked?: (machine: Instance) => boolean;
-  requiresList?: (machine: Instance) => Array<{
-    resource: ResourceType | "none";
-    amount: number;
-    inputId: number;
-  }>;
+	capacity: number | ((machine: Instance) => number);
+	produces: (machine: Instance) => {
+		resource: ResourceType;
+		amount: number;
+	};
+	isUnlocked?: (machine: Instance) => boolean;
+	requiresList?: (machine: Instance) => Array<{
+		resource: ResourceType | "none";
+		amount: number;
+		inputId: number;
+	}>;
 }
 
 export interface UpgradeConfig<K extends string, E = any> {
-  cost: number | ((count: number) => number);
-  description: string | ((upgrade: MachineUpgrade<K>) => string);
-  effect: number | ((count: number) => E);
-  max: number;
-  name: string;
-  title: string | ((upgrade: MachineUpgrade<K>) => string);
+	cost: number | ((count: number) => number);
+	description: string | ((upgrade: MachineUpgrade<K>) => string);
+	effect: number | ((count: number) => E);
+	max: number;
+	name: string;
+	title: string | ((upgrade: MachineUpgrade<K>) => string);
 
-  currencyType?: ResourceType | ((count: number) => ResourceType);
-  formatEffect?: (effect: E) => string;
-  isUnlocked?: (machine: ConfiguredMachine<K>) => boolean;
+	currencyType?: ResourceType | ((count: number) => ResourceType);
+	formatEffect?: (effect: E) => string;
+	isUnlocked?: (machine: ConfiguredMachine<K>) => boolean;
 }
 
 export interface MachineConfig<K extends string> {
-  name: string;
+	name: string;
 
-  /** The description of the machine that will be displayed to the user */
-  description: string;
-  upgrades: Record<K, UpgradeConfig<K>>;
-  inputs?: InputConfig<ConfiguredMachine<K>>[];
-  outputs?: OutputConfig<ConfiguredMachine<K>>[];
+	/** The description of the machine that will be displayed to the user */
+	description: string;
+	upgrades: Record<K, UpgradeConfig<K>>;
+	inputs?: InputConfig<ConfiguredMachine<K>>[];
+	outputs?: OutputConfig<ConfiguredMachine<K>>[];
 }
 
 // ============= Untyped objects ============ //
@@ -149,13 +149,13 @@ export class MachineUpgrade<K extends string> {
 }
 
 interface ConfiguredMachineConstructor<K extends string> {
-  new (town: Town, machineId: number): ConfiguredMachine<K>;
+	new (town: Town, machineId: number): ConfiguredMachine<K>;
 }
 
 export interface ConfiguredMachine<K extends string> extends MachineBase {
-  readonly name: string;
-  readonly upgrades: Record<K, MachineUpgrade<K>>;
-  readonly isMinimized: boolean;
+	readonly name: string;
+	readonly upgrades: Record<K, MachineUpgrade<K>>;
+	readonly isMinimized: boolean;
 }
 
 export function defineMachine<K extends string>(
@@ -231,24 +231,24 @@ export function defineMachine<K extends string>(
 		get isFullyUpgraded() {
 			return (
 				this.#isUpgradeable &&
-        Object.values<MachineUpgrade<K>>(this.#upgrades).every(
-        	upgrade => !upgrade.isUnlocked || upgrade.maxed
-        )
+				Object.values<MachineUpgrade<K>>(this.#upgrades).every(
+					upgrade => !upgrade.isUnlocked || upgrade.maxed
+				)
 			);
 		}
 
 		get hasPartialBuyableUpgrades() {
 			return (
 				this.#isUpgradeable &&
-        !this.hasWholeBuyableUpgrades &&
-        Object.values<MachineUpgrade<K>>(this.upgrades).find(x => x.canAfford) !== undefined
+				!this.hasWholeBuyableUpgrades &&
+				Object.values<MachineUpgrade<K>>(this.upgrades).find(x => x.canAfford) !== undefined
 			);
 		}
 
 		get hasWholeBuyableUpgrades() {
 			return (
 				this.#isUpgradeable &&
-        Object.values<MachineUpgrade<K>>(this.#upgrades).find(x => x.canAffordWhole) !== undefined
+				Object.values<MachineUpgrade<K>>(this.#upgrades).find(x => x.canAffordWhole) !== undefined
 			);
 		}
 
