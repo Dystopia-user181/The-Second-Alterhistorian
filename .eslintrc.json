@@ -158,7 +158,6 @@
 		"no-useless-catch": "error",
 		"no-useless-concat": "error",
 		"no-useless-return": "error",
-		"no-void": "error",
 		"no-with": "error",
 		"radix": "warn",
 		"require-await": "error",
@@ -193,13 +192,6 @@
 			}
 		],
 		"camelcase": ["error"],
-		"capitalized-comments": [
-			"error",
-			"always",
-			{
-				"ignoreConsecutiveComments": true
-			}
-		],
 		"comma-spacing": "error",
 		"comma-style": "error",
 		"computed-property-spacing": "error",
