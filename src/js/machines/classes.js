@@ -419,11 +419,11 @@ export function MachineType(data) {
 		}
 
 		inputItem(id) {
-			return this.inputs[id].lastResource;
+			return this.inputs[id].lastItem;
 		}
 
 		outputItem(id) {
-			return this.outputs[id].lastResource;
+			return this.outputs[id].lastItem;
 		}
 
 		showStatistics() {
