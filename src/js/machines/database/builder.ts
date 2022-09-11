@@ -1,4 +1,5 @@
 import { run, str } from "@/utils";
+
 import { ResourceData, ResourceType } from "@/types/resources";
 
 function mapObject<T extends Record<K, unknown>, K extends string, R>(
@@ -240,6 +241,7 @@ export function defineMachine<K extends string>(
 ): ConfiguredMachineConstructor<K> {
 	return class extends MachineBase {
 		#inputs: InputState<K>[];
+		#isUpgradeable = true;
 		#outputs: OutputState<K>[];
 		#pipes: unknown[];
 		#upgrades: Record<K, MachineUpgrade<K>>;
@@ -278,6 +280,7 @@ export function defineMachine<K extends string>(
 				config.upgrades,
 				(config, index) => new MachineUpgrade(this, config, index)
 			);
+			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
 
 			// FIXME: What type is this?
 			this.#pipes = [];
