@@ -104,8 +104,7 @@ export default defineMachine({
 		unlock: {
 			name: "unlock",
 			cost: 150,
-			// FIXME: What to do with this invalid "???" that is a display value?
-			currencyType: () => (Currencies.energy.isUnlocked ? "energy" : "???"),
+			currencyType: () => (Currencies.energy.isUnlocked ? "energy" : undefined),
 			max: 1,
 			title: "Power",
 			description: "Supply Power to the EssencePurifier.",

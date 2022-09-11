@@ -50,7 +50,7 @@ export interface UpgradeConfig<K extends string, E = any> {
 	name: string;
 	title: string | ((upgrade: MachineUpgrade<K>) => string);
 
-	currencyType?: ResourceType | ((count: number) => ResourceType) | undefined;
+	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
 	formatEffect?: (effect: E) => string;
 	isUnlocked?: (machine: ConfiguredMachine<K>) => boolean;
 }

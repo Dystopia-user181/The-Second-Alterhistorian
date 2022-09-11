@@ -53,8 +53,7 @@ export default defineMachine({
 		harness: {
 			name: "harness",
 			cost: count => Math.pow(5, count) * 6,
-			// FIXME: What to do with this invalid "???" that is a display value?
-			currencyType: () => (Currencies.fire.isUnlocked ? "lava" : "???"),
+			currencyType: () => (Currencies.fire.isUnlocked ? "lava" : undefined),
 			max: 3,
 			title: "Harness",
 			description: "Increase operation speed",
