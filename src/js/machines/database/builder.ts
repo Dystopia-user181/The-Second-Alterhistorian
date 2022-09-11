@@ -1,5 +1,5 @@
 import { run, str } from "@/utils";
-import { ResourceType } from "@/types/resources";
+import { ResourceData, ResourceType } from "@/types/resources";
 
 function mapObject<T extends Record<K, unknown>, K extends string, R>(
 	input: T,
@@ -24,6 +24,7 @@ export type InputConfig<Instance> = {
 };
 
 export interface OutputConfig<Instance> {
+	id: "main" | undefined
 	capacity: number | ((machine: Instance) => number);
 	produces: (machine: Instance) => {
 		resource: ResourceType;
@@ -56,8 +57,8 @@ export interface MachineConfig<K extends string> {
 	/** The description of the machine that will be displayed to the user */
 	description: string;
 	upgrades: Record<K, UpgradeConfig<K>>;
-	inputs?: InputConfig<ConfiguredMachine<K>>[];
-	outputs?: OutputConfig<ConfiguredMachine<K>>[];
+	inputs: InputConfig<ConfiguredMachine<K>>[];
+	outputs: OutputConfig<ConfiguredMachine<K>>[];
 }
 
 // ============= Untyped objects ============ //
@@ -66,25 +67,33 @@ declare class Town {
 	machines: MachineData[];
 }
 
-declare class InputState<K extends string> {
-	constructor(machine: ConfiguredMachine<K>, id: number);
-	readonly accepts: number[];
+declare abstract class GenericStackState {
 	readonly capacity: number;
-	readonly consumes: number;
+	readonly isCapped: boolean;
 	readonly isUnlocked: boolean;
 	readonly label: string;
+	readonly lastItem: ResourceType;
 	readonly lastResource: ResourceType;
+	readonly spaceLeft: number;
+
+	volume(): number;
+	volume(value: number): void
+
+	addToStack(item: ResourceData): number;
+	removeFromStack(item: ResourceData): number;
 }
 
-declare class OutputState<K extends string> {
+declare class InputState<K extends string> extends GenericStackState {
 	constructor(machine: ConfiguredMachine<K>, id: number);
-	readonly capacity: number;
+	readonly accepts: number[];
+	readonly consumes: number;
+}
+
+declare class OutputState<K extends string> extends GenericStackState {
+	constructor(machine: ConfiguredMachine<K>, id: number);
 	readonly produces: number;
 	readonly requires: number;
 	readonly requiresList: number;
-	readonly label: string;
-	readonly isUnlocked: boolean;
-	readonly lastResource: ResourceType;
 }
 
 declare const player: {
@@ -235,6 +244,15 @@ export function defineMachine<K extends string>(
 		#pipes: unknown[];
 		#upgrades: Record<K, MachineUpgrade<K>>;
 
+		outputHistories: unknown[] = [];
+		inputHistories: unknown[] = [];
+
+		outputConfHistories: unknown[] = [];
+		inputConfHistories: unknown[] = [];
+
+		outputDiffs: Record<string, number> = {};
+		updates = 0;
+
 		get name() {
 			return config.name;
 		}
@@ -271,25 +289,19 @@ export function defineMachine<K extends string>(
 				(_, index) => new OutputState(this, index)
 			);
 
+			this.outputHistories = [];
+			this.inputHistories = [];
+
+			this.outputConfHistories = [];
+			this.inputConfHistories = [];
+
+			this.outputDiffs = Object.fromEntries(
+				config.outputs.map((output, index) => [output.id ?? index.toString(), 0])
+			);
+
+			this.updates = 0;
+
 			void Promise.resolve().then(() => this.updatePipes());
-
-			// FIXME: What type is this?
-			// this.outputHistories = [];
-
-			// FIXME: What type is this?
-			// this.inputHistories = [];
-
-			// FIXME: What type is this?
-			// this.outputConfHistories = [];
-
-			// FIXME: What type is this?
-			// this.inputConfHistories = [];
-
-			// FIXME: What type is this?
-			// this.outputDiffs = arr(data.outputs).mapToObject((x, id) => (x.id === undefined ? id : x.id), () => 0);
-
-			// FIXME: Is this a count of updates?
-			// this.updates = 0;
 		}
 
 		get isFullyUpgraded() {
@@ -380,11 +392,11 @@ export function defineMachine<K extends string>(
 		}
 
 		inputItem(index: number) {
-			return this.#inputs[index].lastResource;
+			return this.#inputs[index].lastItem;
 		}
 
 		outputItem(index: number) {
-			return this.#outputs[index].lastResource;
+			return this.#outputs[index].lastItem;
 		}
 
 		// toggleMinimized() {
