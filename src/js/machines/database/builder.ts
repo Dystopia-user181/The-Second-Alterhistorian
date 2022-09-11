@@ -1,6 +1,8 @@
 import { run, str } from "@/utils";
 
 import { ResourceData, ResourceType } from "@/types/resources";
+import { TownType } from "@/js/towns";
+import { UIEvent } from "@/js/ui/events";
 
 function mapObject<T extends Record<K, unknown>, K extends string, R>(
 	input: T,
@@ -69,6 +71,7 @@ declare class Town {
 }
 
 declare abstract class GenericStackState {
+	readonly id: number;
 	readonly capacity: number;
 	readonly isCapped: boolean;
 	readonly isUnlocked: boolean;
@@ -97,12 +100,24 @@ declare class OutputState<K extends string> extends GenericStackState {
 	readonly requiresList: number;
 }
 
+interface PipeConnection<InputUpgrades extends string, OutputUpgrades extends string> {
+	in: [ConfiguredMachine<InputUpgrades>, InputState<InputUpgrades>]
+	out: [ConfiguredMachine<OutputUpgrades>, OutputState<OutputUpgrades>]
+}
+
+// ============= Untyped globals ============ //
+
+declare const MachinesById: Record<TownType, Record<number, ConfiguredMachine<string>>>;
+
+declare const Pipes: Record<TownType, PipeConnection<string, string>[]>;
+
 declare const player: {
 	money: number,
 	holding: {
 		resource?: ResourceType,
 		amount?: number
-	}
+	},
+	towns: Record<TownType, Town>
 };
 
 // ============= Instances ============ //
@@ -110,7 +125,7 @@ declare const player: {
 export class MachineBase {
 	#data: MachineData;
 	#id: number;
-	#town: Town;
+	#townType: TownType;
 
 	get data() {
 		return this.#data;
@@ -128,15 +143,19 @@ export class MachineBase {
 		return this.data.minimized;
 	}
 
-	get town() {
-		return this.#town;
+	toggleMinimized() {
+		this.data.minimized = !this.data.minimized;
 	}
 
-	constructor(town: Town, machineId: number) {
-		this.#town = town;
+	get townType() {
+		return this.#townType;
+	}
+
+	constructor(townType: TownType, machineId: number) {
+		this.#townType = townType;
 		this.#id = machineId;
 
-		this.#data = this.town.machines[this.id];
+		this.#data = player.towns[this.townType].machines[this.id];
 	}
 }
 
@@ -205,13 +224,15 @@ export class MachineUpgrade<K extends string> {
 }
 
 interface ConfiguredMachineConstructor<K extends string> {
-	new (town: Town, machineId: number): ConfiguredMachine<K>;
+	new (townType: TownType, machineId: number): ConfiguredMachine<K>;
 }
 
 export interface ConfiguredMachine<K extends string> extends MachineBase {
-	readonly name: string;
-	readonly upgrades: Record<K, MachineUpgrade<K>>;
+	readonly inputs: InputState<K>[];
 	readonly isMinimized: boolean;
+	readonly name: string;
+	readonly outputs: OutputState<K>[];
+	readonly upgrades: Record<K, MachineUpgrade<K>>;
 }
 
 // interface MachineOptions {
@@ -234,6 +255,7 @@ interface MachineData {
 	upgradesPrepay: number[]
 	name?: string;
 	minimized: boolean
+	pipes: Array<[number, number][]>
 }
 
 export function defineMachine<K extends string>(
@@ -243,7 +265,7 @@ export function defineMachine<K extends string>(
 		#inputs: InputState<K>[];
 		#isUpgradeable = true;
 		#outputs: OutputState<K>[];
-		#pipes: unknown[];
+		#pipes: [ConfiguredMachine<string>, InputState<string>][][] = [];
 		#upgrades: Record<K, MachineUpgrade<K>>;
 
 		outputHistories: unknown[] = [];
@@ -263,27 +285,30 @@ export function defineMachine<K extends string>(
 			return this.data.name || str(this.name).capitalize;
 		}
 
+		get inputs() {
+			return this.#inputs;
+		}
+
 		get isUpgradeable() {
-			// TODO: Optimize
-			return Object.keys(this.#upgrades).length > 0;
+			return this.#isUpgradeable;
+		}
+
+		get outputs() {
+			return this.#outputs;
 		}
 
 		get upgrades() {
 			return this.#upgrades;
 		}
 
-		// FIXME: pass in player
-		constructor(town: Town, machineId: number) {
-			super(town, machineId);
+		constructor(townType: TownType, machineId: number) {
+			super(townType, machineId);
 
 			this.#upgrades = mapObject(
 				config.upgrades,
 				(config, index) => new MachineUpgrade(this, config, index)
 			);
 			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
-
-			// FIXME: What type is this?
-			this.#pipes = [];
 
 			this.#inputs = Object.values(config.upgrades).map(
 				(_, index) => new InputState(this, index)
@@ -292,17 +317,9 @@ export function defineMachine<K extends string>(
 				(_, index) => new OutputState(this, index)
 			);
 
-			this.outputHistories = [];
-			this.inputHistories = [];
-
-			this.outputConfHistories = [];
-			this.inputConfHistories = [];
-
 			this.outputDiffs = Object.fromEntries(
 				config.outputs.map((output, index) => [output.id ?? index.toString(), 0])
 			);
-
-			this.updates = 0;
 
 			void Promise.resolve().then(() => this.updatePipes());
 		}
@@ -331,67 +348,68 @@ export function defineMachine<K extends string>(
 			);
 		}
 
-		// FIXME: add pipes from Town(?)
-		addPipe(machine: ConfiguredMachine<any>, inputId: number, outputId: number) {
-			// this.data.pipes[outputId].push([machine.id, inputId]);
-			// Pipes[this.town].push({
-			// 	out: [this, this.outputs[outputId]],
-			// 	in: [machine, machine.inputs[inputId]]
-			// });
-			// this.updatePipes();
+		// TODO: this crosses over to too many domains
+		addPipe(machine: ConfiguredMachine<string>, inputId: number, outputId: number) {
+			this.data.pipes[outputId].push([machine.id, inputId]);
+			// TODO: add pipes from Town(?) instead of global
+			Pipes[this.townType].push({
+				out: [this, this.#outputs[outputId]],
+				in: [machine, machine.inputs[inputId]]
+			});
+			this.updatePipes();
 		}
 
-		// FIXME: add pipes from Town(?)
+		// TODO: this crosses over to too many domains
 		removePipe(machine: ConfiguredMachine<any>, inputId: number) {
-			// 	for (let i = 0; i < this.data.pipes.length; i++) {
-			// 		for (let j = 0; j < this.data.pipes[i].length; j++) {
-			// 			if (this.data.pipes[i][j][0].toString() === machine.id.toString() &&
-			// 				this.data.pipes[i][j][1] === inputId) {
-			// 				const idx = Pipes[this.town].findIndex(pipe =>
-			// 					pipe.out[0].id.toString() === this.id.toString() &&
-			// 					pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
-			// 					pipe.in[0].id.toString() === machine.id.toString() &&
-			// 					pipe.in[1].id.toString() === machine.inputs[inputId].id.toString()
-			// 				);
-			// 				if (idx === -1) {
-			// 					Modals.message.show("Something probably went wrong when deleting this pipe.");
-			// 				} else {
-			// 					Pipes[this.town].splice(idx, 1);
-			// 				}
-			// 				this.data.pipes[i].splice(j, 1);
-			// 				this.updatePipes();
-			// 				return true;
-			// 			}
-			// 		}
-			// 	}
-			// 	return false;
+			for (let i = 0; i < this.data.pipes.length; i++) {
+				for (let j = 0; j < this.data.pipes[i].length; j++) {
+					if (this.data.pipes[i][j][0].toString() === machine.id.toString() &&
+							this.data.pipes[i][j][1] === inputId) {
+						const idx = Pipes[this.townType].findIndex(pipe =>
+							pipe.out[0].id.toString() === this.id.toString() &&
+								pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
+								pipe.in[0].id.toString() === machine.id.toString() &&
+								pipe.in[1].id.toString() === machine.inputs[inputId].id.toString()
+						);
+						if (idx === -1) {
+							UIEvent.dispatch("ERROR", "Something probably went wrong when deleting this pipe.");
+						} else {
+							Pipes[this.townType].splice(idx, 1);
+						}
+						this.data.pipes[i].splice(j, 1);
+						this.updatePipes();
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
-		// FIXME: add pipes from Town(?)
+		// TODO: this crosses over to too many domains
 		removeAllPipes(machine: ConfiguredMachine<any>) {
-			// 	for (let i = 0; i < this.data.pipes.length; i++) {
-			// 		for (let j = 0; j < this.data.pipes[i].length; j++) {
-			// 			while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
-			// 				const idx = Pipes[this.town].findIndex(pipe =>
-			// 					pipe.out[0].id.toString() === this.id.toString() &&
-			// 					pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
-			// 					pipe.in[0].id.toString() === machine.id.toString() &&
-			// 					pipe.in[1].id.toString() === this.data.pipes[i][j][1].toString()
-			// 				);
-			// 				Pipes[this.town].splice(idx, 1);
-			// 				this.data.pipes[i].splice(j, 1);
-			// 			}
-			// 		}
-			// 	}
-			// this.updatePipes();
+			for (let i = 0; i < this.data.pipes.length; i++) {
+				for (let j = 0; j < this.data.pipes[i].length; j++) {
+					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
+						const idx = Pipes[this.townType].findIndex(pipe =>
+							pipe.out[0].id.toString() === this.id.toString() &&
+								pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
+								pipe.in[0].id.toString() === machine.id.toString() &&
+								pipe.in[1].id.toString() === this.data.pipes[i][j][1].toString()
+						);
+						Pipes[this.townType].splice(idx, 1);
+						this.data.pipes[i].splice(j, 1);
+					}
+				}
+			}
+			this.updatePipes();
 		}
 
-		// FIXME: add pipes from Town(?)
+		// TODO: this crosses over to too many domains
 		updatePipes() {
-			// this.#pipes = this.data.pipes.map(p => p.map(x => {
-			// 	const machine = MachinesById[this.town][x[0]];
-			// 	return [machine, machine.inputs[x[1]]];
-			// }));
+			this.#pipes = this.data.pipes.map(p => p.map(x => {
+				const machine = MachinesById[this.townType][x[0]];
+				return [machine, machine.inputs[x[1]]];
+			}));
 		}
 
 		inputItem(index: number) {
@@ -401,10 +419,6 @@ export function defineMachine<K extends string>(
 		outputItem(index: number) {
 			return this.#outputs[index].lastItem;
 		}
-
-		// toggleMinimized() {
-		// 	this.data.min = !this.data.min;
-		// }
 
 		// static name = data.name;
 
