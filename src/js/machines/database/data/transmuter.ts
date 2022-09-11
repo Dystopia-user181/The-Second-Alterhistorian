@@ -64,7 +64,8 @@ function getProduction(machine) {
 	};
 }
 
-GameDatabase.machines.transmuter = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "transmuter",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),

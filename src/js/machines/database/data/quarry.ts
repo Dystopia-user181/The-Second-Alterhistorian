@@ -1,6 +1,6 @@
 import { defineMachine } from "../builder";
 
-export const Quarry = defineMachine({
+export default defineMachine({
 	name: "quarry",
 	description: `Produces Stone and Coal.`,
 	inputs: [],

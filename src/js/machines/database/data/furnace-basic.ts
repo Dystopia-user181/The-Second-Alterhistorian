@@ -54,7 +54,8 @@ function getProduction(machine) {
 	};
 }
 
-GameDatabase.machines.furnaceBasic = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "furnaceBasic",
 	inputs: [{
 		accepts: () => recipes.filter(x => (x.isUnlocked ? run(x.isUnlocked) : true)).map(x => x.input.resource)

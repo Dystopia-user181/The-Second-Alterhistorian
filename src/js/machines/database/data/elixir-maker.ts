@@ -2,7 +2,8 @@ import { Machine } from "../../logic";
 
 import { GameDatabase } from "@/js/database/index";
 
-GameDatabase.machines.elixirMaker = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "elixirMaker",
 	inputs: [{
 		accepts: ["quicksilver"],

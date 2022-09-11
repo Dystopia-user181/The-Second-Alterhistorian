@@ -2,7 +2,7 @@ import { defineMachine } from "../builder";
 
 import { formatX } from "@/utils";
 
-export const Shoveller = defineMachine({
+export default defineMachine({
 	name: "shoveller",
 	inputs: [],
 	outputs: [

@@ -3,7 +3,9 @@ import { Machine, Pipe } from "../../logic";
 import { Currencies } from "@/js/currencies/currencies.ts";
 import { GameDatabase } from "@/js/database/index";
 
-GameDatabase.machines.inputMerger = {
+import { defineMachine } from "../builder";
+
+export default defineMachine({
 	name: "inputMerger",
 	inputs: [{
 		accepts: Object.keys(Currencies),

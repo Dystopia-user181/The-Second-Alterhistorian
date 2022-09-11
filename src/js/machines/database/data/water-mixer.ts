@@ -1,6 +1,8 @@
 import { Machine } from "../../logic";
 import { machineUpg } from "../init";
 
+import { defineMachine } from "../builder";
+
 import { GameDatabase } from "@/js/database/index";
 
 import { arr } from "@/utils";
@@ -19,7 +21,7 @@ const recipes = [{
 
 const recipesByInput = arr(recipes).mapToObject(x => x.input.resource, x => x);
 
-GameDatabase.machines.waterMixer = {
+export default defineMachine({
 	name: "waterMixer",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),
@@ -67,4 +69,4 @@ GameDatabase.machines.waterMixer = {
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Mixes water and another element. It's leaky.`
-};
+});

@@ -6,7 +6,8 @@ import { GameDatabase } from "@/js/database/index";
 import { Stack } from "@/utils";
 
 
-GameDatabase.machines.steamEngine = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "steamEngine",
 	inputs: [{
 		accepts: ["steam"],

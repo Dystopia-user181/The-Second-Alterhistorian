@@ -43,7 +43,8 @@ function getProduction(machine) {
 	};
 }
 
-GameDatabase.machines.pulverizer = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "pulverizer",
 	inputs: [{
 		accepts: recipes.map(x => x.input.resource).filter(x => x !== "none"),

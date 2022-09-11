@@ -31,3 +31,17 @@ export interface ResourceData {
 	resource: ResourceType,
 	amount: number
 }
+
+export interface Recipe {
+  input: {
+    resource: ResourceType | "none";
+    amount: number;
+  };
+  output: {
+		resource: ResourceType;
+		amount: number
+	};
+  energyUsage?: number;
+  fuelUsage?: number;
+  isUnlocked?: () => boolean;
+}

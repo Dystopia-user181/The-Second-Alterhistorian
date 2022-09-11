@@ -1,12 +1,14 @@
 import { Machine, Pipe } from "../../logic";
 
-import { Currencies } from "@/js/currencies/currencies.ts";
-import { GameDatabase } from "@/js/database/index";
+import { Currencies } from "@/js/currencies/currencies";
 
-GameDatabase.machines.autoSeller = {
+import { defineMachine } from "../builder";
+import { ResourceTypes } from "@/types/resources";
+
+export default defineMachine({
 	name: "autoSeller",
 	inputs: [{
-		accepts: Object.keys(Currencies),
+		accepts: ResourceTypes,
 		capacity: () => 60,
 		consumes: () => 20
 	}],

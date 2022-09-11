@@ -53,7 +53,8 @@ function getProduction(machine) {
 	};
 }
 
-GameDatabase.machines.essencePurifier = {
+import { defineMachine } from "../builder";
+export default defineMachine({
 	name: "essencePurifier",
 	inputs: [{
 		accepts: machine => recipes.filter(x => (x.isUnlocked ? run(x.isUnlocked, machine) : true))

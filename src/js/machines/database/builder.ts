@@ -16,7 +16,7 @@ function mapObject<T extends Record<K, unknown>, K extends string, R>(
 // ============= Config ============ //
 
 export type InputConfig<Instance> = {
-	accepts: ResourceType[] | (() => ResourceType[]);
+	accepts: readonly ResourceType[] | (() => ResourceType[]);
 	capacity: number | ((machine: Instance) => number);
 	consumes:
 		| number
@@ -27,7 +27,7 @@ export type InputConfig<Instance> = {
 };
 
 export interface OutputConfig<Instance> {
-	id: "main" | undefined
+	id?: "main";
 	capacity: number | ((machine: Instance) => number);
 	produces: (machine: Instance) => {
 		resource: ResourceType;
