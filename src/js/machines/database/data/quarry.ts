@@ -1,6 +1,6 @@
 import { defineMachine } from "../builder";
 
-export const Quarry = defineMachine({
+export default defineMachine({
 	name: "quarry",
 	description: `Produces Stone and Coal.`,
 	inputs: [],
@@ -48,8 +48,7 @@ export const Quarry = defineMachine({
 		},
 		velocity: {
 			name: "velocity",
-			cost: count =>
-				(count > 4 ? Math.pow(4, count - 5) * 10 : Math.pow(3, count) * 10),
+			cost: count => (count > 4 ? Math.pow(4, count - 5) * 10 : Math.pow(3, count) * 10),
 			currencyType: count => (count > 4 ? "vitriol" : "energy"),
 			max: 8,
 			title: "Velocity",

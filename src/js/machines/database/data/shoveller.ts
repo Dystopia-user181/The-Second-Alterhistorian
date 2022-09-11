@@ -2,7 +2,7 @@ import { defineMachine } from "../builder";
 
 import { formatX } from "@/utils";
 
-export const Shoveller = defineMachine({
+export default defineMachine({
 	name: "shoveller",
 	inputs: [],
 	outputs: [
@@ -47,9 +47,7 @@ export const Shoveller = defineMachine({
 			max: 3,
 			title: upg => (upg.count ? "Persistence" : "Wood"),
 			description: upg =>
-				(upg.count
-					? "Increase Wood production"
-					: "Attach a primitive axe to cut down trees"),
+				(upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees"),
 			effect: count => (Math.pow(1.4, count) - 1) * 2.5,
 			// FIXME: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument

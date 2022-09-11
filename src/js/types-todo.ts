@@ -9,4 +9,5 @@ export interface Player {
 		amount?: number
 	},
 	towns: Record<TownType, TownDBEntry>
+	producedElixir: number
 }

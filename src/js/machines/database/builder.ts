@@ -1,6 +1,6 @@
 import { run, str } from "@/utils";
 
-import { ResourceData, ResourceType } from "@/types/resources";
+import { MaybeResourceType, ResourceData, ResourceType } from "@/types/resources";
 import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
 
@@ -16,7 +16,7 @@ function mapObject<T extends Record<K, unknown>, K extends string, R>(
 // ============= Config ============ //
 
 export type InputConfig<Instance> = {
-	accepts: ResourceType[] | (() => ResourceType[]);
+	accepts: readonly ResourceType[] | ((machine: Instance) => ResourceType[]);
 	capacity: number | ((machine: Instance) => number);
 	consumes:
 		| number
@@ -26,19 +26,20 @@ export type InputConfig<Instance> = {
 	isUnlocked?: boolean | ((machine: Instance) => boolean);
 };
 
+interface OutputRequirement {
+	resource: ResourceType | "none";
+	amount: number;
+	inputId: number;
+}
+
 export interface OutputConfig<Instance> {
-	id: "main" | undefined
+	id?: "main";
 	capacity: number | ((machine: Instance) => number);
-	produces: (machine: Instance) => {
-		resource: ResourceType;
-		amount: number;
-	};
+	produces: ResourceData | ((machine: Instance) => ResourceData);
 	isUnlocked?: (machine: Instance) => boolean;
-	requiresList?: (machine: Instance) => Array<{
-		resource: ResourceType | "none";
-		amount: number;
-		inputId: number;
-	}>;
+	// FIXME: Combine requires and requiresList
+	requires?: (machine: Instance) => OutputRequirement;
+	requiresList?: (machine: Instance) => Array<OutputRequirement>;
 }
 
 export interface UpgradeConfig<K extends string, E = any> {
@@ -46,10 +47,10 @@ export interface UpgradeConfig<K extends string, E = any> {
 	description: string | ((upgrade: MachineUpgrade<K>) => string);
 	effect: number | ((count: number) => E);
 	max: number;
-	name: string
+	name: string;
 	title: string | ((upgrade: MachineUpgrade<K>) => string);
 
-	currencyType?: ResourceType | ((count: number) => ResourceType);
+	currencyType?: ResourceType | ((count: number) => ResourceType) | undefined;
 	formatEffect?: (effect: E) => string;
 	isUnlocked?: (machine: ConfiguredMachine<K>) => boolean;
 }
@@ -62,6 +63,8 @@ export interface MachineConfig<K extends string> {
 	upgrades: Record<K, UpgradeConfig<K>>;
 	inputs: InputConfig<ConfiguredMachine<K>>[];
 	outputs: OutputConfig<ConfiguredMachine<K>>[];
+
+	customLoop?: (this: ConfiguredMachine<K>, diff: number) => void;
 }
 
 // ============= Untyped objects ============ //
@@ -76,12 +79,12 @@ declare abstract class GenericStackState {
 	readonly isCapped: boolean;
 	readonly isUnlocked: boolean;
 	readonly label: string;
-	readonly lastItem: ResourceType;
+	readonly lastItem: ResourceData;
 	readonly lastResource: ResourceType;
 	readonly spaceLeft: number;
 
 	volume(): number;
-	volume(value: number): void
+	volume(value: number): void;
 
 	addToStack(item: ResourceData): number;
 	removeFromStack(item: ResourceData): number;
@@ -101,8 +104,8 @@ declare class OutputState<K extends string> extends GenericStackState {
 }
 
 interface PipeConnection<InputUpgrades extends string, OutputUpgrades extends string> {
-	in: [ConfiguredMachine<InputUpgrades>, InputState<InputUpgrades>]
-	out: [ConfiguredMachine<OutputUpgrades>, OutputState<OutputUpgrades>]
+	in: [ConfiguredMachine<InputUpgrades>, InputState<InputUpgrades>];
+	out: [ConfiguredMachine<OutputUpgrades>, OutputState<OutputUpgrades>];
 }
 
 // ============= Untyped globals ============ //
@@ -112,12 +115,12 @@ declare const MachinesById: Record<TownType, Record<number, ConfiguredMachine<st
 declare const Pipes: Record<TownType, PipeConnection<string, string>[]>;
 
 declare const player: {
-	money: number,
+	money: number;
 	holding: {
-		resource?: ResourceType,
-		amount?: number
-	},
-	towns: Record<TownType, Town>
+		resource?: ResourceType;
+		amount?: number;
+	};
+	towns: Record<TownType, Town>;
 };
 
 // ============= Instances ============ //
@@ -215,7 +218,9 @@ export class MachineUpgrade<K extends string> {
 
 		// FIXME: Global player access
 		if (!this.currencyType) return player.money >= this.cost;
-		return player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost;
+		return (
+			player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost
+		);
 	}
 
 	get isUnlocked() {
@@ -233,19 +238,33 @@ export interface ConfiguredMachine<K extends string> extends MachineBase {
 	readonly name: string;
 	readonly outputs: OutputState<K>[];
 	readonly upgrades: Record<K, MachineUpgrade<K>>;
+	inputItem(index: number): ResourceData;
+	outputItem(index: number): ResourceData;
+	outputDiffs: Record<string, number>;
+
+	// TODO: These are machine specific - can they be a subtype instead?
+	inputFuel?: MaybeResourceType;
+	inputResource?: MaybeResourceType;
+	catalystActive?: boolean;
+	updates?: number;
+	consumes0?: number
+	consumes1?: number
+	consumes2?: number
+	lastDiff?: number
+	produces0?: number
 }
 
 interface MachineData {
-	inputs: unknown[]
-	isDefault: boolean
-	minimized: boolean
-	outputs: unknown[]
-	pipes: Array<[number, number][]>
-	type: string,
-	upgrades: number[],
-	upgradesPrepay: number[]
-	x: number
-	y: number
+	inputs: unknown[];
+	isDefault: boolean;
+	minimized: boolean;
+	outputs: unknown[];
+	pipes: Array<[number, number][]>;
+	type: string;
+	upgrades: number[];
+	upgradesPrepay: number[];
+	x: number;
+	y: number;
 
 	name?: string;
 }
@@ -260,6 +279,18 @@ export function defineMachine<K extends string>(
 		#pipes: [ConfiguredMachine<string>, InputState<string>][][] = [];
 		#upgrades: Record<K, MachineUpgrade<K>>;
 
+		// FIXME: Machine specific-stuff that should be removed
+		// inputFuel?: MaybeResourceType = undefined;
+		// inputResource?: MaybeResourceType = undefined;
+		// catalystActive = false;
+		// updates = 0;
+		// consumes0 = 0;
+		// consumes1 = 0;
+		// consumes2 = 0;
+		// lastDiff = 0;
+		// produces0 = 0;
+		// End machine specific-stuff that should be removed
+
 		outputHistories: unknown[] = [];
 		inputHistories: unknown[] = [];
 
@@ -267,7 +298,6 @@ export function defineMachine<K extends string>(
 		inputConfHistories: unknown[] = [];
 
 		outputDiffs: Record<string, number> = {};
-		updates = 0;
 
 		get name() {
 			return config.name;
@@ -302,9 +332,7 @@ export function defineMachine<K extends string>(
 			);
 			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
 
-			this.#inputs = Object.values(config.upgrades).map(
-				(_, index) => new InputState(this, index)
-			);
+			this.#inputs = Object.values(config.upgrades).map((_, index) => new InputState(this, index));
 			this.#outputs = Object.values(config.upgrades).map(
 				(_, index) => new OutputState(this, index)
 			);
@@ -346,7 +374,7 @@ export function defineMachine<K extends string>(
 			// TODO: add pipes from Town(?) instead of global
 			Pipes[this.townType].push({
 				out: [this, this.#outputs[outputId]],
-				in: [machine, machine.inputs[inputId]]
+				in: [machine, machine.inputs[inputId]],
 			});
 			this.updatePipes();
 		}
@@ -355,10 +383,13 @@ export function defineMachine<K extends string>(
 		removePipe(machine: ConfiguredMachine<any>, inputId: number) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
-					if (this.data.pipes[i][j][0].toString() === machine.id.toString() &&
-							this.data.pipes[i][j][1] === inputId) {
-						const idx = Pipes[this.townType].findIndex(pipe =>
-							pipe.out[0].id.toString() === this.id.toString() &&
+					if (
+						this.data.pipes[i][j][0].toString() === machine.id.toString() &&
+						this.data.pipes[i][j][1] === inputId
+					) {
+						const idx = Pipes[this.townType].findIndex(
+							pipe =>
+								pipe.out[0].id.toString() === this.id.toString() &&
 								pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
 								pipe.in[0].id.toString() === machine.id.toString() &&
 								pipe.in[1].id.toString() === machine.inputs[inputId].id.toString()
@@ -381,9 +412,13 @@ export function defineMachine<K extends string>(
 		removeAllPipes(machine: ConfiguredMachine<any>) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
-					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
-						const idx = Pipes[this.townType].findIndex(pipe =>
-							pipe.out[0].id.toString() === this.id.toString() &&
+					while (
+						this.data.pipes[i][j] &&
+						this.data.pipes[i][j][0].toString() === machine.id.toString()
+					) {
+						const idx = Pipes[this.townType].findIndex(
+							pipe =>
+								pipe.out[0].id.toString() === this.id.toString() &&
 								pipe.out[1].id.toString() === this.outputs[i].id.toString() &&
 								pipe.in[0].id.toString() === machine.id.toString() &&
 								pipe.in[1].id.toString() === this.data.pipes[i][j][1].toString()
@@ -398,10 +433,12 @@ export function defineMachine<K extends string>(
 
 		// TODO: this crosses over to too many domains
 		updatePipes() {
-			this.#pipes = this.data.pipes.map(p => p.map(x => {
-				const machine = MachinesById[this.townType][x[0]];
-				return [machine, machine.inputs[x[1]]];
-			}));
+			this.#pipes = this.data.pipes.map(p =>
+				p.map(x => {
+					const machine = MachinesById[this.townType][x[0]];
+					return [machine, machine.inputs[x[1]]];
+				})
+			);
 		}
 
 		inputItem(index: number) {
@@ -423,7 +460,7 @@ export function defineMachine<K extends string>(
 				inputs: Array.from(Array(config.inputs.length), () => []),
 				outputs: Array.from(Array(config.outputs.length), () => []),
 				upgrades: Array(Object.values(config.upgrades).length).fill(0) as number[],
-				upgradesPrepay: Array(Object.values(config.upgrades).length).fill(0) as number[]
+				upgradesPrepay: Array(Object.values(config.upgrades).length).fill(0) as number[],
 			};
 		}
 	};
