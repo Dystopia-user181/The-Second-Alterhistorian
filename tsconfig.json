@@ -22,6 +22,9 @@
       "@/*": ["*"],
     }
   },
+  "files": [
+    "src/js/global.d.ts"
+  ],
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
