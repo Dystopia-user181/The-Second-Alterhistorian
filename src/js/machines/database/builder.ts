@@ -1,11 +1,12 @@
+import { run, str } from "@/utils";
 import { ResourceType } from "@/types/resources";
 
 function mapObject<T extends Record<K, unknown>, K extends string, R>(
 	input: T,
-	map: (value: T[K]) => R
+	map: (value: T[K], index: number) => R
 ) {
 	return Object.fromEntries(
-		Object.entries(input).map(([key, value]) => [key, map(value as T[K])])
+		Object.entries(input).map(([key, value], index) => [key, map(value as T[K], index)])
 	) as { [key in K]: R };
 }
 
@@ -41,7 +42,7 @@ export interface UpgradeConfig<K extends string, E = any> {
 	description: string | ((upgrade: MachineUpgrade<K>) => string);
 	effect: number | ((count: number) => E);
 	max: number;
-	name: string;
+	name: string
 	title: string | ((upgrade: MachineUpgrade<K>) => string);
 
 	currencyType?: ResourceType | ((count: number) => ResourceType);
@@ -61,7 +62,10 @@ export interface MachineConfig<K extends string> {
 
 // ============= Untyped objects ============ //
 
-declare class Town {}
+declare class Town {
+	machines: MachineData[];
+}
+
 declare class InputState<K extends string> {
 	constructor(machine: ConfiguredMachine<K>, id: number);
 	readonly accepts: number[];
@@ -83,14 +87,35 @@ declare class OutputState<K extends string> {
 	readonly lastResource: ResourceType;
 }
 
+declare const player: {
+	money: number,
+	holding: {
+		resource?: ResourceType,
+		amount?: number
+	}
+};
+
 // ============= Instances ============ //
 
 export class MachineBase {
-	#town: Town;
+	#data: MachineData;
 	#id: number;
+	#town: Town;
+
+	get data() {
+		return this.#data;
+	}
+
+	get height() {
+		return this.isMinimized ? 110 : 250;
+	}
 
 	get id() {
 		return this.#id;
+	}
+
+	get isMinimized() {
+		return this.data.minimized;
 	}
 
 	get town() {
@@ -100,20 +125,29 @@ export class MachineBase {
 	constructor(town: Town, machineId: number) {
 		this.#town = town;
 		this.#id = machineId;
+
+		this.#data = this.town.machines[this.id];
 	}
 }
 
 export class MachineUpgrade<K extends string> {
 	#parentMachine: ConfiguredMachine<K>;
 	#config: UpgradeConfig<K>;
+	#index: number;
 	#count = 0;
 
-	constructor(machine: ConfiguredMachine<K>, config: UpgradeConfig<K>) {
+	constructor(machine: ConfiguredMachine<K>, config: UpgradeConfig<K>, index: number) {
 		this.#parentMachine = machine;
 		this.#config = config;
+		this.#index = index;
 	}
 
+	// FIXME: effect needs to be typed
 	public effect: any = 0;
+
+	get cost() {
+		return run(this.#config.cost, this.count) - this.prepay;
+	}
 
 	get count() {
 		return this.#count;
@@ -123,28 +157,40 @@ export class MachineUpgrade<K extends string> {
 		this.#count = value;
 	}
 
+	get currencyType() {
+		return this.#config.currencyType;
+	}
+
+	get id(): number {
+		return this.#index;
+	}
+
 	get maxed() {
 		return this.#count >= this.#config.max;
 	}
 
-	get isUnlocked() {
-		return this.#config.isUnlocked?.(this.#parentMachine) ?? true;
+	get prepay() {
+		return this.#parentMachine.data.upgradesPrepay[this.id];
 	}
 
 	get canAfford() {
 		if (this.maxed) return false;
-		// FIXME: there is no player access here, should come from parent machine
-		return true;
-		// if (!this.currencyType) return player.money >= this.cost;
-		// return player.holding.resource === this.currencyType && player.holding.amount;
+
+		// FIXME: Global player access
+		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount;
 	}
 
 	get canAffordWhole() {
 		if (this.maxed) return false;
-		// FIXME: there is no player access here, should come from parent machine
-		return true;
-		// if (!this.currencyType) return player.money >= this.cost;
-		// return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
+
+		// FIXME: Global player access
+		if (!this.currencyType) return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost;
+	}
+
+	get isUnlocked() {
+		return this.#config.isUnlocked?.(this.#parentMachine) ?? true;
 	}
 }
 
@@ -158,31 +204,52 @@ export interface ConfiguredMachine<K extends string> extends MachineBase {
 	readonly isMinimized: boolean;
 }
 
+// interface MachineOptions {
+// 	machineId: string
+// 	town: Town
+// 	x: number
+// 	y: number
+// 	isDefault: boolean
+// 	minimized: boolean
+// }
+
+// const defaultMachineOptions = {
+// 	x: 0,
+// 	y: 0,
+// 	isDefault: false,
+// 	minimized: false,
+// };
+
+interface MachineData {
+	upgradesPrepay: number[]
+	name?: string;
+	minimized: boolean
+}
+
 export function defineMachine<K extends string>(
 	config: MachineConfig<K>
 ): ConfiguredMachineConstructor<K> {
 	return class extends MachineBase {
-		#upgrades: Record<K, MachineUpgrade<K>>;
-		#isUpgradeable = false;
-		#pipes: unknown[];
-		#minimized = false;
 		#inputs: InputState<K>[];
 		#outputs: OutputState<K>[];
+		#pipes: unknown[];
+		#upgrades: Record<K, MachineUpgrade<K>>;
 
 		get name() {
 			return config.name;
 		}
 
-		// get displayName() {
-		// 	return this.data.name || str(this.name).capitalize;
-		// }
+		get displayName() {
+			return this.data.name || str(this.name).capitalize;
+		}
+
+		get isUpgradeable() {
+			// TODO: Optimize
+			return Object.keys(this.#upgrades).length > 0;
+		}
 
 		get upgrades() {
 			return this.#upgrades;
-		}
-
-		get isMinimized() {
-			return this.#minimized;
 		}
 
 		// FIXME: pass in player
@@ -191,9 +258,8 @@ export function defineMachine<K extends string>(
 
 			this.#upgrades = mapObject(
 				config.upgrades,
-				config => new MachineUpgrade(this, config)
+				(config, index) => new MachineUpgrade(this, config, index)
 			);
-			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
 
 			// FIXME: What type is this?
 			this.#pipes = [];
@@ -206,8 +272,6 @@ export function defineMachine<K extends string>(
 			);
 
 			void Promise.resolve().then(() => this.updatePipes());
-
-			// this.data = player.towns[this.town].machines[this.id];
 
 			// FIXME: What type is this?
 			// this.outputHistories = [];
@@ -230,7 +294,7 @@ export function defineMachine<K extends string>(
 
 		get isFullyUpgraded() {
 			return (
-				this.#isUpgradeable &&
+				this.isUpgradeable &&
 				Object.values<MachineUpgrade<K>>(this.#upgrades).every(
 					upgrade => !upgrade.isUnlocked || upgrade.maxed
 				)
@@ -239,7 +303,7 @@ export function defineMachine<K extends string>(
 
 		get hasPartialBuyableUpgrades() {
 			return (
-				this.#isUpgradeable &&
+				this.isUpgradeable &&
 				!this.hasWholeBuyableUpgrades &&
 				Object.values<MachineUpgrade<K>>(this.upgrades).find(x => x.canAfford) !== undefined
 			);
@@ -247,14 +311,10 @@ export function defineMachine<K extends string>(
 
 		get hasWholeBuyableUpgrades() {
 			return (
-				this.#isUpgradeable &&
+				this.isUpgradeable &&
 				Object.values<MachineUpgrade<K>>(this.#upgrades).find(x => x.canAffordWhole) !== undefined
 			);
 		}
-
-		// get height() {
-		// 	return this.data.min ? 110 : 250;
-		// }
 
 		// FIXME: add pipes from Town(?)
 		addPipe(machine: ConfiguredMachine<any>, inputId: number, outputId: number) {
@@ -356,3 +416,14 @@ export function defineMachine<K extends string>(
 		// }
 	};
 }
+
+// interface MachineData {
+// 	x: number
+// 	y: number
+// 	type: string,
+// 	pipes: unknown[]
+// 	inputs: unknown[]
+// 	outputs: unknown[]
+// 	isDefault: boolean
+// 	minimized: boolean
+// }
