@@ -199,7 +199,7 @@ export class MachineUpgrade<K extends string> {
 	}
 
 	get prepay() {
-		return this.#parentMachine.data.upgradesPrepay[this.id];
+		return this.#parentMachine.data.upgradesPrepay[this.id] ?? 0;
 	}
 
 	get canAfford() {
@@ -235,27 +235,19 @@ export interface ConfiguredMachine<K extends string> extends MachineBase {
 	readonly upgrades: Record<K, MachineUpgrade<K>>;
 }
 
-// interface MachineOptions {
-// 	machineId: string
-// 	town: Town
-// 	x: number
-// 	y: number
-// 	isDefault: boolean
-// 	minimized: boolean
-// }
-
-// const defaultMachineOptions = {
-// 	x: 0,
-// 	y: 0,
-// 	isDefault: false,
-// 	minimized: false,
-// };
-
 interface MachineData {
-	upgradesPrepay: number[]
-	name?: string;
+	inputs: unknown[]
+	isDefault: boolean
 	minimized: boolean
+	outputs: unknown[]
 	pipes: Array<[number, number][]>
+	type: string,
+	upgrades: number[],
+	upgradesPrepay: number[]
+	x: number
+	y: number
+
+	name?: string;
 }
 
 export function defineMachine<K extends string>(
@@ -420,39 +412,19 @@ export function defineMachine<K extends string>(
 			return this.#outputs[index].lastItem;
 		}
 
-		// static name = data.name;
-
-		// static newMachine(x, y) {
-		// 	const returnObj = {
-		// 		x,
-		// 		y,
-		// 		type: this.name,
-		// 		pipes: Array.from(Array(this.outputs ? this.outputs.length : 0), () => []),
-		// 		isDefault: false,
-		// 		min: false
-		// 	};
-		// 	if (this.inputs.length) {
-		// 		returnObj.inputs = Array.from(Array(this.inputs.length), () => []);
-		// 	}
-		// 	if (this.outputs.length) {
-		// 		returnObj.outputs = Array.from(Array(this.outputs.length), () => []);
-		// 	}
-		// 	if (this.upgrades && Object.values(this.upgrades).length) {
-		// 		returnObj.upgrades = Array(Object.values(this.upgrades).length).fill(0);
-		// 		returnObj.upgradesPrepay = Array(Object.values(this.upgrades).length).fill(0);
-		// 	}
-		// 	return returnObj;
-		// }
+		static newMachine(x: number, y: number): MachineData {
+			return {
+				x,
+				y,
+				type: config.name,
+				pipes: Array.from(Array(config.outputs ? config.outputs.length : 0), () => []),
+				isDefault: false,
+				minimized: false,
+				inputs: Array.from(Array(config.inputs.length), () => []),
+				outputs: Array.from(Array(config.outputs.length), () => []),
+				upgrades: Array(Object.values(config.upgrades).length).fill(0) as number[],
+				upgradesPrepay: Array(Object.values(config.upgrades).length).fill(0) as number[]
+			};
+		}
 	};
 }
-
-// interface MachineData {
-// 	x: number
-// 	y: number
-// 	type: string,
-// 	pipes: unknown[]
-// 	inputs: unknown[]
-// 	outputs: unknown[]
-// 	isDefault: boolean
-// 	minimized: boolean
-// }
