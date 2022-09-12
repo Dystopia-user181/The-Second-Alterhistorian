@@ -15,11 +15,15 @@ export default defineMachine({
 	],
 	outputs: [],
 	customLoop(diff) {
+		if (!this.inputItem(0)) return;
+
+		const currency = this.inputItem(0).resource;
+		if (currency === "none") return;
+
 		Machine.addInputHistory(this);
 		Machine.addOutputHistory(this);
-		if (!this.inputItem(0)) return;
-		const currency = this.inputItem(0).resource;
-		const amount = this.inputs[0].removeFromStack({ resource: currency, amount: 20 * diff });
+
+		const amount = this.inputs[0].removeFromStack(20 * diff);
 		player.money += Currencies[currency].value * amount;
 		Pipe.tickPipes(this, diff);
 	},
