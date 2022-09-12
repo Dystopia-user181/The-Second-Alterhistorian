@@ -51,8 +51,8 @@ export default defineMachine({
 		// eslint-disable-next-line no-nested-ternary
 		const inputResource = this.inputItem(cycle[0])
 			? this.inputItem(cycle[0]).resource
-			// eslint-disable-next-line no-nested-ternary
-			: this.inputItem(cycle[1])
+			: // eslint-disable-next-line no-nested-ternary
+			this.inputItem(cycle[1])
 				? this.inputItem(cycle[1]).resource
 				: this.inputItem(cycle[2])
 					? this.inputItem(cycle[2]).resource

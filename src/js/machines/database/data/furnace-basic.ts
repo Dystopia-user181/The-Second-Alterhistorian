@@ -2,12 +2,7 @@ import { Machine } from "../../logic";
 
 import { defineMachine } from "../builder";
 
-import {
-	ConfiguredMachineWithUpgrades,
-	getConsumption,
-	getProduction,
-	mapRecipesByInput,
-} from "../utils";
+import { ConfiguredMachineWithUpgrades, getConsumption, getProduction, mapRecipesByInput } from "../utils";
 
 import { Currencies } from "@/js/currencies/currencies";
 
@@ -68,7 +63,7 @@ export default defineMachine({
 	name: "furnaceBasic",
 	meta: () => ({
 		inputFuel: "none" as MaybeResourceType,
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{

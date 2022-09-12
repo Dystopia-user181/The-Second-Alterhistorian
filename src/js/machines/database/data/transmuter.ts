@@ -58,7 +58,7 @@ function getVitriolUsage(machine: ConfiguredMachine<string>) {
 export default defineMachine({
 	name: "transmuter",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{

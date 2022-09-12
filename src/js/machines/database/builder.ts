@@ -8,9 +8,9 @@ function mapObject<T extends Record<K, unknown>, K extends string, R>(
 	input: T,
 	map: (value: T[K], index: number) => R
 ) {
-	return Object.fromEntries(
-		Object.entries(input).map(([key, value], index) => [key, map(value as T[K], index)])
-	) as { [key in K]: R };
+	return Object.fromEntries(Object.entries(input).map(([key, value], index) => [key, map(value as T[K], index)])) as {
+		[key in K]: R;
+	};
 }
 
 // ============= Config ============ //
@@ -18,10 +18,7 @@ function mapObject<T extends Record<K, unknown>, K extends string, R>(
 export type InputConfig<Instance> = {
 	accepts: readonly ResourceType[] | ((machine: Instance) => ResourceType[]);
 	capacity: number | ((machine: Instance) => number);
-	consumes:
-		| number
-		| ((machine: Instance) => number)
-		| ((machine: Instance) => { amount: number; maximum: number });
+	consumes: number | ((machine: Instance) => number) | ((machine: Instance) => { amount: number; maximum: number });
 	label?: string;
 	isUnlocked?: boolean | ((machine: Instance) => boolean);
 };
@@ -64,7 +61,7 @@ export interface MachineConfig<K extends string, Meta = never> {
 	inputs: InputConfig<ConfiguredMachine<K, Meta>>[];
 	outputs: OutputConfig<ConfiguredMachine<K, Meta>>[];
 
-	meta?: () => Meta
+	meta?: () => Meta;
 
 	customLoop?: (this: ConfiguredMachine<K, Meta>, diff: number) => void;
 }
@@ -223,7 +220,7 @@ export class MachineUpgrade<K extends string> {
 
 		// TODO: Global player access
 		if (!this.currencyType) return player.money >= this.cost;
-		return (player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost);
+		return player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost;
 	}
 
 	get isUnlocked() {
@@ -245,7 +242,7 @@ export interface ConfiguredMachine<K extends string, Meta> extends MachineBase {
 	outputItem(index: number): ResourceData;
 	outputDiffs: Record<string, number>;
 
-	meta: Meta
+	meta: Meta;
 }
 
 interface MachineData {
@@ -313,16 +310,11 @@ export function defineMachine<K extends string, Meta extends Record<string, unkn
 		constructor(townType: TownType, machineId: number) {
 			super(townType, machineId);
 
-			this.#upgrades = mapObject(
-				config.upgrades,
-				(config, index) => new MachineUpgrade(this, config, index)
-			);
+			this.#upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
 			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
 
 			this.#inputs = Object.values(config.upgrades).map((_, index) => new InputState(this, index));
-			this.#outputs = Object.values(config.upgrades).map(
-				(_, index) => new OutputState(this, index)
-			);
+			this.#outputs = Object.values(config.upgrades).map((_, index) => new OutputState(this, index));
 
 			this.#meta = config.meta?.();
 
@@ -401,10 +393,7 @@ export function defineMachine<K extends string, Meta extends Record<string, unkn
 		removeAllPipes(machine: ConfiguredMachine<any, unknown>) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
-					while (
-						this.data.pipes[i][j] &&
-						this.data.pipes[i][j][0].toString() === machine.id.toString()
-					) {
+					while (this.data.pipes[i][j] && this.data.pipes[i][j][0].toString() === machine.id.toString()) {
 						const idx = Pipes[this.townType].findIndex(
 							pipe =>
 								pipe.out[0].id.toString() === this.id.toString() &&

@@ -24,7 +24,7 @@ const recipesByInput = mapRecipesByInput(recipes);
 export default defineMachine({
 	name: "waterMixer",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{
@@ -32,8 +32,7 @@ export default defineMachine({
 			capacity: machine => 15 * machine.upgrades.capacity.effect,
 			consumes: machine => ({
 				amount: recipesByInput[machine.meta.inputResource || "none"].input.amount,
-				maximum:
-					machine.outputDiffs.main * recipesByInput[machine.meta.inputResource || "none"].input.amount,
+				maximum: machine.outputDiffs.main * recipesByInput[machine.meta.inputResource || "none"].input.amount,
 			}),
 		},
 		{

@@ -50,7 +50,7 @@ const recipesByInput = mapRecipesByInput(recipes);
 export default defineMachine({
 	name: "essencePurifier",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{
@@ -145,8 +145,7 @@ export default defineMachine({
 			effect: count => Math.pow(2, count - 1) + count + 0.5,
 			isUnlocked: machine =>
 				Boolean(
-					machine.upgrades.unlock.effect &&
-						(machine.upgrades.power.count || Currencies.vitriol.isUnlocked)
+					machine.upgrades.unlock.effect && (machine.upgrades.power.count || Currencies.vitriol.isUnlocked)
 				),
 		},
 	},

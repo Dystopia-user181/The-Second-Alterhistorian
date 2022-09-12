@@ -39,7 +39,7 @@ function getPoundForceProduction(machine: Parameters<typeof getProduction>[0]) {
 export default defineMachine({
 	name: "pulverizer",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{

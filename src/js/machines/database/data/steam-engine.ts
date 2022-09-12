@@ -13,8 +13,7 @@ export default defineMachine({
 			consumes: machine => ({
 				amount: 0.6 * machine.upgrades.harness.effect,
 				maximum:
-					(machine.outputDiffs.main * 0.6 * machine.upgrades.harness.effect) /
-					machine.upgrades.yield.effect,
+					(machine.outputDiffs.main * 0.6 * machine.upgrades.harness.effect) / machine.upgrades.yield.effect,
 			}),
 		},
 	],

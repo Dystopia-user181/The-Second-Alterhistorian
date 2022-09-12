@@ -46,8 +46,7 @@ export default defineMachine({
 			cost: count => 40 * Math.pow(5, count),
 			max: 3,
 			title: upg => (upg.count ? "Persistence" : "Wood"),
-			description: upg =>
-				(upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees"),
+			description: upg => (upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees"),
 			effect: count => (Math.pow(1.4, count) - 1) * 2.5,
 			// FIXME: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
