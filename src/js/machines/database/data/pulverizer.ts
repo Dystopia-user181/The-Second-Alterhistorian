@@ -4,7 +4,7 @@ import { getConsumption, getEnergyUsage, getProduction, mapRecipesByInput } from
 
 import { Machine } from "../../logic";
 
-import { Recipe, ResourceType } from "@/types/resources";
+import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
 
 const recipes: Recipe[] = [
 	{
@@ -38,6 +38,9 @@ function getPoundForceProduction(machine: Parameters<typeof getProduction>[0]) {
 
 export default defineMachine({
 	name: "pulverizer",
+	meta: () => ({
+		inputResource: "none" as MaybeResourceType
+	}),
 	inputs: [
 		{
 			accepts: recipes.map(x => x.input.resource).filter(x => x !== "none") as ResourceType[],
@@ -69,7 +72,7 @@ export default defineMachine({
 			produces: machine => getPoundForceProduction(machine),
 			requiresList: machine => [
 				{
-					resource: machine.inputResource || "none",
+					resource: machine.meta.inputResource || "none",
 					amount: getConsumption(machine, recipesByInput) * poundForce(),
 					inputId: 0,
 				},
@@ -83,7 +86,7 @@ export default defineMachine({
 	],
 	upgrades: {},
 	customLoop(diff) {
-		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Uses Energy to pound materials to dust.`,

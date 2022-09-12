@@ -1,10 +1,8 @@
+import { getConsumption, getEnergyUsage, getProduction, mapRecipesByInput } from "../utils";
+import { defineMachine } from "../builder";
 import { Machine } from "../../logic";
 
-import { defineMachine } from "../builder";
-
-import { getConsumption, getEnergyUsage, getProduction, mapRecipesByInput } from "../utils";
-
-import { Recipe, ResourceType } from "@/types/resources";
+import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
 import { run } from "@/utils";
 
 const metals = ["iron", "lead", "copper", "silver", "gold", "quicksilver"];
@@ -41,6 +39,10 @@ const recipesByInput = mapRecipesByInput(recipes);
 
 export default defineMachine({
 	name: "arcFurnace",
+	meta: () => ({
+		inputResource: "none" as MaybeResourceType,
+		catalystActive: false,
+	}),
 	inputs: [
 		{
 			accepts: machine =>
@@ -83,7 +85,7 @@ export default defineMachine({
 			produces: machine => getProduction(machine, recipesByInput),
 			requiresList: machine => [
 				{
-					resource: machine.inputResource || "none",
+					resource: machine.meta.inputResource || "none",
 					amount: getConsumption(machine, recipesByInput),
 					inputId: 0,
 				},
@@ -117,8 +119,8 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
-		this.catalystActive = this.inputItem(2) && this.inputItem(2).amount >= 5;
+		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.catalystActive = this.inputItem(2) && this.inputItem(2).amount >= 5;
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Arc furnace. Takes in Energy and the item to be heated.`,

@@ -12,9 +12,8 @@ import {
 
 import { Currencies } from "@/js/currencies/currencies";
 
+import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
 import { run } from "@/utils";
-
-import { Recipe, ResourceType } from "@/types/resources";
 
 const recipes: Recipe<ConfiguredMachineWithUpgrades<"power">>[] = [
 	{
@@ -50,6 +49,9 @@ const recipesByInput = mapRecipesByInput(recipes);
 
 export default defineMachine({
 	name: "essencePurifier",
+	meta: () => ({
+		inputResource: "none" as MaybeResourceType
+	}),
 	inputs: [
 		{
 			accepts: machine =>
@@ -87,7 +89,7 @@ export default defineMachine({
 			produces: machine => getProduction(machine, recipesByInput),
 			requiresList: machine => [
 				{
-					resource: machine.inputResource || "none",
+					resource: machine.meta.inputResource || "none",
 					amount: getConsumption(machine, recipesByInput),
 					inputId: 0,
 				},
@@ -149,7 +151,7 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Extracts Basic Essences from raw materials.`,

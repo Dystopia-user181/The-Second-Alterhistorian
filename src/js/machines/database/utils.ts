@@ -2,8 +2,8 @@ import { MaybeResourceType, Recipe } from "@/types/resources";
 import { ConfiguredMachine } from "./builder";
 
 export type ConfiguredMachineWithUpgrades<T extends string> = Extract<
-	ConfiguredMachine<string>,
-	ConfiguredMachine<T>
+	ConfiguredMachine<string, any>,
+	ConfiguredMachine<T, any>
 >;
 
 // FIXME: This is reused all over the place, why not store inputs as an object instead?

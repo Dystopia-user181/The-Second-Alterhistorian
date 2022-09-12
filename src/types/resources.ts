@@ -29,7 +29,7 @@ export type ResourceType = typeof ResourceTypes[number];
 export type MaybeResourceType = "none" | ResourceType;
 
 export interface ResourceData {
-	resource: ResourceType,
+	resource: MaybeResourceType,
 	amount: number
 }
 

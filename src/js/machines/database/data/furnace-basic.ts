@@ -66,6 +66,10 @@ function getFuelUsage(machine: ConfiguredMachineWithUpgrades<"improve">) {
 
 export default defineMachine({
 	name: "furnaceBasic",
+	meta: () => ({
+		inputFuel: "none" as MaybeResourceType,
+		inputResource: "none" as MaybeResourceType
+	}),
 	inputs: [
 		{
 			accepts: machine =>
@@ -105,12 +109,12 @@ export default defineMachine({
 			produces: machine => getProduction(machine, recipesByInput),
 			requiresList: machine => [
 				{
-					resource: machine.inputResource || "none",
+					resource: machine.meta.inputResource || "none",
 					amount: getConsumption(machine, recipesByInput),
 					inputId: 0,
 				},
 				{
-					resource: machine.inputFuel || "none",
+					resource: machine.meta.inputFuel || "none",
 					amount: getFuelUsage(machine),
 					inputId: 1,
 				},
@@ -141,8 +145,8 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
-		this.inputFuel = this.inputItem(1) ? this.inputItem(1).resource : "none";
+		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.inputFuel = this.inputItem(1) ? this.inputItem(1).resource : "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Basic furnace. Takes in a fuel and the item to be heated.`,

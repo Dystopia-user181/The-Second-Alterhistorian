@@ -42,7 +42,7 @@ export interface OutputConfig<Instance> {
 	requiresList?: (machine: Instance) => Array<OutputRequirement>;
 }
 
-export interface UpgradeConfig<K extends string, E = any> {
+export interface UpgradeConfig<K extends string, Meta, E = any> {
 	cost: number | ((count: number) => number);
 	description: string | ((upgrade: MachineUpgrade<K>) => string);
 	effect: number | ((count: number) => E);
@@ -52,19 +52,21 @@ export interface UpgradeConfig<K extends string, E = any> {
 
 	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
 	formatEffect?: (effect: E) => string;
-	isUnlocked?: (machine: ConfiguredMachine<K>) => boolean;
+	isUnlocked?: (machine: ConfiguredMachine<K, Meta>) => boolean;
 }
 
-export interface MachineConfig<K extends string> {
+export interface MachineConfig<K extends string, Meta = never> {
 	name: string;
 
 	/** The description of the machine that will be displayed to the user */
 	description: string;
-	upgrades: Record<K, UpgradeConfig<K>>;
-	inputs: InputConfig<ConfiguredMachine<K>>[];
-	outputs: OutputConfig<ConfiguredMachine<K>>[];
+	upgrades: Record<K, UpgradeConfig<K, unknown>>;
+	inputs: InputConfig<ConfiguredMachine<K, Meta>>[];
+	outputs: OutputConfig<ConfiguredMachine<K, Meta>>[];
 
-	customLoop?: (this: ConfiguredMachine<K>, diff: number) => void;
+	meta?: () => Meta
+
+	customLoop?: (this: ConfiguredMachine<K, Meta>, diff: number) => void;
 }
 
 // ============= Untyped objects ============ //
@@ -87,30 +89,33 @@ declare abstract class GenericStackState {
 	volume(value: number): void;
 
 	addToStack(item: ResourceData): number;
-	removeFromStack(item: ResourceData): number;
+	removeFromStack(amount: number): number;
 }
 
-declare class InputState<K extends string> extends GenericStackState {
-	constructor(machine: ConfiguredMachine<K>, id: number);
+declare class InputState<K extends string, Meta> extends GenericStackState {
+	constructor(machine: ConfiguredMachine<K, Meta>, id: number);
 	readonly accepts: number[];
 	readonly consumes: number;
 }
 
-declare class OutputState<K extends string> extends GenericStackState {
-	constructor(machine: ConfiguredMachine<K>, id: number);
+declare class OutputState<K extends string, Meta> extends GenericStackState {
+	constructor(machine: ConfiguredMachine<K, Meta>, id: number);
 	readonly produces: number;
 	readonly requires: number;
 	readonly requiresList: number;
+
+	// Looks like a hack?
+	otherwiseDiff?: number;
 }
 
 interface PipeConnection<InputUpgrades extends string, OutputUpgrades extends string> {
-	in: [ConfiguredMachine<InputUpgrades>, InputState<InputUpgrades>];
-	out: [ConfiguredMachine<OutputUpgrades>, OutputState<OutputUpgrades>];
+	in: [ConfiguredMachine<InputUpgrades, unknown>, InputState<InputUpgrades, unknown>];
+	out: [ConfiguredMachine<OutputUpgrades, unknown>, OutputState<OutputUpgrades, unknown>];
 }
 
 // ============= Untyped globals ============ //
 
-declare const MachinesById: Record<TownType, Record<number, ConfiguredMachine<string>>>;
+declare const MachinesById: Record<TownType, Record<number, ConfiguredMachine<string, unknown>>>;
 
 declare const Pipes: Record<TownType, PipeConnection<string, string>[]>;
 
@@ -163,12 +168,12 @@ export class MachineBase {
 }
 
 export class MachineUpgrade<K extends string> {
-	#parentMachine: ConfiguredMachine<K>;
-	#config: UpgradeConfig<K>;
+	#parentMachine: ConfiguredMachine<K, unknown>;
+	#config: UpgradeConfig<K, unknown>;
 	#index: number;
 	#count = 0;
 
-	constructor(machine: ConfiguredMachine<K>, config: UpgradeConfig<K>, index: number) {
+	constructor(machine: ConfiguredMachine<K, unknown>, config: UpgradeConfig<K, unknown>, index: number) {
 		this.#parentMachine = machine;
 		this.#config = config;
 		this.#index = index;
@@ -208,7 +213,7 @@ export class MachineUpgrade<K extends string> {
 	get canAfford() {
 		if (this.maxed) return false;
 
-		// FIXME: Global player access
+		// TODO: Global player access
 		if (!this.currencyType) return player.money >= this.cost;
 		return player.holding.resource === this.currencyType && player.holding.amount;
 	}
@@ -216,11 +221,9 @@ export class MachineUpgrade<K extends string> {
 	get canAffordWhole() {
 		if (this.maxed) return false;
 
-		// FIXME: Global player access
+		// TODO: Global player access
 		if (!this.currencyType) return player.money >= this.cost;
-		return (
-			player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost
-		);
+		return (player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost);
 	}
 
 	get isUnlocked() {
@@ -229,29 +232,20 @@ export class MachineUpgrade<K extends string> {
 }
 
 interface ConfiguredMachineConstructor<K extends string> {
-	new (townType: TownType, machineId: number): ConfiguredMachine<K>;
+	new (townType: TownType, machineId: number): ConfiguredMachine<K, unknown>;
 }
 
-export interface ConfiguredMachine<K extends string> extends MachineBase {
-	readonly inputs: InputState<K>[];
+export interface ConfiguredMachine<K extends string, Meta> extends MachineBase {
+	readonly inputs: InputState<K, Meta>[];
 	readonly isMinimized: boolean;
 	readonly name: string;
-	readonly outputs: OutputState<K>[];
+	readonly outputs: OutputState<K, Meta>[];
 	readonly upgrades: Record<K, MachineUpgrade<K>>;
 	inputItem(index: number): ResourceData;
 	outputItem(index: number): ResourceData;
 	outputDiffs: Record<string, number>;
 
-	// TODO: These are machine specific - can they be a subtype instead?
-	inputFuel?: MaybeResourceType;
-	inputResource?: MaybeResourceType;
-	catalystActive?: boolean;
-	updates?: number;
-	consumes0?: number
-	consumes1?: number
-	consumes2?: number
-	lastDiff?: number
-	produces0?: number
+	meta: Meta
 }
 
 interface MachineData {
@@ -269,27 +263,20 @@ interface MachineData {
 	name?: string;
 }
 
-export function defineMachine<K extends string>(
-	config: MachineConfig<K>
+export function defineMachine<K extends string, Meta extends Record<string, unknown> = never>(
+	config: MachineConfig<K, Meta>
 ): ConfiguredMachineConstructor<K> {
 	return class extends MachineBase {
-		#inputs: InputState<K>[];
+		#inputs: InputState<K, Meta>[];
 		#isUpgradeable = true;
-		#outputs: OutputState<K>[];
-		#pipes: [ConfiguredMachine<string>, InputState<string>][][] = [];
+		#outputs: OutputState<K, Meta>[];
+		#pipes: [ConfiguredMachine<string, Meta>, InputState<string, Meta>][][] = [];
 		#upgrades: Record<K, MachineUpgrade<K>>;
+		#meta?: Meta;
 
-		// FIXME: Machine specific-stuff that should be removed
-		// inputFuel?: MaybeResourceType = undefined;
-		// inputResource?: MaybeResourceType = undefined;
-		// catalystActive = false;
-		// updates = 0;
-		// consumes0 = 0;
-		// consumes1 = 0;
-		// consumes2 = 0;
-		// lastDiff = 0;
-		// produces0 = 0;
-		// End machine specific-stuff that should be removed
+		get meta(): Meta | undefined {
+			return this.#meta;
+		}
 
 		outputHistories: unknown[] = [];
 		inputHistories: unknown[] = [];
@@ -337,6 +324,8 @@ export function defineMachine<K extends string>(
 				(_, index) => new OutputState(this, index)
 			);
 
+			this.#meta = config.meta?.();
+
 			this.outputDiffs = Object.fromEntries(
 				config.outputs.map((output, index) => [output.id ?? index.toString(), 0])
 			);
@@ -369,7 +358,7 @@ export function defineMachine<K extends string>(
 		}
 
 		// TODO: this crosses over to too many domains
-		addPipe(machine: ConfiguredMachine<string>, inputId: number, outputId: number) {
+		addPipe(machine: ConfiguredMachine<string, unknown>, inputId: number, outputId: number) {
 			this.data.pipes[outputId].push([machine.id, inputId]);
 			// TODO: add pipes from Town(?) instead of global
 			Pipes[this.townType].push({
@@ -380,7 +369,7 @@ export function defineMachine<K extends string>(
 		}
 
 		// TODO: this crosses over to too many domains
-		removePipe(machine: ConfiguredMachine<any>, inputId: number) {
+		removePipe(machine: ConfiguredMachine<any, unknown>, inputId: number) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					if (
@@ -409,7 +398,7 @@ export function defineMachine<K extends string>(
 		}
 
 		// TODO: this crosses over to too many domains
-		removeAllPipes(machine: ConfiguredMachine<any>) {
+		removeAllPipes(machine: ConfiguredMachine<any, unknown>) {
 			for (let i = 0; i < this.data.pipes.length; i++) {
 				for (let j = 0; j < this.data.pipes[i].length; j++) {
 					while (
@@ -438,7 +427,7 @@ export function defineMachine<K extends string>(
 					const machine = MachinesById[this.townType][x[0]];
 					return [machine, machine.inputs[x[1]]];
 				})
-			);
+			) as [ConfiguredMachine<string, Meta>, InputState<string, Meta>][][];
 		}
 
 		inputItem(index: number) {
