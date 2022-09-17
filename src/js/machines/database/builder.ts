@@ -1,4 +1,7 @@
+
 import { InputState, OutputState } from "../state/io-stacks";
+
+import { MachinesById } from "../player-proxy-machines";
 
 import { ResourceData, ResourceType } from "@/types/resources";
 import { run, str } from "@/utils";
@@ -79,8 +82,6 @@ interface PipeConnection<InputUpgrades extends string, OutputUpgrades extends st
 }
 
 // ============= Untyped globals ============ //
-
-declare const MachinesById: Record<TownType, Record<number, ConfiguredMachine<string, any>>>;
 
 declare const Pipes: Record<TownType, PipeConnection<string, string>[]>;
 
@@ -401,7 +402,12 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		updatePipes() {
 			this.#pipes = this.data.pipes.map(p =>
 				p.map(x => {
-					const machine = MachinesById[this.townType][x[0]];
+					const townMachines = MachinesById[this.townType];
+					// MachinesById isn't guaranteed to have the town type
+					if (!townMachines) {
+						throw `MachinesById is returning an invalid list for #{this.townType}`;
+					}
+					const machine = townMachines[x[0]];
 					return [machine, machine.inputs[x[1]]];
 				})
 			) as [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][];

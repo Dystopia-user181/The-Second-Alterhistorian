@@ -8,13 +8,13 @@ import { MachineTypes } from "./database/index";
 
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
+import { MachinesById } from "./player-proxy-machines.ts";
 import { TownsDatabase } from "@/js/towns/database";
 
 import { arr, objectMap } from "@/utils";
 
 
 export const Machines = {};
-export const MachinesById = {};
 export const MachineCounts = {};
 export const Pipes = {};
 
