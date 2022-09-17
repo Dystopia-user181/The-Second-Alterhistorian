@@ -104,12 +104,20 @@ export class InputConfigState<K extends string, Meta extends Record<string, any>
 
 export class InputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
 	#config: InputConfigState<K, Meta>;
-	id: number;
+	#id: number;
 
 	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
 		super(machine.data.inputs[id]);
 		this.#config = new InputConfigState(machine.config.inputs[id], machine);
-		this.id = id;
+		this.#id = id;
+	}
+
+	get id() {
+		return this.#id;
+	}
+
+	get config() {
+		return this.#config;
 	}
 
 	get capacity() {
@@ -184,31 +192,39 @@ export class OutputConfigState<K extends string, Meta extends Record<string, any
 
 
 export class OutputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
-	config: OutputConfigState<K, Meta>;
-	id: number;
+	#config: OutputConfigState<K, Meta>;
+	#id: number;
 	otherwiseDiff = 0;
 
 	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
 		super(machine.data.outputs[id]);
 
-		this.config = new OutputConfigState(machine.config.outputs[id], machine);
-		this.id = id;
+		this.#config = new OutputConfigState(machine.config.outputs[id], machine);
+		this.#id = id;
+	}
+
+	get id() {
+		return this.#id;
+	}
+
+	get config() {
+		return this.#config;
 	}
 
 	get capacity() {
-		return this.config.capacity;
+		return this.#config.capacity;
 	}
 
 	get produces() {
-		return this.config.produces;
+		return this.#config.produces;
 	}
 
 	get requires() {
-		return this.config.requires;
+		return this.#config.requires;
 	}
 
 	get requiresList() {
-		return this.config.requiresList;
+		return this.#config.requiresList;
 	}
 
 	// FIXME: No outputs define a label, seems like this should be removed
@@ -217,6 +233,6 @@ export class OutputState<K extends string, Meta extends Record<string, any>> ext
 	// }
 
 	get isUnlocked() {
-		return this.config.isUnlocked;
+		return this.#config.isUnlocked;
 	}
 }
