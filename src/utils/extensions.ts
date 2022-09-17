@@ -122,6 +122,21 @@ export function downloadAsFile(filename: string, text: string): void {
 	}
 }
 
+// TypeScript doesn't have typesafe support for `Object.hasOwn` yet
+// https://github.com/microsoft/TypeScript/issues/44253
+/**
+ * @param  {Readonly<Record<RecordKeys, unknown>>} record The record to check the property presence
+ * @param  {any} property The property to check
+ * @return {boolean} true if the record has the specified property, false if not
+ */
+export function hasOwn<RecordKeys extends string | number | symbol>(
+	record: Readonly<Record<RecordKeys, unknown>>,
+	property: string | number | symbol
+): property is RecordKeys {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+	return Object.prototype.hasOwnProperty.call(record, property);
+}
+
 class Str {
 	public string: string;
 

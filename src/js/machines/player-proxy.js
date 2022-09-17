@@ -6,9 +6,9 @@ import { LogicEvent } from "@/js/database/events.ts";
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
+import { MachinesById } from "./player-proxy-wip.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
-import { MachinesById } from "./player-proxy-wip.ts";
 import { TownsDatabase } from "@/js/towns/database";
 
 import { arr, objectMap } from "@/utils";

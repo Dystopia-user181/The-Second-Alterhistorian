@@ -227,7 +227,7 @@ export interface ConfiguredMachine<K extends string, Meta extends Record<string,
 	meta: Meta;
 }
 
-interface MachineData {
+export interface MachineData {
 	inputs: ResourceData[][];
 	outputs: ResourceData[][];
 	// inputs: unknown[];
