@@ -16,8 +16,8 @@ export const Machine = {
 			player.fastTime -= add;
 		}
 		for (const machine of machines.flat()) {
-			if (machine.type.customLoop) {
-				machine.type.customLoop.bind(machine)(diff);
+			if (machine.config.customLoop) {
+				machine.config.customLoop.bind(machine)(diff);
 			} else {
 				Machine.tickThisMachine(machine, diff);
 			}

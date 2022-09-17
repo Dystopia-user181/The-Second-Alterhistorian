@@ -85,7 +85,7 @@ Machine.remove = function(machine) {
 	}
 	Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
 	delete MachinesById[machine.town][machine.id];
-	MachineCounts[machine.town][machine.type.name]--;
+	MachineCounts[machine.town][machine.config.name]--;
 	LogicEvent.dispatch("MACHINE_REMOVED");
 	GameUI.dispatch("MACHINE_REMOVED");
 };
