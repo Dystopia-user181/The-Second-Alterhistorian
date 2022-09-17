@@ -82,8 +82,8 @@ declare abstract class GenericStackState {
 	readonly lastResource: ResourceType;
 	readonly spaceLeft: number;
 
-	volume(): number;
-	volume(value: number): void;
+	get volume(): number;
+	set volume(value: number);
 
 	addToStack(item: ResourceData): number;
 	removeFromStack(amount: number): number;
@@ -100,6 +100,7 @@ declare class OutputState<K extends string, Meta> extends GenericStackState {
 	readonly produces: number;
 	readonly requires: number;
 	readonly requiresList: number;
+	readonly config: OutputConfig<ConfiguredMachine<string, Meta>>;
 
 	// Looks like a hack?
 	otherwiseDiff?: number;
@@ -127,7 +128,7 @@ declare const player: {
 
 // ============= Instances ============ //
 
-export class MachineBase {
+export abstract class MachineBase {
 	#data: MachineData;
 	#id: number;
 	#townType: TownType;
@@ -261,7 +262,7 @@ interface MachineData {
 	name?: string;
 }
 
-export function defineMachine<K extends string, Meta extends Record<string, unknown> = never>(
+export function defineMachine<K extends string, Meta extends Record<string, any> = never>(
 	config: MachineConfig<K, Meta>
 ): ConfiguredMachineConstructor<K> {
 	return class extends MachineBase {

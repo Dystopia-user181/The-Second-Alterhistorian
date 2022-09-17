@@ -35,9 +35,9 @@ export default defineMachine({
 			capacity: () => 10,
 			produces: machine => ({
 				resource: "water",
-				// FIXME: What is this data thing on outputs?
+				// FIXME: Is this .volume correct?
 				amount:
-					Stack.volumeOfStack(machine.outputs[0].data) >= machine.outputs[0].config.capacity
+					machine.outputs[0].volume >= machine.outputs[0].config.capacity
 						? 0
 						: (0.3 * machine.upgrades.harness.effect) / machine.upgrades.yield.effect,
 			}),
