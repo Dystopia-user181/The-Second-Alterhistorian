@@ -1,5 +1,3 @@
-import "./init";
-
 import arcFurnace from "./data/arc-furnace";
 import autoSeller from "./data/auto-seller";
 import cistern from "./data/cistern";

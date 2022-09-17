@@ -1,6 +1,6 @@
 import { run, str } from "@/utils";
 
-import { MaybeResourceType, ResourceData, ResourceType } from "@/types/resources";
+import { ResourceData, ResourceType } from "@/types/resources";
 import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
 

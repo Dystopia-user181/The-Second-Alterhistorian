@@ -1,4 +1,4 @@
-import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
+import { MaybeResourceType, Recipe } from "@/types/resources";
 import { ConfiguredMachine } from "./builder";
 
 export type MetaConfiguredMachine<T extends string, M extends object> = Extract<

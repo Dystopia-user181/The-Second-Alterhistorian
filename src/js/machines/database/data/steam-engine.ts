@@ -2,8 +2,6 @@ import { defineMachine } from "../builder";
 
 import { Currencies } from "@/js/currencies/currencies";
 
-import { Stack } from "@/utils";
-
 export default defineMachine({
 	name: "steamEngine",
 	inputs: [
