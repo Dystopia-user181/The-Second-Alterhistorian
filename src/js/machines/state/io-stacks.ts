@@ -189,7 +189,7 @@ export class OutputState<K extends string, Meta extends Record<string, any>> ext
 	otherwiseDiff = 0;
 
 	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
-		super(machine.data.inputs[id]);
+		super(machine.data.outputs[id]);
 
 		this.config = new OutputConfigState(machine.config.outputs[id], machine);
 		this.id = id;
