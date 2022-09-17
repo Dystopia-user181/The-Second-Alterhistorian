@@ -1,11 +1,13 @@
 // import { computed, markRaw, reactive, ref } from "vue";
 
+// import { MachinesById, Pipes } from "./player-proxy";
+// import { Modals } from "@/js/ui/modals";
 // import { player } from "@/js/player";
 
-// import { arr, formatX, run, Stack } from "@/utils";
+// import { arr, formatX, objectMap, run, Stack, str } from "@/utils";
 
 
-// export class MachineUpgrade {
+// class MachineUpgrade {
 // 	constructor(config, parentMachine) {
 // 		this.config = config;
 // 		this.parentMachine = parentMachine;
@@ -116,7 +118,7 @@
 // 	}
 // }
 
-// export class GenericStackState {
+// class GenericStackState {
 // 	constructor(data) {
 // 		this.data = data;
 // 		this._volume = ref(Stack.volumeOfStack(this.data));
@@ -155,12 +157,154 @@
 // 		return amt;
 // 	}
 
-// 	removeFromStack(amount) {
-// 		const amt = Stack.removeFromStack(this.data, amount);
+// 	removeFromStack(item) {
+// 		const amt = Stack.removeFromStack(this.data, item);
 // 		if (this.data.length) this.volume -= amt;
 // 		else this.volume = 0;
 // 		this.lastItem = arr(this.data).last || null;
 // 		return amt;
+// 	}
+// }
+
+// class InputConfigState {
+// 	constructor(config, machine) {
+// 		this.config = config;
+// 		this._machine = machine;
+// 	}
+
+// 	get capacity() {
+// 		return run(this.config.capacity, this._machine);
+// 	}
+
+// 	get consumes() {
+// 		return run(this.config.consumes, this._machine);
+// 	}
+
+// 	get accepts() {
+// 		return run(this.config.accepts, this._machine);
+// 	}
+
+// 	get label() {
+// 		return run(this.config.label, this._machine);
+// 	}
+
+// 	get id() {
+// 		return this.config.id;
+// 	}
+
+// 	get isUnlocked() {
+// 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
+// 	}
+
+// 	get raw() {
+// 		return {
+// 			capacity: this.capacity,
+// 			consumes: this.consumes,
+// 			id: this.id,
+// 		};
+// 	}
+// }
+
+// class InputState extends GenericStackState {
+// 	constructor(machine, id) {
+// 		super(machine.data.inputs[id]);
+// 		this.config = new InputConfigState(machine.type.inputs[id], machine);
+// 		this.id = id;
+// 	}
+
+// 	get capacity() {
+// 		return this.config.capacity;
+// 	}
+
+// 	get consumes() {
+// 		return this.config.consumes;
+// 	}
+
+// 	get accepts() {
+// 		return this.config.accepts;
+// 	}
+
+// 	get label() {
+// 		return this.config.label;
+// 	}
+
+// 	get isUnlocked() {
+// 		return this.config.isUnlocked;
+// 	}
+// }
+
+// class OutputConfigState {
+// 	constructor(config, machine) {
+// 		this.config = config;
+// 		this._machine = machine;
+// 	}
+
+// 	get capacity() {
+// 		return run(this.config.capacity, this._machine);
+// 	}
+
+// 	get produces() {
+// 		return run(this.config.produces, this._machine);
+// 	}
+
+// 	get requires() {
+// 		return run(this.config.requires, this._machine);
+// 	}
+
+// 	get requiresList() {
+// 		return run(this.config.requiresList, this._machine);
+// 	}
+
+// 	get label() {
+// 		return run(this.config.label, this._machine);
+// 	}
+
+// 	get id() {
+// 		return this.config.id;
+// 	}
+
+// 	get isUnlocked() {
+// 		return this.config.isUnlocked === undefined ? true : run(this.config.isUnlocked, this._machine);
+// 	}
+
+// 	get raw() {
+// 		return {
+// 			capacity: this.capacity,
+// 			produces: this.produces,
+// 			id: this.id,
+// 		};
+// 	}
+// }
+
+// class OutputState extends GenericStackState {
+// 	constructor(machine, id) {
+// 		super(machine.data.outputs[id]);
+// 		this.config = new OutputConfigState(machine.type.outputs[id], machine);
+// 		this.id = id;
+// 	}
+
+// 	get capacity() {
+// 		return this.config.capacity;
+// 	}
+
+// 	get produces() {
+// 		return this.config.produces;
+// 	}
+
+// 	get requires() {
+// 		return this.config.requires;
+// 	}
+
+// 	get requiresList() {
+// 		return this.config.requiresList;
+// 	}
+
+// 	get label() {
+// 		return this.config.label;
+// 	}
+
+// 	get isUnlocked() {
+// 		return this.config.isUnlocked;
 // 	}
 // }
 
@@ -275,11 +419,11 @@
 // 		}
 
 // 		inputItem(id) {
-// 			return this.inputs[id].lastResource;
+// 			return this.inputs[id].lastItem;
 // 		}
 
 // 		outputItem(id) {
-// 			return this.outputs[id].lastResource;
+// 			return this.outputs[id].lastItem;
 // 		}
 
 // 		showStatistics() {
