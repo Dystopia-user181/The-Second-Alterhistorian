@@ -219,8 +219,6 @@ export interface ConfiguredMachine<K extends string, Meta extends Record<string,
 	meta: Meta;
 }
 
-type AnyMachine = ConfiguredMachine<string, Record<string, any>>
-
 interface MachineData {
 	inputs: ResourceData[][];
 	outputs: ResourceData[][];
@@ -295,8 +293,8 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			this.#upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
 			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
 
-			this.#inputs = Object.values(config.upgrades).map((_, index) => new InputState<K, Meta>(this, index));
-			this.#outputs = Object.values(config.upgrades).map((_, index) => new OutputState<K, Meta>(this, index));
+			this.#inputs = config.inputs.map((_, index) => new InputState<K, Meta>(this, index));
+			this.#outputs = config.outputs.map((_, index) => new OutputState<K, Meta>(this, index));
 
 			this.#meta = config.meta?.() as Meta;
 
