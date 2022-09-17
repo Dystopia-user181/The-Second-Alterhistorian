@@ -1,14 +1,8 @@
 import { Machine } from "../../logic";
 
-import { defineMachine } from "../builder";
+import { ConfiguredMachine, defineMachine } from "../builder";
 
-import {
-	getConsumption,
-	getEnergyUsage,
-	getProduction,
-	mapRecipesByInput,
-	MetaConfiguredMachine,
-} from "../utils";
+import { mapRecipesByInput, MetaConfiguredMachine } from "../utils";
 
 import { Currencies } from "@/js/currencies/currencies";
 
@@ -47,10 +41,28 @@ const recipes: Recipe<MetaConfiguredMachine<"power", any>>[] = [
 
 const recipesByInput = mapRecipesByInput(recipes);
 
+function getConsumption(machine: ConfiguredMachine<"velocity", { inputResource: MaybeResourceType }>) {
+	return (
+		(recipesByInput[machine.meta.inputResource || "none"]?.input?.amount ?? 0) * machine.upgrades.velocity.effect
+	);
+}
+
+function getEnergyUsage(machine: ConfiguredMachine<"velocity", { inputResource: MaybeResourceType }>) {
+	return recipesByInput[machine.meta.inputResource || "none"]?.energyUsage ?? 0;
+}
+
+function getProduction(machine: MetaConfiguredMachine<"velocity", { inputResource: MaybeResourceType }>) {
+	const out = recipesByInput[machine.meta.inputResource || "none"]?.output ?? 0;
+	return {
+		resource: out.resource,
+		amount: out.amount * machine.upgrades.velocity.effect,
+	};
+}
+
 export default defineMachine({
 	name: "essencePurifier",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType
+		inputResource: "none" as MaybeResourceType,
 	}),
 	inputs: [
 		{
@@ -61,7 +73,7 @@ export default defineMachine({
 					.filter(x => x !== "none") as ResourceType[],
 			capacity: machine => 5 * machine.upgrades.capacity.effect,
 			consumes: machine => {
-				const prod = getConsumption(machine, recipesByInput);
+				const prod = getConsumption(machine);
 				return {
 					amount: prod,
 					maximum: machine.outputDiffs.main * prod,
@@ -73,7 +85,7 @@ export default defineMachine({
 			accepts: ["energy"],
 			capacity: machine => 5 * machine.upgrades.capacity.effect,
 			consumes: machine => {
-				const prod = getEnergyUsage(machine, recipesByInput);
+				const prod = getEnergyUsage(machine);
 				return {
 					amount: prod,
 					maximum: machine.outputDiffs.main * prod,
@@ -86,16 +98,16 @@ export default defineMachine({
 		{
 			id: "main",
 			capacity: machine => 5 * machine.upgrades.capacity.effect,
-			produces: machine => getProduction(machine, recipesByInput),
+			produces: machine => getProduction(machine),
 			requiresList: machine => [
 				{
 					resource: machine.meta.inputResource || "none",
-					amount: getConsumption(machine, recipesByInput),
+					amount: getConsumption(machine),
 					inputId: 0,
 				},
 				{
 					resource: "energy",
-					amount: getEnergyUsage(machine, recipesByInput),
+					amount: getEnergyUsage(machine),
 					inputId: 1,
 				},
 			],
@@ -150,7 +162,7 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.inputResource = this.inputItem(0)?.resource ?? "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Extracts Basic Essences from raw materials.`,

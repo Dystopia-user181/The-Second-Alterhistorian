@@ -17,7 +17,7 @@ export default defineMachine({
 	customLoop(diff) {
 		if (!this.inputItem(0)) return;
 
-		const currency = this.inputItem(0).resource;
+		const currency = this.inputItem(0)?.resource ?? "none";
 		if (currency === "none") return;
 
 		Machine.addInputHistory(this);

@@ -98,9 +98,9 @@ export default defineMachine({
 	],
 	upgrades: {},
 	customLoop(diff) {
-		const prevElixir = this.outputItem(0) ? this.outputItem(0).amount : 0;
+		const prevElixir = this.outputItem(0)?.amount ?? 0;
 		Machine.tickThisMachine(this, diff);
-		player.producedElixir += (this.outputItem(0) ? this.outputItem(0).amount : 0) - prevElixir;
+		player.producedElixir += (this.outputItem(0)?.amount ?? 0) - prevElixir;
 	},
 	description: `consumeCONSUMEconsumeCONSUMEconsumeCONSUMEconsume`,
 });

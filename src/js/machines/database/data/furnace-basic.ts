@@ -1,5 +1,5 @@
-import { getConsumption, getProduction, mapRecipesByInput, MetaConfiguredMachine } from "../utils";
-import { defineMachine } from "../builder";
+import { ConfiguredMachine, defineMachine } from "../builder";
+import { mapRecipesByInput, MetaConfiguredMachine } from "../utils";
 import { Machine } from "../../logic";
 
 import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
@@ -38,6 +38,12 @@ const fuels: Partial<Record<MaybeResourceType, number>> = {
 
 const recipesByInput = mapRecipesByInput(recipes);
 
+function getConsumption(machine: ConfiguredMachine<"improve", { inputResource: MaybeResourceType }>) {
+	// FIXME: This is assuming that the `improve` type has a specific type
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+	return recipesByInput[machine.meta.inputResource || "none"].input.amount * machine.upgrades.improve.effect[0];
+}
+
 function getFuelUsage(
 	machine: MetaConfiguredMachine<"improve", { inputResource: MaybeResourceType; inputFuel: MaybeResourceType }>
 ) {
@@ -57,6 +63,18 @@ function getFuelUsage(
 	);
 }
 
+function getProduction(
+	machine: ConfiguredMachine<string, { inputResource: MaybeResourceType; inputFuel: MaybeResourceType }>
+) {
+	const out = recipesByInput[machine.meta.inputResource || "none"].output;
+	return {
+		resource: out.resource,
+		// FIXME: This is assuming that the `improve` type has a specific type
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		amount: out.amount * machine.upgrades.improve.effect[0],
+	};
+}
+
 export default defineMachine({
 	name: "furnaceBasic",
 	meta: () => ({
@@ -72,7 +90,7 @@ export default defineMachine({
 					.filter(x => x !== "none") as ResourceType[],
 			capacity: machine => 10 * machine.upgrades.capacity.effect,
 			consumes: machine => {
-				const prod = getConsumption(machine, recipesByInput);
+				const prod = getConsumption(machine);
 				return {
 					amount: prod,
 					maximum: machine.outputDiffs.main * prod,
@@ -99,11 +117,11 @@ export default defineMachine({
 		{
 			id: "main",
 			capacity: machine => 10 * machine.upgrades.capacity.effect,
-			produces: machine => getProduction(machine, recipesByInput),
+			produces: machine => getProduction(machine),
 			requiresList: machine => [
 				{
 					resource: machine.meta.inputResource || "none",
-					amount: getConsumption(machine, recipesByInput),
+					amount: getConsumption(machine),
 					inputId: 0,
 				},
 				{
@@ -138,8 +156,8 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
-		this.meta.inputFuel = this.inputItem(1) ? this.inputItem(1).resource : "none";
+		this.meta.inputResource = this.inputItem(0)?.resource ?? "none";
+		this.meta.inputFuel = this.inputItem(1)?.resource ?? "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Basic furnace. Takes in a fuel and the item to be heated.`,

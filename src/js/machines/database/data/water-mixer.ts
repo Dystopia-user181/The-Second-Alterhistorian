@@ -78,7 +78,7 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
+		this.meta.inputResource = this.inputItem(0)?.resource ?? "none";
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Mixes water and another element. It's leaky.`,

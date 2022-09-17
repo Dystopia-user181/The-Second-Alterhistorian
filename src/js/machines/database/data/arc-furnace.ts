@@ -1,6 +1,6 @@
-import { getConsumption, getEnergyUsage, getProduction, mapRecipesByInput } from "../utils";
-import { defineMachine } from "../builder";
+import { ConfiguredMachine, defineMachine } from "../builder";
 import { Machine } from "../../logic";
+import { mapRecipesByInput } from "../utils";
 
 import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
 import { run } from "@/utils";
@@ -37,6 +37,33 @@ const recipes: Recipe[] = [
 
 const recipesByInput = mapRecipesByInput(recipes);
 
+function getConsumption(
+	machine: ConfiguredMachine<"velocity", { inputResource: MaybeResourceType; catalystActive: boolean }>
+) {
+	return (
+		recipesByInput[machine.meta.inputResource || "none"].input.amount *
+		(machine.meta.catalystActive ? 1.6 : 1) *
+		machine.upgrades.velocity.effect
+	);
+}
+
+function getEnergyUsage(machine: ConfiguredMachine<"velocity", { inputResource: MaybeResourceType }>) {
+	return (
+		(recipesByInput[machine.meta.inputResource || "none"]?.energyUsage ?? 0) *
+		Math.sqrt(machine.upgrades.velocity.effect as number)
+	);
+}
+
+function getProduction(
+	machine: ConfiguredMachine<"velocity", { inputResource: MaybeResourceType; catalystActive: boolean }>
+) {
+	const out = recipesByInput[machine.meta.inputResource || "none"].output;
+	return {
+		resource: out.resource,
+		amount: out.amount * (machine.meta.catalystActive ? 1.6 : 1) * machine.upgrades.velocity.effect,
+	};
+}
+
 export default defineMachine({
 	name: "arcFurnace",
 	meta: () => ({
@@ -52,7 +79,7 @@ export default defineMachine({
 					.filter(x => x !== "none") as ResourceType[],
 			capacity: () => 40,
 			consumes: machine => {
-				const prod = getConsumption(machine, recipesByInput);
+				const prod = getConsumption(machine);
 				return {
 					amount: prod,
 					maximum: machine.outputDiffs.main * prod,
@@ -63,7 +90,7 @@ export default defineMachine({
 			accepts: ["energy"],
 			capacity: () => 40,
 			consumes: machine => {
-				const prod = getEnergyUsage(machine, recipesByInput);
+				const prod = getEnergyUsage(machine);
 				return {
 					amount: prod,
 					maximum: machine.outputDiffs.main * prod,
@@ -82,16 +109,16 @@ export default defineMachine({
 		{
 			id: "main",
 			capacity: () => 40,
-			produces: machine => getProduction(machine, recipesByInput),
+			produces: machine => getProduction(machine),
 			requiresList: machine => [
 				{
 					resource: machine.meta.inputResource || "none",
-					amount: getConsumption(machine, recipesByInput),
+					amount: getConsumption(machine),
 					inputId: 0,
 				},
 				{
 					resource: "energy",
-					amount: getEnergyUsage(machine, recipesByInput),
+					amount: getEnergyUsage(machine),
 					inputId: 1,
 				},
 			],
@@ -119,8 +146,8 @@ export default defineMachine({
 		},
 	},
 	customLoop(diff) {
-		this.meta.inputResource = this.inputItem(0) ? this.inputItem(0).resource : "none";
-		this.meta.catalystActive = this.inputItem(2) && this.inputItem(2).amount >= 5;
+		this.meta.inputResource = this.inputItem(0)?.resource ?? "none";
+		this.meta.catalystActive = (this.inputItem(2)?.amount ?? 0) >= 5;
 		Machine.tickThisMachine(this, diff);
 	},
 	description: `Arc furnace. Takes in Energy and the item to be heated.`,

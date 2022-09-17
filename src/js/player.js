@@ -109,7 +109,7 @@ export const Player = {
 	},
 	fixMachineData(machine) {
 		const type = MachineTypes[machine.type];
-		if (type.upgrades && Object.keys(type.upgrades).length) {
+		if (type.upgrades?.length) {
 			machine.upgrades = machine.upgrades || [];
 			machine.upgradesPrepay = machine.upgradesPrepay || [];
 			for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
@@ -117,13 +117,13 @@ export const Player = {
 				machine.upgradesPrepay[i] = machine.upgradesPrepay[i] || 0;
 			}
 		}
-		if (type.inputs.length) {
+		if (type.inputs?.length) {
 			machine.inputs = machine.inputs || [];
 			for (let i = 0; i < type.inputs.length; i++) {
 				machine.inputs[i] = machine.inputs[i] || [];
 			}
 		}
-		if (type.outputs.length) {
+		if (type.outputs?.length) {
 			machine.outputs = machine.outputs || [];
 			machine.pipes = machine.pipes || [];
 			for (let i = 0; i < type.outputs.length; i++) {
