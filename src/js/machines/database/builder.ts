@@ -161,7 +161,7 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 	}
 
 	get currencyType() {
-		return this.#config.currencyType;
+		return run(this.#config.currencyType, this.count);
 	}
 
 	get id(): number {
