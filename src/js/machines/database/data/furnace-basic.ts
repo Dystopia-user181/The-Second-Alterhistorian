@@ -1,14 +1,10 @@
+import { getConsumption, getProduction, mapRecipesByInput, MetaConfiguredMachine } from "../utils";
+import { defineMachine } from "../builder";
 import { Machine } from "../../logic";
 
-import { defineMachine } from "../builder";
-
-import { ConfiguredMachineWithUpgrades, getConsumption, getProduction, mapRecipesByInput } from "../utils";
-
-import { Currencies } from "@/js/currencies/currencies";
-
-import { run } from "@/utils";
-
 import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
+import { Currencies } from "@/js/currencies/currencies";
+import { run } from "@/utils";
 
 const recipes: Recipe[] = [
 	{
@@ -42,20 +38,22 @@ const fuels: Partial<Record<MaybeResourceType, number>> = {
 
 const recipesByInput = mapRecipesByInput(recipes);
 
-function getFuelUsage(machine: ConfiguredMachineWithUpgrades<"improve">) {
-	if (!machine.inputResource) {
+function getFuelUsage(
+	machine: MetaConfiguredMachine<"improve", { inputResource: MaybeResourceType; inputFuel: MaybeResourceType }>
+) {
+	if (!machine.meta.inputResource) {
 		return 0;
 	}
 
 	return (
-		(recipesByInput[machine.inputResource || "none"].fuelUsage ??
+		(recipesByInput[machine.meta.inputResource || "none"].fuelUsage ??
 			// FIXME: This is assuming that the `improve` type has a specific type
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			0 * machine.upgrades.improve.effect[0]) /
 		// FIXME: This is assuming that the `improve` type has a specific type
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		machine.upgrades.improve.effect[1] /
-		(fuels[machine.inputFuel || "none"] ?? 0)
+		(fuels[machine.meta.inputFuel || "none"] ?? 0)
 	);
 }
 

@@ -2,7 +2,7 @@ import { Machine, Pipe } from "../../logic";
 
 import { defineMachine } from "../builder";
 
-import { MaybeResourceType, ResourceType, ResourceTypes } from "@/types/resources";
+import { MaybeResourceType, ResourceTypes } from "@/types/resources";
 
 export default defineMachine({
 	name: "inputMerger",
@@ -51,8 +51,8 @@ export default defineMachine({
 		// eslint-disable-next-line no-nested-ternary
 		const inputResource = this.inputItem(cycle[0])
 			? this.inputItem(cycle[0]).resource
-			: // eslint-disable-next-line no-nested-ternary
-			this.inputItem(cycle[1])
+			// eslint-disable-next-line no-nested-ternary
+			: this.inputItem(cycle[1])
 				? this.inputItem(cycle[1]).resource
 				: this.inputItem(cycle[2])
 					? this.inputItem(cycle[2]).resource

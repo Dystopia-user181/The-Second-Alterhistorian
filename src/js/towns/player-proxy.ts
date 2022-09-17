@@ -259,6 +259,7 @@ class Town {
 	config: TownDBEntry;
 	sidebarShop: SidebarShopItem[];
 	upgrades: Record<string, TownUpgrade>;
+
 	constructor(config: TownDBEntry | undefined, townId: TownType) {
 		if (config === undefined) throw "Unrecognised Town Type";
 		this.config = config;

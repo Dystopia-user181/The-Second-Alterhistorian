@@ -3,11 +3,11 @@ import { Machine } from "../../logic";
 import { defineMachine } from "../builder";
 
 import {
-	ConfiguredMachineWithUpgrades,
 	getConsumption,
 	getEnergyUsage,
 	getProduction,
 	mapRecipesByInput,
+	MetaConfiguredMachine,
 } from "../utils";
 
 import { Currencies } from "@/js/currencies/currencies";
@@ -15,7 +15,7 @@ import { Currencies } from "@/js/currencies/currencies";
 import { MaybeResourceType, Recipe, ResourceType } from "@/types/resources";
 import { run } from "@/utils";
 
-const recipes: Recipe<ConfiguredMachineWithUpgrades<"power">>[] = [
+const recipes: Recipe<MetaConfiguredMachine<"power", any>>[] = [
 	{
 		input: { resource: "coal", amount: 0.3 },
 		output: { resource: "fire", amount: 0.2 },
@@ -50,7 +50,7 @@ const recipesByInput = mapRecipesByInput(recipes);
 export default defineMachine({
 	name: "essencePurifier",
 	meta: () => ({
-		inputResource: "none" as MaybeResourceType,
+		inputResource: "none" as MaybeResourceType
 	}),
 	inputs: [
 		{

@@ -51,8 +51,8 @@ const recipes: Recipe[] = [
 
 const recipesByInput = mapRecipesByInput(recipes);
 
-function getVitriolUsage(machine: ConfiguredMachine<string>) {
-	return recipesByInput[machine.inputResource || "none"].vitriolUsage ?? 0;
+function getVitriolUsage(machine: ConfiguredMachine<string, { inputResource: MaybeResourceType }>) {
+	return recipesByInput[machine.meta.inputResource || "none"].vitriolUsage ?? 0;
 }
 
 export default defineMachine({

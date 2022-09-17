@@ -230,6 +230,7 @@ export class MachineUpgrade<K extends string> {
 
 interface ConfiguredMachineConstructor<K extends string> {
 	new (townType: TownType, machineId: number): ConfiguredMachine<K, unknown>;
+	newMachine(x: number, y: number): MachineData
 }
 
 export interface ConfiguredMachine<K extends string, Meta> extends MachineBase {

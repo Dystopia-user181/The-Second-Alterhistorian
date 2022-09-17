@@ -1,31 +1,33 @@
 import "./init";
 
-import ArcFurnace from "./data/arc-furnace";
-import AutoSeller from "./data/auto-seller";
-import Cistern from "./data/cistern";
-import ElixirMaker from "./data/elixir-maker";
-import EssencePurifier from "./data/essence-purifier";
-import FurnaceBasic from "./data/furnace-basic";
-import InputMerger from "./data/input-merger";
-import Pulverizer from "./data/pulverizer";
-import Quarry from "./data/quarry";
-import Shoveller from "./data/shoveller";
-import SteamEngine from "./data/steam-engine";
-import Transmuter from "./data/transmuter";
-import WaterMixer from "./data/water-mixer";
+import arcFurnace from "./data/arc-furnace";
+import autoSeller from "./data/auto-seller";
+import cistern from "./data/cistern";
+import elixirMaker from "./data/elixir-maker";
+import essencePurifier from "./data/essence-purifier";
+import furnaceBasic from "./data/furnace-basic";
+import inputMerger from "./data/input-merger";
+import pulverizer from "./data/pulverizer";
+import quarry from "./data/quarry";
+import shoveller from "./data/shoveller";
+import steamEngine from "./data/steam-engine";
+import transmuter from "./data/transmuter";
+import waterMixer from "./data/water-mixer";
 
 export const MachineTypes = {
-	arcFurnace: ArcFurnace,
-	autoSeller: AutoSeller,
-	cistern: Cistern,
-	elixirMaker: ElixirMaker,
-	essencePurifier: EssencePurifier,
-	furnaceBasic: FurnaceBasic,
-	inputMerger: InputMerger,
-	pulverizer: Pulverizer,
-	quarry: Quarry,
-	shoveller: Shoveller,
-	steamEngine: SteamEngine,
-	transmuter: Transmuter,
-	waterMixer: WaterMixer,
+	arcFurnace,
+	autoSeller,
+	cistern,
+	elixirMaker,
+	essencePurifier,
+	furnaceBasic,
+	inputMerger,
+	pulverizer,
+	quarry,
+	shoveller,
+	steamEngine,
+	transmuter,
+	waterMixer,
 };
+
+export type MachineId = keyof typeof MachineTypes
