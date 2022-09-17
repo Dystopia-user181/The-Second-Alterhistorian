@@ -254,6 +254,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		#pipes: [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][] = [];
 		#upgrades: Record<K, MachineUpgrade<K, Meta>>;
 		#meta: Meta;
+		updates = 0;
 
 		get meta(): Meta {
 			return this.#meta;
