@@ -8,7 +8,7 @@ import { MachineTypes } from "./database/index";
 
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
-import { MachinesById } from "./player-proxy-machines.ts";
+import { MachinesById } from "./player-proxy-wip.ts";
 import { TownsDatabase } from "@/js/towns/database";
 
 import { arr, objectMap } from "@/utils";

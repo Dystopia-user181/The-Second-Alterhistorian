@@ -1,7 +1,7 @@
 
 import { InputState, OutputState } from "../state/io-stacks";
 
-import { MachinesById } from "../player-proxy-machines";
+import { MachinesById } from "../player-proxy-wip";
 
 import { ResourceData, ResourceType } from "@/types/resources";
 import { run, str } from "@/utils";
