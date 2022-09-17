@@ -2,7 +2,7 @@
 import { MachineCounts } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { format, formatInt } from "@/utils";
+import { format, formatInt, str } from "@/utils";
 
 import CostDisplay from "@/components/CostDisplay.vue";
 
@@ -33,9 +33,9 @@ export default {
 			this.cost = this.shopItem.cost;
 			this.currencyType = this.shopItem.currencyType || "";
 			this.canAfford = this.shopItem.canAfford;
-			this.name = this.shopItem.associatedMachine.displayName;
-			this.description = this.shopItem.associatedMachine.description;
-			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.name];
+			this.name = str(this.shopItem.associatedMachine.config.name).capitalize;
+			this.description = this.shopItem.associatedMachine.config.description;
+			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.config.name];
 		},
 		format,
 		formatInt

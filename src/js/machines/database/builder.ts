@@ -208,8 +208,7 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 interface ConfiguredMachineConstructor<K extends string, Meta extends Record<string, any>> {
 	new (townType: TownType, machineId: number): ConfiguredMachine<K, Meta>;
 	newMachine(x: number, y: number): MachineData;
-
-	// readonly outputs: OutputConfig<ConfiguredMachine<K, Meta>>[]
+	readonly config: MachineConfig<K, Meta>;
 }
 
 export interface ConfiguredMachine<K extends string, Meta extends Record<string, any>> extends MachineBase {
@@ -414,6 +413,10 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 
 		outputItem(index: number) {
 			return this.#outputs[index].lastItem;
+		}
+
+		static get config(): Readonly<MachineConfig<K, Meta>> {
+			return config;
 		}
 
 		static newMachine(x: number, y: number): MachineData {
