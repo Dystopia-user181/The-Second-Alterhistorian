@@ -164,12 +164,20 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 		return run(this.#config.currencyType, this.count);
 	}
 
+	get description(): string {
+		return run(this.#config.description, this);
+	}
+
 	get id(): number {
 		return this.#index;
 	}
 
 	get maxed() {
 		return this.#count >= this.#config.max;
+	}
+
+	get title(): string {
+		return run(this.#config.title, this);
 	}
 
 	get prepay() {
