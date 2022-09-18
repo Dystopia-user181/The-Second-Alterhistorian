@@ -316,6 +316,10 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			return this._outputs;
 		}
 
+		get pipes() {
+			return this._pipes;
+		}
+
 		get upgrades() {
 			return this._upgrades;
 		}
