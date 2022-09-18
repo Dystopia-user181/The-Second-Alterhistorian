@@ -147,7 +147,10 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 	}
 
 	// FIXME: effect needs to be typed
-	public effect: any = 0;
+	get effect(): any {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return run(this.#config.effect, this.count);
+	}
 
 	get cost() {
 		return run(this.#config.cost, this.count) - this.prepay;
