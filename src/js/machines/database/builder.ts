@@ -1,4 +1,3 @@
-
 import { InputState, OutputState } from "../state/io-stacks";
 
 import { MachinesById } from "../player-proxy-wip";
@@ -206,6 +205,28 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 
 	get isUnlocked() {
 		return this.#config.isUnlocked?.(this.#parentMachine) ?? true;
+	}
+
+	buy() {
+		if (!this.canAfford || this.maxed) return;
+
+		if (!this.canAffordWhole) {
+			this.#parentMachine.data.upgradesPrepay[this.id] += player.holding.amount ?? 0;
+			player.holding.amount = 0;
+			return;
+		}
+
+		if (this.currencyType) {
+			if (player.holding.amount) {
+				player.holding.amount -= this.cost;
+			}
+			this.count++;
+			this.#parentMachine.data.upgradesPrepay[this.id] = 0;
+			return;
+		}
+
+		player.money -= this.cost;
+		this.count++;
 	}
 }
 
