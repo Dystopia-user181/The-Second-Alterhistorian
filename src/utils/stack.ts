@@ -25,7 +25,10 @@ export function addToStack(stack : ResourceData[], item : ResourceData, capacity
 
 export function removeFromStack(stack : ResourceData[], amount : number, isBottom = true) : number {
 	if (!stack.length) return 0;
+
 	const removed = isBottom ? arr(stack).last : stack[0];
+	if (!removed) return 0;
+
 	if (removed.amount <= amount) {
 		if (isBottom) stack.pop();
 		else stack.shift();

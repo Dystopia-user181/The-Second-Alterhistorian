@@ -158,7 +158,7 @@ class Arr<T> {
 	}
 
 	get last() {
-		return this.array[this.array.length - 1];
+		return this.array.at(-1);
 	}
 
 	findLast(predicate: (value: T, index: number) => boolean) {

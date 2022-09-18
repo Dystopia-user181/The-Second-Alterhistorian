@@ -53,7 +53,7 @@ class GenericStackState {
 		const amt = Stack.removeFromStack(this.data, amount);
 		if (this.data.length) this.volume -= amt;
 		else this.volume = 0;
-		this.lastItem = arr(this.data).last || null;
+		this.lastItem = arr(this.data).last;
 		return amt;
 	}
 }
