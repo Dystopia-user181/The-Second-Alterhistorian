@@ -6,17 +6,17 @@ import { LogicEvent } from "@/js/database/events.ts";
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
-import { MachinesById } from "./player-proxy-wip.ts";
+import { MachinesById, Pipes } from "./player-proxy-wip.ts";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
 import { TownsDatabase } from "@/js/towns/database";
 
 import { arr, objectMap } from "@/utils";
 
+export { Pipes } from "./player-proxy-wip.ts";
 
 export const Machines = {};
 export const MachineCounts = {};
-export const Pipes = {};
 
 export function initializeMachines() {
 	for (const town of TownsDatabase.keys()) {
@@ -91,7 +91,7 @@ Machine.remove = function(machine) {
 };
 
 Pipe.removeAllInputPipesTo = function(machine, inputId) {
-	const town = machine.town;
+	const town = machine.townType;
 	if (inputId === undefined) {
 		for (const otherMachine of Machines[town]) {
 			otherMachine.removeAllPipes(machine);

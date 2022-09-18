@@ -1,6 +1,6 @@
 import { InputState, OutputState } from "../state/io-stacks";
 
-import { MachinesById } from "../player-proxy-wip";
+import { MachinesById, Pipes } from "../player-proxy-wip";
 
 import { ResourceData, ResourceType } from "@/types/resources";
 import { run, str } from "@/utils";
@@ -75,14 +75,7 @@ declare class Town {
 	machines: MachineData[];
 }
 
-interface PipeConnection<InputUpgrades extends string, OutputUpgrades extends string> {
-	in: [ConfiguredMachine<InputUpgrades, any>, InputState<InputUpgrades, Record<string, any>>];
-	out: [ConfiguredMachine<OutputUpgrades, any>, OutputState<OutputUpgrades, Record<string, any>>];
-}
-
 // ============= Untyped globals ============ //
-
-declare const Pipes: Record<TownType, PipeConnection<string, string>[]>;
 
 declare const player: {
 	money: number;
@@ -121,6 +114,12 @@ export abstract class MachineBase {
 	}
 
 	get townType() {
+		return this._townType;
+	}
+
+	get town() {
+		// eslint-disable-next-line no-console
+		console.warn("Machine.town is deprecated, use Machine.townType instead");
 		return this._townType;
 	}
 

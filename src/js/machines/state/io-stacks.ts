@@ -43,7 +43,7 @@ class GenericStackState {
 	addToStack(item: ResourceData) {
 		// Skip capacity because it's only used for spaceLeft
 		const amt = Stack.addToStack(this.data, item, 0, {
-			spaceLeft: this.spaceLeft
+			spaceLeft: this.spaceLeft,
 		});
 		this.volume += amt;
 		this.lastItem = arr(this.data).last || undefined;
@@ -147,8 +147,6 @@ export class OutputConfigState<K extends string, Meta extends Record<string, any
 	private _machine: ConfiguredMachine<K, Meta>;
 
 	constructor(config: OutputConfig<ConfiguredMachine<K, Meta>>, machine: ConfiguredMachine<K, Meta>) {
-
-		// constructor(config, machine) {
 		this._config = config;
 		this._machine = machine;
 	}
@@ -190,7 +188,6 @@ export class OutputConfigState<K extends string, Meta extends Record<string, any
 		};
 	}
 }
-
 
 export class OutputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
 	private _config: OutputConfigState<K, Meta>;
