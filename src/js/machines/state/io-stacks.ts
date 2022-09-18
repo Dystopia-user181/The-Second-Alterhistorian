@@ -59,11 +59,11 @@ class GenericStackState {
 	}
 }
 
-export class InputConfigState<K extends string, Meta extends Record<string, any>> {
-	private _config: InputConfig<ConfiguredMachine<K, Meta>>;
-	private _machine: ConfiguredMachine<K, Meta>;
+export class InputConfigState<UpgradeKeys extends string, Meta extends Record<string, any>> {
+	private _config: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>;
+	private _machine: ConfiguredMachine<UpgradeKeys, Meta>;
 
-	constructor(config: InputConfig<ConfiguredMachine<K, Meta>>, machine: ConfiguredMachine<K, Meta>) {
+	constructor(config: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>, machine: ConfiguredMachine<UpgradeKeys, Meta>) {
 		this._config = config;
 		this._machine = machine;
 	}
@@ -103,11 +103,11 @@ export class InputConfigState<K extends string, Meta extends Record<string, any>
 	}
 }
 
-export class InputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
-	private _config: InputConfigState<K, Meta>;
+export class InputState<UpgradeKeys extends string, Meta extends Record<string, any>> extends GenericStackState {
+	private _config: InputConfigState<UpgradeKeys, Meta>;
 	private _id: number;
 
-	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
+	constructor(machine: ConfiguredMachine<UpgradeKeys, Meta>, id: number) {
 		super(machine.data.inputs[id]);
 		this._config = new InputConfigState(machine.config.inputs[id], machine);
 		this._id = id;
@@ -142,11 +142,11 @@ export class InputState<K extends string, Meta extends Record<string, any>> exte
 	}
 }
 
-export class OutputConfigState<K extends string, Meta extends Record<string, any>> {
-	private _config: OutputConfig<ConfiguredMachine<K, Meta>>;
-	private _machine: ConfiguredMachine<K, Meta>;
+export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<string, any>> {
+	private _config: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>;
+	private _machine: ConfiguredMachine<UpgradeKeys, Meta>;
 
-	constructor(config: OutputConfig<ConfiguredMachine<K, Meta>>, machine: ConfiguredMachine<K, Meta>) {
+	constructor(config: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>, machine: ConfiguredMachine<UpgradeKeys, Meta>) {
 		this._config = config;
 		this._machine = machine;
 	}
@@ -189,13 +189,13 @@ export class OutputConfigState<K extends string, Meta extends Record<string, any
 	}
 }
 
-export class OutputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
-	private _config: OutputConfigState<K, Meta>;
+export class OutputState<UpgradeKeys extends string, Meta extends Record<string, any>> extends GenericStackState {
+	private _config: OutputConfigState<UpgradeKeys, Meta>;
 	private _id: number;
 
 	otherwiseDiff = 0;
 
-	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
+	constructor(machine: ConfiguredMachine<UpgradeKeys, Meta>, id: number) {
 		super(machine.data.outputs[id]);
 
 		this._config = new OutputConfigState(machine.config.outputs[id], machine);

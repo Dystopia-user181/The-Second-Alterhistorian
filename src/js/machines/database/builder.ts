@@ -42,31 +42,31 @@ export interface OutputConfig<Instance> {
 	requiresList?: (machine: Instance) => Array<OutputRequirement>;
 }
 
-export interface UpgradeConfig<K extends string, Meta extends Record<string, any>, E = any> {
+export interface UpgradeConfig<UpgradeKeys extends string, Meta extends Record<string, any>, E = any> {
 	cost: number | ((count: number) => number);
-	description: string | ((upgrade: MachineUpgrade<K, Meta>) => string);
+	description: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
 	effect: number | ((count: number) => E);
 	max: number;
 	name: string;
-	title: string | ((upgrade: MachineUpgrade<K, Meta>) => string);
+	title: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
 
 	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
 	formatEffect?: (effect: E) => string;
-	isUnlocked?: (machine: ConfiguredMachine<K, Meta>) => boolean;
+	isUnlocked?: (machine: ConfiguredMachine<UpgradeKeys, Meta>) => boolean;
 }
 
-export interface MachineConfig<K extends string, Meta extends Record<string, any>> {
+export interface MachineConfig<UpgradeKeys extends string, Meta extends Record<string, any>> {
 	name: string;
 
 	/** The description of the machine that will be displayed to the user */
 	description: string;
-	upgrades: Record<K, UpgradeConfig<K, Meta>>;
-	inputs: InputConfig<ConfiguredMachine<K, Meta>>[];
-	outputs: OutputConfig<ConfiguredMachine<K, Meta>>[];
+	upgrades: Record<UpgradeKeys, UpgradeConfig<UpgradeKeys, Meta>>;
+	inputs: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>[];
+	outputs: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>[];
 
 	meta?: () => Meta;
 
-	customLoop?: (this: ConfiguredMachine<K, Meta>, diff: number) => void;
+	customLoop?: (this: ConfiguredMachine<UpgradeKeys, Meta>, diff: number) => void;
 }
 
 // ============= Untyped objects ============ //
@@ -132,13 +132,13 @@ export abstract class MachineBase {
 	}
 }
 
-export class MachineUpgrade<K extends string, Meta extends Record<string, any>> {
-	private _parentMachine: ConfiguredMachine<K, any>;
-	private _config: UpgradeConfig<K, any>;
+export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<string, any>> {
+	private _parentMachine: ConfiguredMachine<UpgradeKeys, any>;
+	private _config: UpgradeConfig<UpgradeKeys, any>;
 	private _index: number;
 	private _count = 0;
 
-	constructor(machine: ConfiguredMachine<K, any>, config: UpgradeConfig<K, Meta>, index: number) {
+	constructor(machine: ConfiguredMachine<UpgradeKeys, any>, config: UpgradeConfig<UpgradeKeys, Meta>, index: number) {
 		this._parentMachine = machine;
 		this._config = config;
 		this._index = index;
@@ -229,19 +229,19 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 	}
 }
 
-interface ConfiguredMachineConstructor<K extends string, Meta extends Record<string, any>> {
-	new (townType: TownType, machineId: number): ConfiguredMachine<K, Meta>;
+interface ConfiguredMachineConstructor<UpgradeKeys extends string, Meta extends Record<string, any>> {
+	new (townType: TownType, machineId: number): ConfiguredMachine<UpgradeKeys, Meta>;
 	newMachine(x: number, y: number): MachineData;
-	readonly config: MachineConfig<K, Meta>;
+	readonly config: MachineConfig<UpgradeKeys, Meta>;
 }
 
-export interface ConfiguredMachine<K extends string, Meta extends Record<string, any>> extends MachineBase {
-	readonly config: MachineConfig<K, Meta>;
-	readonly inputs: InputState<K, Meta>[];
+export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Record<string, any>> extends MachineBase {
+	readonly config: MachineConfig<UpgradeKeys, Meta>;
+	readonly inputs: InputState<UpgradeKeys, Meta>[];
 	readonly isMinimized: boolean;
 	readonly name: string;
-	readonly outputs: OutputState<K, Meta>[];
-	readonly upgrades: Record<K, MachineUpgrade<K, Meta>>;
+	readonly outputs: OutputState<UpgradeKeys, Meta>[];
+	readonly upgrades: Record<UpgradeKeys, MachineUpgrade<UpgradeKeys, Meta>>;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
@@ -267,16 +267,16 @@ export interface MachineData {
 	name?: string;
 }
 
-export function defineMachine<K extends string, Meta extends Record<string, any>>(
-	config: MachineConfig<K, Meta>
-): ConfiguredMachineConstructor<K, Meta> {
+export function defineMachine<UpgradeKeys extends string, Meta extends Record<string, any>>(
+	config: MachineConfig<UpgradeKeys, Meta>
+): ConfiguredMachineConstructor<UpgradeKeys, Meta> {
 	return class extends MachineBase {
-		private _inputs: InputState<K, Meta>[];
+		private _inputs: InputState<UpgradeKeys, Meta>[];
 		private _isUpgradeable = true;
 		private _meta: Meta;
-		private _outputs: OutputState<K, Meta>[];
-		private _pipes: [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][] = [];
-		private _upgrades: Record<K, MachineUpgrade<K, Meta>>;
+		private _outputs: OutputState<UpgradeKeys, Meta>[];
+		private _pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][] = [];
+		private _upgrades: Record<UpgradeKeys, MachineUpgrade<UpgradeKeys, Meta>>;
 
 		updates = 0;
 
@@ -292,7 +292,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 
 		outputDiffs: Record<string, number> = {};
 
-		get config(): MachineConfig<K, Meta> {
+		get config(): MachineConfig<UpgradeKeys, Meta> {
 			return config;
 		}
 
@@ -330,8 +330,8 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			this._upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
 			this._isUpgradeable = Object.keys(this._upgrades).length > 0;
 
-			this._inputs = config.inputs.map((_, index) => new InputState<K, Meta>(this, index));
-			this._outputs = config.outputs.map((_, index) => new OutputState<K, Meta>(this, index));
+			this._inputs = config.inputs.map((_, index) => new InputState<UpgradeKeys, Meta>(this, index));
+			this._outputs = config.outputs.map((_, index) => new OutputState<UpgradeKeys, Meta>(this, index));
 
 			this._meta = config.meta?.() as Meta;
 
@@ -345,7 +345,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		get isFullyUpgraded() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<K, Meta>>(this._upgrades).every(
+				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).every(
 					upgrade => !upgrade.isUnlocked || upgrade.maxed
 				)
 			);
@@ -355,14 +355,14 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			return (
 				this.isUpgradeable &&
 				!this.hasWholeBuyableUpgrades &&
-				Object.values<MachineUpgrade<K, Meta>>(this.upgrades).find(x => x.canAfford) !== undefined
+				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this.upgrades).find(x => x.canAfford) !== undefined
 			);
 		}
 
 		get hasWholeBuyableUpgrades() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<K, Meta>>(this._upgrades).find(x => x.canAffordWhole) !== undefined
+				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).find(x => x.canAffordWhole) !== undefined
 			);
 		}
 
@@ -438,7 +438,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 					const machine = townMachines[x[0]];
 					return [machine, machine.inputs[x[1]]];
 				})
-			) as [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][];
+			) as [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
 		}
 
 		inputItem(index: number) {
@@ -449,7 +449,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			return this._outputs[index].lastItem;
 		}
 
-		static get config(): Readonly<MachineConfig<K, Meta>> {
+		static get config(): Readonly<MachineConfig<UpgradeKeys, Meta>> {
 			return config;
 		}
 
