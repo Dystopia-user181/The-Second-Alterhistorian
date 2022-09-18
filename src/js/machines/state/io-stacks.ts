@@ -6,8 +6,9 @@ import { arr, run, Stack } from "@/utils";
 import { ResourceData } from "@/types/resources";
 
 class GenericStackState {
+	private _volume: Ref<number>;
+
 	data: ResourceData[];
-	_volume: Ref<number>;
 	displayResource: any;
 	lastItem?: ResourceData;
 
@@ -59,37 +60,37 @@ class GenericStackState {
 }
 
 export class InputConfigState<K extends string, Meta extends Record<string, any>> {
-	#config: InputConfig<ConfiguredMachine<K, Meta>>;
-	#machine: ConfiguredMachine<K, Meta>;
+	private _config: InputConfig<ConfiguredMachine<K, Meta>>;
+	private _machine: ConfiguredMachine<K, Meta>;
 
 	constructor(config: InputConfig<ConfiguredMachine<K, Meta>>, machine: ConfiguredMachine<K, Meta>) {
-		this.#config = config;
-		this.#machine = machine;
+		this._config = config;
+		this._machine = machine;
 	}
 
 	get capacity() {
-		return run(this.#config.capacity, this.#machine);
+		return run(this._config.capacity, this._machine);
 	}
 
 	get consumes() {
-		return run(this.#config.consumes, this.#machine);
+		return run(this._config.consumes, this._machine);
 	}
 
 	get accepts() {
-		return run(this.#config.accepts, this.#machine);
+		return run(this._config.accepts, this._machine);
 	}
 
 	get label() {
-		return run(this.#config.label, this.#machine);
+		return run(this._config.label, this._machine);
 	}
 
 	// FIXME: No configurations define an id, what is this?
 	// get id() {
-	// 	return this.#config.id;
+	// 	return this._config.id;
 	// }
 
 	get isUnlocked() {
-		return this.#config.isUnlocked === undefined ? true : run(this.#config.isUnlocked, this.#machine);
+		return this._config.isUnlocked === undefined ? true : run(this._config.isUnlocked, this._machine);
 	}
 
 	get raw() {
@@ -103,82 +104,82 @@ export class InputConfigState<K extends string, Meta extends Record<string, any>
 }
 
 export class InputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
-	#config: InputConfigState<K, Meta>;
-	#id: number;
+	private _config: InputConfigState<K, Meta>;
+	private _id: number;
 
 	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
 		super(machine.data.inputs[id]);
-		this.#config = new InputConfigState(machine.config.inputs[id], machine);
-		this.#id = id;
+		this._config = new InputConfigState(machine.config.inputs[id], machine);
+		this._id = id;
 	}
 
 	get id() {
-		return this.#id;
+		return this._id;
 	}
 
 	get config() {
-		return this.#config;
+		return this._config;
 	}
 
 	get capacity() {
-		return this.#config.capacity;
+		return this._config.capacity;
 	}
 
 	get consumes() {
-		return this.#config.consumes;
+		return this._config.consumes;
 	}
 
 	get accepts() {
-		return this.#config.accepts;
+		return this._config.accepts;
 	}
 
 	get label() {
-		return this.#config.label;
+		return this._config.label;
 	}
 
 	get isUnlocked() {
-		return this.#config.isUnlocked;
+		return this._config.isUnlocked;
 	}
 }
 
 export class OutputConfigState<K extends string, Meta extends Record<string, any>> {
-	#config: OutputConfig<ConfiguredMachine<K, Meta>>;
-	#machine: ConfiguredMachine<K, Meta>;
+	private _config: OutputConfig<ConfiguredMachine<K, Meta>>;
+	private _machine: ConfiguredMachine<K, Meta>;
 
 	constructor(config: OutputConfig<ConfiguredMachine<K, Meta>>, machine: ConfiguredMachine<K, Meta>) {
 
 		// constructor(config, machine) {
-		this.#config = config;
-		this.#machine = machine;
+		this._config = config;
+		this._machine = machine;
 	}
 
 	get capacity() {
-		return run(this.#config.capacity, this.#machine);
+		return run(this._config.capacity, this._machine);
 	}
 
 	get produces() {
-		return run(this.#config.produces, this.#machine);
+		return run(this._config.produces, this._machine);
 	}
 
 	get requires() {
-		return run(this.#config.requires, this.#machine);
+		return run(this._config.requires, this._machine);
 	}
 
 	get requiresList() {
-		return run(this.#config.requiresList, this.#machine);
+		return run(this._config.requiresList, this._machine);
 	}
 
 	// FIXME: No outputs define a label, seems like this should be removed
 	// get label() {
-	// 	return run(this.#config.label, this.#machine);
+	// 	return run(this._config.label, this._machine);
 	// }
 
 	get id() {
-		return this.#config.id;
+		return this._config.id;
 	}
 
 	get isUnlocked() {
-		return this.#config.isUnlocked === undefined ? true : run(this.#config.isUnlocked, this.#machine);
+		return this._config.isUnlocked === undefined ? true : run(this._config.isUnlocked, this._machine);
 	}
 
 	get raw() {
@@ -192,39 +193,40 @@ export class OutputConfigState<K extends string, Meta extends Record<string, any
 
 
 export class OutputState<K extends string, Meta extends Record<string, any>> extends GenericStackState {
-	#config: OutputConfigState<K, Meta>;
-	#id: number;
+	private _config: OutputConfigState<K, Meta>;
+	private _id: number;
+
 	otherwiseDiff = 0;
 
 	constructor(machine: ConfiguredMachine<K, Meta>, id: number) {
 		super(machine.data.outputs[id]);
 
-		this.#config = new OutputConfigState(machine.config.outputs[id], machine);
-		this.#id = id;
+		this._config = new OutputConfigState(machine.config.outputs[id], machine);
+		this._id = id;
 	}
 
 	get id() {
-		return this.#id;
+		return this._id;
 	}
 
 	get config() {
-		return this.#config;
+		return this._config;
 	}
 
 	get capacity() {
-		return this.#config.capacity;
+		return this._config.capacity;
 	}
 
 	get produces() {
-		return this.#config.produces;
+		return this._config.produces;
 	}
 
 	get requires() {
-		return this.#config.requires;
+		return this._config.requires;
 	}
 
 	get requiresList() {
-		return this.#config.requiresList;
+		return this._config.requiresList;
 	}
 
 	// FIXME: No outputs define a label, seems like this should be removed
@@ -233,6 +235,6 @@ export class OutputState<K extends string, Meta extends Record<string, any>> ext
 	// }
 
 	get isUnlocked() {
-		return this.#config.isUnlocked;
+		return this._config.isUnlocked;
 	}
 }

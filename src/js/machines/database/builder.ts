@@ -96,12 +96,12 @@ declare const player: {
 // ============= Instances ============ //
 
 export abstract class MachineBase {
-	#data: MachineData;
-	#id: number;
-	#townType: TownType;
+	private _data: MachineData;
+	private _id: number;
+	private _townType: TownType;
 
 	get data() {
-		return this.#data;
+		return this._data;
 	}
 
 	get height() {
@@ -109,7 +109,7 @@ export abstract class MachineBase {
 	}
 
 	get id() {
-		return this.#id;
+		return this._id;
 	}
 
 	get isMinimized() {
@@ -121,70 +121,70 @@ export abstract class MachineBase {
 	}
 
 	get townType() {
-		return this.#townType;
+		return this._townType;
 	}
 
 	constructor(townType: TownType, machineId: number) {
-		this.#townType = townType;
-		this.#id = machineId;
+		this._townType = townType;
+		this._id = machineId;
 
 		// TODO: This should probably just be passed in
-		this.#data = player.towns[this.townType].machines[this.id];
+		this._data = player.towns[this.townType].machines[this.id];
 	}
 }
 
 export class MachineUpgrade<K extends string, Meta extends Record<string, any>> {
-	#parentMachine: ConfiguredMachine<K, any>;
-	#config: UpgradeConfig<K, any>;
-	#index: number;
-	#count = 0;
+	private _parentMachine: ConfiguredMachine<K, any>;
+	private _config: UpgradeConfig<K, any>;
+	private _index: number;
+	private _count = 0;
 
 	constructor(machine: ConfiguredMachine<K, any>, config: UpgradeConfig<K, Meta>, index: number) {
-		this.#parentMachine = machine;
-		this.#config = config;
-		this.#index = index;
+		this._parentMachine = machine;
+		this._config = config;
+		this._index = index;
 	}
 
 	// FIXME: effect needs to be typed
 	get effect(): any {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return run(this.#config.effect, this.count);
+		return run(this._config.effect, this.count);
 	}
 
 	get cost() {
-		return run(this.#config.cost, this.count) - this.prepay;
+		return run(this._config.cost, this.count) - this.prepay;
 	}
 
 	get count() {
-		return this.#count;
+		return this._count;
 	}
 
 	set count(value: number) {
-		this.#count = value;
+		this._count = value;
 	}
 
 	get currencyType() {
-		return run(this.#config.currencyType, this.count);
+		return run(this._config.currencyType, this.count);
 	}
 
 	get description(): string {
-		return run(this.#config.description, this);
+		return run(this._config.description, this);
 	}
 
 	get id(): number {
-		return this.#index;
+		return this._index;
 	}
 
 	get maxed() {
-		return this.#count >= this.#config.max;
+		return this._count >= this._config.max;
 	}
 
 	get title(): string {
-		return run(this.#config.title, this);
+		return run(this._config.title, this);
 	}
 
 	get prepay() {
-		return this.#parentMachine.data.upgradesPrepay[this.id] ?? 0;
+		return this._parentMachine.data.upgradesPrepay[this.id] ?? 0;
 	}
 
 	get canAfford() {
@@ -204,14 +204,14 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 	}
 
 	get isUnlocked() {
-		return this.#config.isUnlocked?.(this.#parentMachine) ?? true;
+		return this._config.isUnlocked?.(this._parentMachine) ?? true;
 	}
 
 	buy() {
 		if (!this.canAfford || this.maxed) return;
 
 		if (!this.canAffordWhole) {
-			this.#parentMachine.data.upgradesPrepay[this.id] += player.holding.amount ?? 0;
+			this._parentMachine.data.upgradesPrepay[this.id] += player.holding.amount ?? 0;
 			player.holding.amount = 0;
 			return;
 		}
@@ -221,7 +221,7 @@ export class MachineUpgrade<K extends string, Meta extends Record<string, any>> 
 				player.holding.amount -= this.cost;
 			}
 			this.count++;
-			this.#parentMachine.data.upgradesPrepay[this.id] = 0;
+			this._parentMachine.data.upgradesPrepay[this.id] = 0;
 			return;
 		}
 
@@ -272,16 +272,17 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 	config: MachineConfig<K, Meta>
 ): ConfiguredMachineConstructor<K, Meta> {
 	return class extends MachineBase {
-		#inputs: InputState<K, Meta>[];
-		#isUpgradeable = true;
-		#outputs: OutputState<K, Meta>[];
-		#pipes: [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][] = [];
-		#upgrades: Record<K, MachineUpgrade<K, Meta>>;
-		#meta: Meta;
+		private _inputs: InputState<K, Meta>[];
+		private _isUpgradeable = true;
+		private _meta: Meta;
+		private _outputs: OutputState<K, Meta>[];
+		private _pipes: [ConfiguredMachine<string, Meta>, InputState<K, Meta>][][] = [];
+		private _upgrades: Record<K, MachineUpgrade<K, Meta>>;
+
 		updates = 0;
 
 		get meta(): Meta {
-			return this.#meta;
+			return this._meta;
 		}
 
 		outputHistories: unknown[] = [];
@@ -305,31 +306,31 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		}
 
 		get inputs() {
-			return this.#inputs;
+			return this._inputs;
 		}
 
 		get isUpgradeable() {
-			return this.#isUpgradeable;
+			return this._isUpgradeable;
 		}
 
 		get outputs() {
-			return this.#outputs;
+			return this._outputs;
 		}
 
 		get upgrades() {
-			return this.#upgrades;
+			return this._upgrades;
 		}
 
 		constructor(townType: TownType, machineId: number) {
 			super(townType, machineId);
 
-			this.#upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
-			this.#isUpgradeable = Object.keys(this.#upgrades).length > 0;
+			this._upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
+			this._isUpgradeable = Object.keys(this._upgrades).length > 0;
 
-			this.#inputs = config.inputs.map((_, index) => new InputState<K, Meta>(this, index));
-			this.#outputs = config.outputs.map((_, index) => new OutputState<K, Meta>(this, index));
+			this._inputs = config.inputs.map((_, index) => new InputState<K, Meta>(this, index));
+			this._outputs = config.outputs.map((_, index) => new OutputState<K, Meta>(this, index));
 
-			this.#meta = config.meta?.() as Meta;
+			this._meta = config.meta?.() as Meta;
 
 			this.outputDiffs = Object.fromEntries(
 				config.outputs.map((output, index) => [output.id ?? index.toString(), 0])
@@ -341,7 +342,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		get isFullyUpgraded() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<K, Meta>>(this.#upgrades).every(
+				Object.values<MachineUpgrade<K, Meta>>(this._upgrades).every(
 					upgrade => !upgrade.isUnlocked || upgrade.maxed
 				)
 			);
@@ -358,7 +359,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		get hasWholeBuyableUpgrades() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<K, Meta>>(this.#upgrades).find(x => x.canAffordWhole) !== undefined
+				Object.values<MachineUpgrade<K, Meta>>(this._upgrades).find(x => x.canAffordWhole) !== undefined
 			);
 		}
 
@@ -367,7 +368,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 			this.data.pipes[outputId].push([machine.id, inputId]);
 			// TODO: add pipes from Town(?) instead of global
 			Pipes[this.townType].push({
-				out: [this, this.#outputs[outputId]],
+				out: [this, this._outputs[outputId]],
 				in: [machine, machine.inputs[inputId]],
 			});
 			this.updatePipes();
@@ -424,7 +425,7 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 
 		// TODO: this crosses over to too many domains
 		updatePipes() {
-			this.#pipes = this.data.pipes.map(p =>
+			this._pipes = this.data.pipes.map(p =>
 				p.map(x => {
 					const townMachines = MachinesById[this.townType];
 					// MachinesById isn't guaranteed to have the town type
@@ -438,11 +439,11 @@ export function defineMachine<K extends string, Meta extends Record<string, any>
 		}
 
 		inputItem(index: number) {
-			return this.#inputs[index].lastItem;
+			return this._inputs[index].lastItem;
 		}
 
 		outputItem(index: number) {
-			return this.#outputs[index].lastItem;
+			return this._outputs[index].lastItem;
 		}
 
 		static get config(): Readonly<MachineConfig<K, Meta>> {
