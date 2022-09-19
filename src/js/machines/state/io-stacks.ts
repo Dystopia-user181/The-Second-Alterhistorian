@@ -63,7 +63,10 @@ export class InputConfigState<UpgradeKeys extends string, Meta extends Record<st
 	private _config: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>;
 	private _machine: ConfiguredMachine<UpgradeKeys, Meta>;
 
-	constructor(config: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>, machine: ConfiguredMachine<UpgradeKeys, Meta>) {
+	constructor(
+		config: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>,
+		machine: ConfiguredMachine<UpgradeKeys, Meta>
+	) {
 		this._config = config;
 		this._machine = machine;
 	}
@@ -146,7 +149,10 @@ export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<s
 	private _config: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>;
 	private _machine: ConfiguredMachine<UpgradeKeys, Meta>;
 
-	constructor(config: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>, machine: ConfiguredMachine<UpgradeKeys, Meta>) {
+	constructor(
+		config: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>,
+		machine: ConfiguredMachine<UpgradeKeys, Meta>
+	) {
 		this._config = config;
 		this._machine = machine;
 	}
