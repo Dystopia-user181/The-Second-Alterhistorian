@@ -41,6 +41,10 @@ function openUpgrades() {
 	Modals.machineUpgrades.show({ machine });
 }
 
+function showStatistics() {
+	Modals.machineStatistics.show({ machine });
+}
+
 function deleteMachine() {
 	if (shiftDown) {
 		Machine.remove(machine);
@@ -79,7 +83,7 @@ function deleteMachine() {
 		<div
 			v-if="!machine.isMinimized"
 			class="fas fa-chart-bar"
-			@mousedown="machine.showStatistics()"
+			@mousedown="showStatistics()"
 		/>
 		<div
 			v-if="!machine.data.isDefault"
