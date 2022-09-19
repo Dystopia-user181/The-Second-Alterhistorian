@@ -136,7 +136,6 @@ export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<stri
 	private _parentMachine: ConfiguredMachine<UpgradeKeys, any>;
 	private _config: UpgradeConfig<UpgradeKeys, any>;
 	private _index: number;
-	private _count = 0;
 
 	constructor(machine: ConfiguredMachine<UpgradeKeys, any>, config: UpgradeConfig<UpgradeKeys, Meta>, index: number) {
 		this._parentMachine = machine;
@@ -155,11 +154,11 @@ export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<stri
 	}
 
 	get count() {
-		return this._count;
+		return this._parentMachine.data.upgrades[this.id];
 	}
 
 	set count(value: number) {
-		this._count = value;
+		this._parentMachine.data.upgrades[this.id] = value;
 	}
 
 	get currencyType() {
@@ -175,7 +174,7 @@ export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<stri
 	}
 
 	get maxed() {
-		return this._count >= this._config.max;
+		return this.count >= this._config.max;
 	}
 
 	get title(): string {
