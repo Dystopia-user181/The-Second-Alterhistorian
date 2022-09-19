@@ -63,7 +63,7 @@ function deleteMachine() {
 		/>
 		<div
 			class="fas"
-			:class="machine.data.min ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
+			:class="machine.isMinimized ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
 			@mousedown="machine.toggleMinimized()"
 		/>
 		<div
@@ -77,7 +77,7 @@ function deleteMachine() {
 			@mousedown="openUpgrades()"
 		/>
 		<div
-			v-if="!machine.data.min"
+			v-if="!machine.isMinimized"
 			class="fas fa-chart-bar"
 			@mousedown="machine.showStatistics()"
 		/>
