@@ -39,7 +39,7 @@ const fuels: Partial<Record<MaybeResourceType, number>> = {
 const recipesByInput = mapRecipesByInput(recipes);
 
 function getConsumption(machine: ConfiguredMachine<"improve", { inputResource: MaybeResourceType }>) {
-	// FIXME: This is assuming that the `improve` type has a specific type
+	// TODO: type effects
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	return recipesByInput[machine.meta.inputResource || "none"].input.amount * machine.upgrades.improve.effect[0];
 }
@@ -53,10 +53,10 @@ function getFuelUsage(
 
 	return (
 		(recipesByInput[machine.meta.inputResource || "none"].fuelUsage ??
-			// FIXME: This is assuming that the `improve` type has a specific type
+			// TODO: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			0 * machine.upgrades.improve.effect[0]) /
-		// FIXME: This is assuming that the `improve` type has a specific type
+		// TODO: type effects
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		machine.upgrades.improve.effect[1] /
 		(fuels[machine.meta.inputFuel || "none"] ?? 0)
@@ -69,7 +69,7 @@ function getProduction(
 	const out = recipesByInput[machine.meta.inputResource || "none"].output;
 	return {
 		resource: out.resource,
-		// FIXME: This is assuming that the `improve` type has a specific type
+		// TODO: type effects
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		amount: out.amount * machine.upgrades.improve.effect[0],
 	};

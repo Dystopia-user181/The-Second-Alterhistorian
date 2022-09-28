@@ -42,7 +42,7 @@ export default defineMachine({
 			title: "Capacity",
 			description: "Increase Stone and Coal capacity",
 			effect: count => Math.pow(2, count),
-			// FIXME: type effects
+			// TODO: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			isUnlocked: machine => machine.upgrades.unlock.effect,
 		},
@@ -54,7 +54,7 @@ export default defineMachine({
 			title: "Velocity",
 			description: "Increase Stone and Coal production",
 			effect: count => Math.pow(1.55, count) + count * 0.1,
-			// FIXME: type effects
+			// TODO: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			isUnlocked: machine => machine.upgrades.unlock.effect,
 		},

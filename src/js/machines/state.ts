@@ -88,11 +88,6 @@ export class InputConfigState<UpgradeKeys extends string, Meta extends Record<st
 		return run(this._config.label, this._machine);
 	}
 
-	// FIXME: No configurations define an id, what is this?
-	// get id() {
-	// 	return this._config.id;
-	// }
-
 	get isUnlocked() {
 		return this._config.isUnlocked === undefined ? true : run(this._config.isUnlocked, this._machine);
 	}
@@ -101,8 +96,6 @@ export class InputConfigState<UpgradeKeys extends string, Meta extends Record<st
 		return {
 			capacity: this.capacity,
 			consumes: this.consumes,
-			// FIXME: No configurations define an id, what is this?
-			// id: this.id,
 		};
 	}
 }
@@ -174,11 +167,6 @@ export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<s
 		return run(this._config.requiresList, this._machine);
 	}
 
-	// FIXME: No outputs define a label, seems like this should be removed
-	// get label() {
-	// 	return run(this._config.label, this._machine);
-	// }
-
 	get id() {
 		return this._config.id;
 	}
@@ -233,11 +221,6 @@ export class OutputState<UpgradeKeys extends string, Meta extends Record<string,
 		return this._config.requiresList;
 	}
 
-	// FIXME: No outputs define a label, seems like this should be removed
-	// get label() {
-	// 	return this.config.label;
-	// }
-
 	get isUnlocked() {
 		return this._config.isUnlocked;
 	}
@@ -254,7 +237,7 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 		this._index = index;
 	}
 
-	// FIXME: effect needs to be typed
+	// TODO: effect can be typed if TypeScript ships `satisfies` operator in 4.9
 	get effect(): any {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return run(this._config.effect, this.count);

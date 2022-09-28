@@ -19,7 +19,7 @@ export default defineMachine({
 				resource: "wood",
 				amount: 0.2 * machine.upgrades.wood.effect,
 			}),
-			// FIXME: type effects
+			// TODO: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			isUnlocked: machine => machine.upgrades.wood.effect,
 		},
@@ -48,7 +48,7 @@ export default defineMachine({
 			title: upg => (upg.count ? "Persistence" : "Wood"),
 			description: upg => (upg.count ? "Increase Wood production" : "Attach a primitive axe to cut down trees"),
 			effect: count => (Math.pow(1.4, count) - 1) * 2.5,
-			// FIXME: type effects
+			// TODO: type effects
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			formatEffect: effect => (effect ? formatX(effect, 2, 1) : "Not unlocked"),
 		},

@@ -24,9 +24,9 @@ export function mapObjectValues<
  * is the key of the original property and second is the value of the original property.
  * @param {function} propfun A function which determines the value of the new property. Takes in two parameters- First
  * is the value of the original property and second is the key of the original property.
- * @see mapObjectValues
+ * @deprecated
  */
-// FIXME: This is typed correctly as designed, but the function itself is not
+// NOTE: This is typed correctly as designed, but the function itself is not
 // TypeScript compatible; it will always return a union of the possible types,
 // and correct keys cannot be inferred since they are transformed.
 // If you need a type safe version, use `mapObjectValues`
@@ -202,7 +202,8 @@ class Arr<T> {
 	}
 
 	// Not sure about the usage for this one, seems like index is always a string
-	// FIXME: Similar to objectToMap, this is can only result in a loosely typed union
+	// NOTE: Similar to objectToMap, this is can only result in a loosely typed union
+	/** @deprecated */
 	mapToObject<K extends string, R>(
 		keyfun: (value: T, index: string) => K,
 		propfun: (value: T, index: K) => R
