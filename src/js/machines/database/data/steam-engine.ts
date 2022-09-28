@@ -33,7 +33,6 @@ export default defineMachine({
 			capacity: () => 10,
 			produces: machine => ({
 				resource: "water",
-				// FIXME: Is this .volume correct?
 				amount:
 					machine.outputs[0].volume >= machine.outputs[0].config.capacity
 						? 0
