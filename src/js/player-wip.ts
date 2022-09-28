@@ -18,6 +18,7 @@ export interface PlayerTown {
 // Things aren't typed yet but it needs to be used; as things get typed, delete these
 export interface Player {
 	money: number,
+	fastTime: number,
 	holding: {
 		resource?: ResourceType,
 		amount?: number
