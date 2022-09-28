@@ -1,6 +1,6 @@
 import { MachinesById, Pipes } from "../player-proxy-wip";
 
-import { InputState, MachineUpgrade, OutputState } from "@/js/machines/state";
+import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
 
 import { MachineConfig, MachineData } from "@/js/machines/database/config";
 import { mapObjectValues, str } from "@/utils";
@@ -66,7 +66,7 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	readonly isMinimized: boolean;
 	readonly name: string;
 	readonly outputs: OutputState<UpgradeKeys, Meta>[];
-	readonly upgrades: Record<UpgradeKeys, MachineUpgrade<UpgradeKeys, Meta>>;
+	readonly upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
@@ -84,7 +84,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		private _meta: Meta;
 		private _outputs: OutputState<UpgradeKeys, Meta>[];
 		private _pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][] = [];
-		private _upgrades: Record<UpgradeKeys, MachineUpgrade<UpgradeKeys, Meta>>;
+		private _upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
 
 		updates = 0;
 
@@ -137,7 +137,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 
 			this._upgrades = mapObjectValues(
 				config.upgrades,
-				(config, index) => new MachineUpgrade(this, config, index)
+				(config, index) => new UpgradeState(this, config, index)
 			);
 			this._isUpgradeable = Object.keys(this._upgrades).length > 0;
 
@@ -156,7 +156,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		get isFullyUpgraded() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).every(
+				Object.values<UpgradeState<UpgradeKeys, Meta>>(this._upgrades).every(
 					upgrade => !upgrade.isUnlocked || upgrade.maxed
 				)
 			);
@@ -166,14 +166,14 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			return (
 				this.isUpgradeable &&
 				!this.hasWholeBuyableUpgrades &&
-				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAfford)
+				Object.values<UpgradeState<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAfford)
 			);
 		}
 
 		get hasWholeBuyableUpgrades() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAffordWhole)
+				Object.values<UpgradeState<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAffordWhole)
 			);
 		}
 

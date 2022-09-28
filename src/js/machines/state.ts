@@ -243,7 +243,7 @@ export class OutputState<UpgradeKeys extends string, Meta extends Record<string,
 	}
 }
 
-export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<string, any>> {
+export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string, any>> {
 	private _parentMachine: ConfiguredMachine<UpgradeKeys, any>;
 	private _config: UpgradeConfig<UpgradeKeys, any>;
 	private _index: number;

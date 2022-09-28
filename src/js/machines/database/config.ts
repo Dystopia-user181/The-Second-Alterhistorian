@@ -1,4 +1,4 @@
-import { MachineUpgrade } from "@/js/machines/state";
+import { UpgradeState } from "@/js/machines/state";
 
 import { ResourceData, ResourceType } from "@/types/resources";
 import { ConfiguredMachine } from "./builder";
@@ -29,11 +29,11 @@ export interface OutputConfig<Instance> {
 
 export interface UpgradeConfig<UpgradeKeys extends string, Meta extends Record<string, any>, E = any> {
 	cost: number | ((count: number) => number);
-	description: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
+	description: string | ((upgrade: UpgradeState<UpgradeKeys, Meta>) => string);
 	effect: number | ((count: number) => E);
 	max: number;
 	name: string;
-	title: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
+	title: string | ((upgrade: UpgradeState<UpgradeKeys, Meta>) => string);
 
 	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
 	formatEffect?: (effect: E) => string;
