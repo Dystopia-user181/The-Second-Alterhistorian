@@ -1,6 +1,6 @@
 import { UpgradeState } from "@/js/machines/state";
 
-import { ResourceData, ResourceType } from "@/types/resources";
+import { MaybeResourceType, ResourceData, ResourceType } from "@/types/resources";
 import { ConfiguredMachine } from "./builder";
 
 export type InputConfig<Instance> = {
@@ -12,7 +12,9 @@ export type InputConfig<Instance> = {
 };
 
 export interface OutputConfigRequirement {
-	resource: ResourceType | "none";
+	// TODO: combine resource and resource list
+	resource: MaybeResourceType;
+	resourceList: ResourceData[];
 	amount: number;
 	inputId: number;
 }

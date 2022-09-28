@@ -4,7 +4,7 @@ import { InputConfig, OutputConfig, UpgradeConfig } from "./database/config";
 import { ConfiguredMachine } from "./database/builder";
 
 import { arr, run, Stack } from "@/utils";
-import { ResourceData } from "@/types/resources";
+import { MaybeResourceType, ResourceData } from "@/types/resources";
 
 class GenericStackState {
 	private _volume: Ref<number>;

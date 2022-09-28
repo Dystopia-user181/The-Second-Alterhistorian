@@ -70,13 +70,21 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	readonly isMinimized: boolean;
 	readonly name: string;
 	readonly outputs: OutputState<UpgradeKeys, Meta>[];
+	readonly pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
 	readonly upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
-	outputDiffs: Record<string, number>;
+
+	inputHistories: ResourceData[][][];
+	outputHistories: ResourceData[][][];
+
+	inputConfHistories: unknown[];
+	outputConfHistories: unknown[];
 
 	meta: Meta;
+	outputDiffs: Record<string, number>;
+	updates: number
 }
 
 // If you make public changes to this, make sure to also update ConfiguredMachine
@@ -97,11 +105,11 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			return this._meta;
 		}
 
-		outputHistories: unknown[] = [];
-		inputHistories: unknown[] = [];
+		inputHistories: ResourceData[][][] = [];
+		outputHistories: ResourceData[][][] = [];
 
-		outputConfHistories: unknown[] = [];
 		inputConfHistories: unknown[] = [];
+		outputConfHistories: unknown[] = [];
 
 		outputDiffs: Record<string, number> = {};
 
