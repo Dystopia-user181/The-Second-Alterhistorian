@@ -354,14 +354,14 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			return (
 				this.isUpgradeable &&
 				!this.hasWholeBuyableUpgrades &&
-				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this.upgrades).find(x => x.canAfford) !== undefined
+				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAfford)
 			);
 		}
 
 		get hasWholeBuyableUpgrades() {
 			return (
 				this.isUpgradeable &&
-				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).find(x => x.canAffordWhole) !== undefined
+				Object.values<MachineUpgrade<UpgradeKeys, Meta>>(this._upgrades).some(x => x.canAffordWhole)
 			);
 		}
 
