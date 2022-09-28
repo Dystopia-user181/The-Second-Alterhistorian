@@ -1,15 +1,35 @@
 import { AnyFunction, isArray, isObject } from "./types";
 
 /**
+ * Transform the values of an object using the `map` callback.
+ *
+ * @param  {T} obj The object to be mapped
+ * @param  {(value:T[K],index:number)=>MapType} map The callback used to transform the object values
+ * @returns R
+ */
+export function mapObjectValues<
+  T extends Record<K, unknown>,
+  K extends string,
+  MapType,
+  ReturnType extends { [key in K]: MapType }
+>(obj: T, map: (value: T[K], index: number) => MapType): ReturnType {
+	return Object.fromEntries(
+		Object.entries(obj).map(([key, value], index) => [key, map(value as T[K], index)])
+	) as ReturnType;
+}
+
+/**
  * @param {object} obj The object to be mapped.
  * @param {function} keyfun A function which determines the key of the new property. Takes in two parameters- First
  * is the key of the original property and second is the value of the original property.
  * @param {function} propfun A function which determines the value of the new property. Takes in two parameters- First
  * is the value of the original property and second is the key of the original property.
+ * @see mapObjectValues
  */
 // FIXME: This is typed correctly as designed, but the function itself is not
 // TypeScript compatible; it will always return a union of the possible types,
 // and correct keys cannot be inferred since they are transformed.
+// If you need a type safe version, use `mapObjectValues`
 export function objectMap<T extends Record<keyof T, unknown>, K extends keyof T, R>(
 	obj: T,
 	keyfun: (index: K, value: T[K]) => K,

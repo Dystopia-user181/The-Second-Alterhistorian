@@ -1,6 +1,6 @@
 import { TownType } from "../towns";
 
-import { InputState, OutputState } from "./state/io-stacks";
+import { InputState, OutputState } from "./state";
 import { ConfiguredMachine } from "./database/builder";
 
 // This needed to be typed, but should be combined back into player-proxy.ts when that gets typed

@@ -1,5 +1,5 @@
 import { hasOwn } from "@/utils/extensions";
-import { MachineData } from "./machines/database/builder";
+import { MachineData } from "@/js/machines/database/config";
 import { MachineTypes } from "./machines";
 import { ResourceType } from "@/types/resources";
 import { TownType } from "./towns";

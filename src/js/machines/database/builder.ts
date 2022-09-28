@@ -1,94 +1,16 @@
-import { InputState, OutputState } from "../state/io-stacks";
-
 import { MachinesById, Pipes } from "../player-proxy-wip";
 
-import { ResourceData, ResourceType } from "@/types/resources";
-import { run, str } from "@/utils";
+import { InputState, MachineUpgrade, OutputState } from "@/js/machines/state";
+
+import { MachineConfig, MachineData } from "@/js/machines/database/config";
+import { mapObjectValues, str } from "@/utils";
+import { ResourceData } from "@/types/resources";
 import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
 
-function mapObject<T extends Record<K, unknown>, K extends string, R>(
-	input: T,
-	map: (value: T[K], index: number) => R
-) {
-	return Object.fromEntries(Object.entries(input).map(([key, value], index) => [key, map(value as T[K], index)])) as {
-		[key in K]: R;
-	};
-}
-
-// ============= Config ============ //
-
-export type InputConfig<Instance> = {
-	accepts: readonly ResourceType[] | ((machine: Instance) => ResourceType[]);
-	capacity: number | ((machine: Instance) => number);
-	consumes: number | ((machine: Instance) => number) | ((machine: Instance) => { amount: number; maximum: number });
-	label?: string | ((machine: Instance) => string);
-	isUnlocked?: boolean | ((machine: Instance) => boolean);
-};
-
-interface OutputRequirement {
-	resource: ResourceType | "none";
-	amount: number;
-	inputId: number;
-}
-
-export interface OutputConfig<Instance> {
-	id?: "main";
-	capacity: number | ((machine: Instance) => number);
-	produces: ResourceData | ((machine: Instance) => ResourceData);
-	isUnlocked?: (machine: Instance) => boolean;
-	// FIXME: Combine requires and requiresList
-	requires?: (machine: Instance) => OutputRequirement;
-	requiresList?: (machine: Instance) => Array<OutputRequirement>;
-}
-
-export interface UpgradeConfig<UpgradeKeys extends string, Meta extends Record<string, any>, E = any> {
-	cost: number | ((count: number) => number);
-	description: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
-	effect: number | ((count: number) => E);
-	max: number;
-	name: string;
-	title: string | ((upgrade: MachineUpgrade<UpgradeKeys, Meta>) => string);
-
-	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
-	formatEffect?: (effect: E) => string;
-	isUnlocked?: (machine: ConfiguredMachine<UpgradeKeys, Meta>) => boolean;
-}
-
-export interface MachineConfig<UpgradeKeys extends string, Meta extends Record<string, any>> {
-	name: string;
-
-	/** The description of the machine that will be displayed to the user */
-	description: string;
-	upgrades: Record<UpgradeKeys, UpgradeConfig<UpgradeKeys, Meta>>;
-	inputs: InputConfig<ConfiguredMachine<UpgradeKeys, Meta>>[];
-	outputs: OutputConfig<ConfiguredMachine<UpgradeKeys, Meta>>[];
-
-	meta?: () => Meta;
-
-	customLoop?: (this: ConfiguredMachine<UpgradeKeys, Meta>, diff: number) => void;
-}
-
-// ============= Untyped objects ============ //
-
-declare class Town {
-	machines: MachineData[];
-}
-
-// ============= Untyped globals ============ //
-
-declare const player: {
-	money: number;
-	holding: {
-		resource?: ResourceType;
-		amount?: number;
-	};
-	towns: Record<TownType, Town>;
-};
-
 // ============= Instances ============ //
 
-export abstract class MachineBase {
+abstract class MachineBase {
 	private _data: MachineData;
 	private _id: number;
 	private _townType: TownType;
@@ -132,102 +54,6 @@ export abstract class MachineBase {
 	}
 }
 
-export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<string, any>> {
-	private _parentMachine: ConfiguredMachine<UpgradeKeys, any>;
-	private _config: UpgradeConfig<UpgradeKeys, any>;
-	private _index: number;
-
-	constructor(machine: ConfiguredMachine<UpgradeKeys, any>, config: UpgradeConfig<UpgradeKeys, Meta>, index: number) {
-		this._parentMachine = machine;
-		this._config = config;
-		this._index = index;
-	}
-
-	// FIXME: effect needs to be typed
-	get effect(): any {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return run(this._config.effect, this.count);
-	}
-
-	get cost() {
-		return run(this._config.cost, this.count) - this.prepay;
-	}
-
-	get count() {
-		return this._parentMachine.data.upgrades[this.id];
-	}
-
-	set count(value: number) {
-		this._parentMachine.data.upgrades[this.id] = value;
-	}
-
-	get currencyType() {
-		return run(this._config.currencyType, this.count);
-	}
-
-	get description(): string {
-		return run(this._config.description, this);
-	}
-
-	get id(): number {
-		return this._index;
-	}
-
-	get maxed() {
-		return this.count >= this._config.max;
-	}
-
-	get title(): string {
-		return run(this._config.title, this);
-	}
-
-	get prepay() {
-		return this._parentMachine.data.upgradesPrepay[this.id] ?? 0;
-	}
-
-	get canAfford() {
-		if (this.maxed) return false;
-
-		// TODO: Global player access
-		if (!this.currencyType) return player.money >= this.cost;
-		return player.holding.resource === this.currencyType && player.holding.amount;
-	}
-
-	get canAffordWhole() {
-		if (this.maxed) return false;
-
-		// TODO: Global player access
-		if (!this.currencyType) return player.money >= this.cost;
-		return player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost;
-	}
-
-	get isUnlocked() {
-		return this._config.isUnlocked?.(this._parentMachine) ?? true;
-	}
-
-	buy() {
-		if (!this.canAfford || this.maxed) return;
-
-		if (!this.canAffordWhole) {
-			this._parentMachine.data.upgradesPrepay[this.id] += player.holding.amount ?? 0;
-			player.holding.amount = 0;
-			return;
-		}
-
-		if (this.currencyType) {
-			if (player.holding.amount) {
-				player.holding.amount -= this.cost;
-			}
-			this.count++;
-			this._parentMachine.data.upgradesPrepay[this.id] = 0;
-			return;
-		}
-
-		player.money -= this.cost;
-		this.count++;
-	}
-}
-
 interface ConfiguredMachineConstructor<UpgradeKeys extends string, Meta extends Record<string, any>> {
 	new (townType: TownType, machineId: number): ConfiguredMachine<UpgradeKeys, Meta>;
 	newMachine(x: number, y: number): MachineData;
@@ -247,23 +73,6 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	outputDiffs: Record<string, number>;
 
 	meta: Meta;
-}
-
-export interface MachineData {
-	inputs: ResourceData[][];
-	outputs: ResourceData[][];
-	// inputs: unknown[];
-	// outputs: unknown[]
-	isDefault: boolean;
-	minimized: boolean;
-	pipes: Array<[number, number][]>;
-	type: string;
-	upgrades: number[];
-	upgradesPrepay: number[];
-	x: number;
-	y: number;
-
-	name?: string;
 }
 
 export function defineMachine<UpgradeKeys extends string, Meta extends Record<string, any>>(
@@ -326,7 +135,10 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		constructor(townType: TownType, machineId: number) {
 			super(townType, machineId);
 
-			this._upgrades = mapObject(config.upgrades, (config, index) => new MachineUpgrade(this, config, index));
+			this._upgrades = mapObjectValues(
+				config.upgrades,
+				(config, index) => new MachineUpgrade(this, config, index)
+			);
 			this._isUpgradeable = Object.keys(this._upgrades).length > 0;
 
 			this._inputs = config.inputs.map((_, index) => new InputState<UpgradeKeys, Meta>(this, index));

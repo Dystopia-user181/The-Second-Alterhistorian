@@ -1,6 +1,7 @@
 import { reactive, Ref, ref } from "vue";
 
-import { ConfiguredMachine, InputConfig, OutputConfig } from "../database/builder";
+import { InputConfig, OutputConfig, UpgradeConfig } from "./database/config";
+import { ConfiguredMachine } from "./database/builder";
 
 import { arr, run, Stack } from "@/utils";
 import { ResourceData } from "@/types/resources";
@@ -239,5 +240,106 @@ export class OutputState<UpgradeKeys extends string, Meta extends Record<string,
 
 	get isUnlocked() {
 		return this._config.isUnlocked;
+	}
+}
+
+export class MachineUpgrade<UpgradeKeys extends string, Meta extends Record<string, any>> {
+	private _parentMachine: ConfiguredMachine<UpgradeKeys, any>;
+	private _config: UpgradeConfig<UpgradeKeys, any>;
+	private _index: number;
+
+	constructor(machine: ConfiguredMachine<UpgradeKeys, any>, config: UpgradeConfig<UpgradeKeys, Meta>, index: number) {
+		this._parentMachine = machine;
+		this._config = config;
+		this._index = index;
+	}
+
+	// FIXME: effect needs to be typed
+	get effect(): any {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return run(this._config.effect, this.count);
+	}
+
+	get cost() {
+		return run(this._config.cost, this.count) - this.prepay;
+	}
+
+	get count() {
+		return this._parentMachine.data.upgrades[this.id];
+	}
+
+	set count(value: number) {
+		this._parentMachine.data.upgrades[this.id] = value;
+	}
+
+	get currencyType() {
+		return run(this._config.currencyType, this.count);
+	}
+
+	get description(): string {
+		return run(this._config.description, this);
+	}
+
+	get id(): number {
+		return this._index;
+	}
+
+	get maxed() {
+		return this.count >= this._config.max;
+	}
+
+	get title(): string {
+		return run(this._config.title, this);
+	}
+
+	get prepay() {
+		return this._parentMachine.data.upgradesPrepay[this.id] ?? 0;
+	}
+
+	get canAfford() {
+		if (this.maxed)
+			return false;
+
+		// TODO: Global player access
+		if (!this.currencyType)
+			return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && player.holding.amount;
+	}
+
+	get canAffordWhole() {
+		if (this.maxed)
+			return false;
+
+		// TODO: Global player access
+		if (!this.currencyType)
+			return player.money >= this.cost;
+		return player.holding.resource === this.currencyType && (player.holding.amount ?? 0) >= this.cost;
+	}
+
+	get isUnlocked() {
+		return this._config.isUnlocked?.(this._parentMachine) ?? true;
+	}
+
+	buy() {
+		if (!this.canAfford || this.maxed)
+			return;
+
+		if (!this.canAffordWhole) {
+			this._parentMachine.data.upgradesPrepay[this.id] += player.holding.amount ?? 0;
+			player.holding.amount = 0;
+			return;
+		}
+
+		if (this.currencyType) {
+			if (player.holding.amount) {
+				player.holding.amount -= this.cost;
+			}
+			this.count++;
+			this._parentMachine.data.upgradesPrepay[this.id] = 0;
+			return;
+		}
+
+		player.money -= this.cost;
+		this.count++;
 	}
 }
