@@ -6,7 +6,9 @@ export type MetaConfiguredMachine<T extends string, M extends Record<string, any
 	ConfiguredMachine<T, M>
 >;
 
-// FIXME: This is reused all over the place, why not store inputs as an object instead?
+// TODO: This is used in every machine and inputs require more transformations,
+// it might be better to change the structure of how recipes are defined, as
+// they are (almost?) never referenced without this.
 export function mapRecipesByInput(recipes: Recipe[]): Record<MaybeResourceType, Recipe> {
 	return Object.fromEntries(recipes.map(recipe => [recipe.input.resource, recipe])) as Record<
 		MaybeResourceType,
