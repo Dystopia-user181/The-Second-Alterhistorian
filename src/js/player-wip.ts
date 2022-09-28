@@ -1,8 +1,19 @@
-import { TownDBEntry, TownType } from "./towns";
 import { hasOwn } from "@/utils/extensions";
 import { MachineData } from "./machines/database/builder";
 import { MachineTypes } from "./machines";
 import { ResourceType } from "@/types/resources";
+import { TownType } from "./towns";
+
+export interface PlayerTown {
+	machines: MachineData[],
+	upgrades: 0,
+	machinesPrepay: number[],
+	upgradesPrepay: number[],
+	display: {
+		offset: { x: 0, y: 0 },
+		zoom: 1
+	},
+}
 
 // Things aren't typed yet but it needs to be used; as things get typed, delete these
 export interface Player {
@@ -11,8 +22,8 @@ export interface Player {
 		resource?: ResourceType,
 		amount?: number
 	},
-	towns: Record<TownType, TownDBEntry>
-	producedElixir: number
+	towns: Record<TownType, PlayerTown>
+	producedElixir: number,
 }
 
 export function fixMachineData(machineData: MachineData) {
