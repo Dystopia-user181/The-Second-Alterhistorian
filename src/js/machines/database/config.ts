@@ -14,7 +14,7 @@ export type InputConfig<Instance> = {
 export interface OutputConfigRequirement {
 	// TODO: combine resource and resource list
 	resource: MaybeResourceType;
-	resourceList: ResourceData[];
+	resourceList?: ResourceData[];
 	amount: number;
 	inputId: number;
 }
