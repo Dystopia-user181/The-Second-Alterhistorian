@@ -60,6 +60,12 @@ interface ConfiguredMachineConstructor<UpgradeKeys extends string, Meta extends 
 	readonly config: MachineConfig<UpgradeKeys, Meta>;
 }
 
+
+// This is the type used by the rest of the system for a machine configuration,
+// not the one defined by the anonymous class in defineMachine, so this must be
+// kept up to date with any changes. If you see weird errors in defineMachine
+// that complain about the whole class, it's probably because of a mismatch
+// between `defineMachine`'s anonymous class and ConfiguredMachine interface.
 export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Record<string, any>> extends MachineBase {
 	readonly config: MachineConfig<UpgradeKeys, Meta>;
 	readonly inputs: InputState<UpgradeKeys, Meta>[];
@@ -75,6 +81,7 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	meta: Meta;
 }
 
+// If you make public changes to this, make sure to also update ConfiguredMachine
 export function defineMachine<UpgradeKeys extends string, Meta extends Record<string, any>>(
 	config: MachineConfig<UpgradeKeys, Meta>
 ): ConfiguredMachineConstructor<UpgradeKeys, Meta> {
