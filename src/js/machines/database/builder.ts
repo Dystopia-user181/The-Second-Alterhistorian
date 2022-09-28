@@ -8,8 +8,6 @@ import { ResourceData } from "@/types/resources";
 import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
 
-// ============= Instances ============ //
-
 abstract class MachineBase {
 	private _data: MachineData;
 	private _id: number;
