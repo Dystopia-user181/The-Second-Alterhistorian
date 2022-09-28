@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
 
-import { Player } from "@/js/types-todo";
+import { Player } from "@/js/player-wip";
 
 export declare global {
 	// TODO: Remove global player

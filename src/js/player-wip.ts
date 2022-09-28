@@ -1,6 +1,19 @@
+import { TownDBEntry, TownType } from "./towns";
 import { hasOwn } from "@/utils/extensions";
 import { MachineData } from "./machines/database/builder";
 import { MachineTypes } from "./machines";
+import { ResourceType } from "@/types/resources";
+
+// Things aren't typed yet but it needs to be used; as things get typed, delete these
+export interface Player {
+	money: number,
+	holding: {
+		resource?: ResourceType,
+		amount?: number
+	},
+	towns: Record<TownType, TownDBEntry>
+	producedElixir: number
+}
 
 export function fixMachineData(machineData: MachineData) {
 	if (!hasOwn(MachineTypes, machineData.type)) {
