@@ -10,13 +10,16 @@ class GenericStackState {
 	private _volume: Ref<number>;
 
 	data: ResourceData[];
-	displayResource: any;
+	displayResource: [MaybeResourceType, number];
 	lastItem?: ResourceData;
+
+	maxDiff = 0;
+	otherwiseDiff = 0;
 
 	constructor(data: ResourceData[]) {
 		this.data = data;
 		this._volume = ref(Stack.volumeOfStack(this.data));
-		this.displayResource = reactive(["none", Infinity]);
+		this.displayResource = reactive<[MaybeResourceType, number]>(["none", Infinity]);
 		this.lastItem = undefined;
 	}
 
@@ -187,8 +190,6 @@ export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<s
 export class OutputState<UpgradeKeys extends string, Meta extends Record<string, any>> extends GenericStackState {
 	private _config: OutputConfigState<UpgradeKeys, Meta>;
 	private _id: number;
-
-	otherwiseDiff = 0;
 
 	constructor(machine: ConfiguredMachine<UpgradeKeys, Meta>, id: number) {
 		super(machine.data.outputs[id]);
