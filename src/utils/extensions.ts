@@ -1,15 +1,35 @@
 import { AnyFunction, isArray, isObject } from "./types";
 
 /**
+ * Transform the values of an object using the `map` callback.
+ *
+ * @param  {T} obj The object to be mapped
+ * @param  {(value:T[K],index:number)=>MapType} map The callback used to transform the object values
+ * @returns R
+ */
+export function mapObjectValues<
+  T extends Record<K, unknown>,
+  K extends string,
+  MapType,
+  ReturnType extends { [key in K]: MapType }
+>(obj: T, map: (value: T[K], index: number) => MapType): ReturnType {
+	return Object.fromEntries(
+		Object.entries(obj).map(([key, value], index) => [key, map(value as T[K], index)])
+	) as ReturnType;
+}
+
+/**
  * @param {object} obj The object to be mapped.
  * @param {function} keyfun A function which determines the key of the new property. Takes in two parameters- First
  * is the key of the original property and second is the value of the original property.
  * @param {function} propfun A function which determines the value of the new property. Takes in two parameters- First
  * is the value of the original property and second is the key of the original property.
+ * @deprecated
  */
-// FIXME: This is typed correctly as designed, but the function itself is not
+// NOTE: This is typed correctly as designed, but the function itself is not
 // TypeScript compatible; it will always return a union of the possible types,
 // and correct keys cannot be inferred since they are transformed.
+// If you need a type safe version, use `mapObjectValues`
 export function objectMap<T extends Record<keyof T, unknown>, K extends keyof T, R>(
 	obj: T,
 	keyfun: (index: K, value: T[K]) => K,
@@ -122,6 +142,21 @@ export function downloadAsFile(filename: string, text: string): void {
 	}
 }
 
+// TypeScript doesn't have typesafe support for `Object.hasOwn` yet
+// https://github.com/microsoft/TypeScript/issues/44253
+/**
+ * @param  {Readonly<Record<RecordKeys, unknown>>} record The record to check the property presence
+ * @param  {any} property The property to check
+ * @return {boolean} true if the record has the specified property, false if not
+ */
+export function hasOwn<RecordKeys extends string | number | symbol>(
+	record: Readonly<Record<RecordKeys, unknown>>,
+	property: string | number | symbol
+): property is RecordKeys {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+	return Object.prototype.hasOwnProperty.call(record, property);
+}
+
 class Str {
 	public string: string;
 
@@ -143,7 +178,7 @@ class Arr<T> {
 	}
 
 	get last() {
-		return this.array[this.array.length - 1];
+		return this.array.at(-1);
 	}
 
 	findLast(predicate: (value: T, index: number) => boolean) {
@@ -167,7 +202,8 @@ class Arr<T> {
 	}
 
 	// Not sure about the usage for this one, seems like index is always a string
-	// FIXME: Similar to objectToMap, this is can only result in a loosely typed union
+	// NOTE: Similar to objectToMap, this is can only result in a loosely typed union
+	/** @deprecated */
 	mapToObject<K extends string, R>(
 		keyfun: (value: T, index: string) => K,
 		propfun: (value: T, index: K) => R

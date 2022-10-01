@@ -51,7 +51,7 @@ onMount({
 		unlockedPipes = Pipe.isUnlocked;
 		hasWholeBuyableUpgrades = machine.hasWholeBuyableUpgrades;
 		hasPartialBuyableUpgrades = machine.hasPartialBuyableUpgrades;
-		isMin = machine.data.min;
+		isMin = machine.isMinimized;
 		inputs = machine.inputs.filter(x => x.isUnlocked);
 		outputs = machine.outputs.filter(x => x.isUnlocked);
 		inputData = inputs.map(x => ({

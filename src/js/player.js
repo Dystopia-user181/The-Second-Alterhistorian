@@ -1,13 +1,13 @@
 import { reactive, toRaw } from "vue";
 
-import { initializeMachines, MachineTypes } from "./machines/index";
 import { Currencies } from "./currencies/currencies.ts";
+import { fixMachineData } from "./player-wip.ts";
+import { initializeMachines } from "./machines/index";
 import { migrations } from "./migrations";
 import { Modals } from "./ui/modals";
 import { Towns } from "./towns/index";
 
 import { deepClone, downloadAsFile, objectMap } from "@/utils";
-
 
 export const Player = {
 	defaultStart() {
@@ -84,7 +84,7 @@ export const Player = {
 		for (const town in player.towns) {
 			for (const machineId in player.towns[town].machines) {
 				const machine = player.towns[town].machines[machineId];
-				Player.fixMachineData(machine);
+				fixMachineData(machine);
 			}
 			const defaultMachines = Towns(town).defaultMachines;
 			for (const defaultMachine of Object.values(defaultMachines)) {
@@ -104,31 +104,6 @@ export const Player = {
 						break;
 					}
 				}
-			}
-		}
-	},
-	fixMachineData(machine) {
-		const type = MachineTypes[machine.type];
-		if (type.upgrades && Object.keys(type.upgrades).length) {
-			machine.upgrades = machine.upgrades || [];
-			machine.upgradesPrepay = machine.upgradesPrepay || [];
-			for (let i = 0; i < Object.keys(type.upgrades).length; i++) {
-				machine.upgrades[i] = machine.upgrades[i] || 0;
-				machine.upgradesPrepay[i] = machine.upgradesPrepay[i] || 0;
-			}
-		}
-		if (type.inputs.length) {
-			machine.inputs = machine.inputs || [];
-			for (let i = 0; i < type.inputs.length; i++) {
-				machine.inputs[i] = machine.inputs[i] || [];
-			}
-		}
-		if (type.outputs.length) {
-			machine.outputs = machine.outputs || [];
-			machine.pipes = machine.pipes || [];
-			for (let i = 0; i < type.outputs.length; i++) {
-				machine.outputs[i] = machine.outputs[i] || [];
-				machine.pipes[i] = machine.pipes[i] || [];
 			}
 		}
 	},

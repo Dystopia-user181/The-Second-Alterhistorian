@@ -1,3 +1,4 @@
+import { MachineId } from "@/js/machines";
 import { ResourceType } from "@/types/resources";
 
 export const TownTypes = [
@@ -7,7 +8,7 @@ export const TownTypes = [
 export type TownType = typeof TownTypes[number];
 
 export interface SidebarShopDBEntry {
-	type: string
+	type: MachineId
 	cost: number
 	currencyType?: ResourceType
 	isUnlocked?: () => boolean
@@ -26,7 +27,7 @@ export interface TownUpgradeDBEntry {
 
 export interface TownDBEntry {
 	defaultMachines: {
-		type: string
+		type: MachineId
 		x: number
 		y: number
 	}[]
