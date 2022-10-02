@@ -14,6 +14,7 @@ import { format, formatX } from "@/utils";
 let holding = $ref(false);
 let holdingMachine = null;
 let holdingMachineX, holdingMachineY;
+let clientXWhenMovingMachineStarted, clientYWhenMovingMachineStarted;
 let beforeDestroy = null;
 let offsetX = $ref(0);
 let offsetY = $ref(0);
@@ -114,6 +115,8 @@ function registerOffsetKey(offset) {
 		if (holdingMachine) {
 			holdingMachine.data.x += (player.towns[player.currentlyIn].display.offset.x - x);
 			holdingMachine.data.y += (player.towns[player.currentlyIn].display.offset.y - y);
+			holdingMachine.data.x = Math.min(Math.max(holdingMachine.data.x, -maxOffsetX), maxOffsetX);
+			holdingMachine.data.y = Math.min(Math.max(holdingMachine.data.y, -maxOffsetY), maxOffsetY);
 			holdingMachineX += (player.towns[player.currentlyIn].display.offset.x - x);
 			holdingMachineY += (player.towns[player.currentlyIn].display.offset.y - y);
 		}
@@ -171,16 +174,18 @@ function handlePipeStopHover() {
 function handleMoveMachineStart(machine, e) {
 	holdingMachineX = machine.data.x;
 	holdingMachineY = machine.data.y;
+	clientXWhenMovingMachineStarted = e.clientX;
+	clientYWhenMovingMachineStarted = e.clientY;
 	if (!holding) {
 		holding = true;
 		holdingMachine = machine;
 		const followMouse = function(event) {
 			machine.data.x = Math.min(
-				Math.max(holdingMachineX + (event.clientX - e.clientX) / zoom, -maxOffsetX),
+				Math.max(holdingMachineX + (event.clientX - clientXWhenMovingMachineStarted) / zoom, -maxOffsetX),
 				maxOffsetX
 			);
 			machine.data.y = Math.min(
-				Math.max(holdingMachineY + (event.clientY - e.clientY) / zoom, -maxOffsetY),
+				Math.max(holdingMachineY + (event.clientY - clientYWhenMovingMachineStarted) / zoom, -maxOffsetY),
 				maxOffsetY
 			);
 		};
@@ -198,6 +203,13 @@ function handleMoveMachineStart(machine, e) {
 		beforeDestroy = stopHolding;
 	}
 }
+function resetMovingMachingPerspective(newMouseX, newMouseY) {
+	holdingMachineX = holdingMachine.data.x;
+	holdingMachineY = holdingMachine.data.y;
+	clientXWhenMovingMachineStarted = newMouseX;
+	clientYWhenMovingMachineStarted = newMouseY;
+}
+
 function attemptUseDrag(event) {
 	if (!holding) {
 		holding = true;
@@ -234,12 +246,19 @@ function gotoHome() {
 }
 
 function changeZoom({ deltaY }) {
-	const magnitude = Math.pow(0.9, Math.sign(deltaY));
+	const magnitude = Math.pow(0.995, Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40));
+	const oldZoom = player.towns[player.currentlyIn].display.zoom;
 	player.towns[player.currentlyIn].display.zoom *= magnitude;
 	player.towns[player.currentlyIn].display.zoom = Math.min(
 		Math.max(player.towns[player.currentlyIn].display.zoom, Math.pow(0.9, 6)),
 		Math.pow(0.9, -6)
 	);
+	const newZoom = player.towns[player.currentlyIn].display.zoom;
+	const mouseOffsetX = mouseX - tabWidth / 2;
+	const mouseOffsetY = mouseY - tabHeight / 2;
+	player.towns[player.currentlyIn].display.offset.x += mouseOffsetX * (1 / oldZoom - 1 / newZoom);
+	player.towns[player.currentlyIn].display.offset.y += mouseOffsetY * (1 / oldZoom - 1 / newZoom);
+	resetMovingMachingPerspective(mouseX, mouseY);
 }
 </script>
 
