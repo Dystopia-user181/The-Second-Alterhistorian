@@ -17,6 +17,7 @@ function acceptsAll(accepts) {
 
 <template>
 	{{ machine.config.description }}
+	<br>
 	<div class="c-info__table">
 		<span
 			v-for="input in machine.inputs.filter(x => x.isUnlocked)"
