@@ -47,7 +47,7 @@ function getConsumption(machine: ConfiguredMachine<"improve", { inputResource: M
 function getFuelUsage(
 	machine: MetaConfiguredMachine<"improve", { inputResource: MaybeResourceType; inputFuel: MaybeResourceType }>
 ) {
-	if (!machine.meta.inputResource) {
+	if (!machine.meta.inputResource || machine.meta.inputResource === "none") {
 		return 0;
 	}
 

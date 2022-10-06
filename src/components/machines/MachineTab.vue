@@ -204,6 +204,7 @@ function handleMoveMachineStart(machine, e) {
 	}
 }
 function resetMovingMachingPerspective(newMouseX, newMouseY) {
+	if (!holdingMachine) return;
 	holdingMachineX = holdingMachine.data.x;
 	holdingMachineY = holdingMachine.data.y;
 	clientXWhenMovingMachineStarted = newMouseX;
