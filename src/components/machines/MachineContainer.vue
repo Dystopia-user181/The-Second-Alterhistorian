@@ -35,10 +35,10 @@ onMount({
 		const z = player.towns[player.currentlyIn].display.zoom;
 		const machX = props.machine.data.x, machY = props.machine.data.y;
 		const w2 = innerWidth / 2 / z, h2 = innerHeight / 2 / z;
-		shouldExist = machX > offsetX - w2 - 600 / z &&
+		shouldExist = machX > offsetX - w2 - 600 &&
 			machX < offsetX + w2 &&
-			machY > offsetY - h2 - 300 / z &&
-			machY < offsetY + h2;
+			machY > offsetY - h2 - 330 &&
+			machY < offsetY + h2 + 30;
 	}
 });
 </script>

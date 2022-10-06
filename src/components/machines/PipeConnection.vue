@@ -32,10 +32,10 @@ const shouldExist = $computed(() => {
 	const offsetX = player.towns[player.currentlyIn].display.offset.x;
 	const offsetY = player.towns[player.currentlyIn].display.offset.y;
 	const z = player.towns[player.currentlyIn].display.zoom;
-	if (rx2 < offsetX - w2 / z || ry2 < offsetY - h2 / z)
+	if (rx2 < offsetX - w2 / z - 7 || ry2 < offsetY - h2 / z + 7)
 		return false;
 
-	if (rx1 > offsetX + w2 / z || ry1 > offsetY + h2 / z)
+	if (rx1 > offsetX + w2 / z - 7 || ry1 > offsetY + h2 / z + 7)
 		return false;
 
 	return true;
