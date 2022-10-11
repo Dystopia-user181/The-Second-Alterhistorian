@@ -8,12 +8,6 @@ export interface GameEvents {
 	// Ticks
 	GAME_TICK_BEFORE: void
 	GAME_TICK_AFTER: void
-
-	// Keyboard Events
-	ARROW_KEYDOWN: string
-	ARROW_KEYUP: string
-	ENTER_PRESSED: void
-	ESCAPE_PRESSED: void
 }
 
 export type GameEvent = keyof GameEvents
