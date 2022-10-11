@@ -62,7 +62,7 @@ export function run<T>(
 	return result;
 }
 
-export function deepAssign<T, K extends keyof T>(target: T, source: T) : void {
+export function deepAssign<T extends Record<K, any>, K extends keyof T>(target: T, source: T) : void {
 	Object.keys(source).forEach(k => {
 		const key = k as K;
 		if (isObject(source[key]))
