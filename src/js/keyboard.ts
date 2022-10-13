@@ -8,6 +8,7 @@ window.addEventListener("keydown", e => {
 	shiftDown = e.shiftKey;
 	const key = e.key.toLowerCase();
 	if (isKeydown[key]) return;
+
 	isKeydown[key] = true;
 
 	if (key.startsWith("arrow")) {
@@ -38,7 +39,8 @@ window.addEventListener("keydown", e => {
 window.addEventListener("keyup", e => {
 	shiftDown = e.shiftKey;
 	const key = e.key.toLowerCase();
-	// if (!isKeydown[key]) return;
+	if (!isKeydown[key]) return;
+
 	isKeydown[key] = false;
 
 	if (key.startsWith("arrow")) {
