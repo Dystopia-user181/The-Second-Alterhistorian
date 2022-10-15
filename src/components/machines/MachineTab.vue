@@ -44,27 +44,24 @@ const maxOffsetY = 4000;
 const machines = $computed(() => Machines[player.currentlyIn]);
 const pipes = $computed(() => Pipes[player.currentlyIn]);
 
+const pressedKeys = {
+	up: false,
+	down: false,
+	left: false,
+	right: false
+};
+
 onMount({
 	on: {
 		ARROW_KEYDOWN([key]) {
-			if (Modals.isOpen) return;
-			switch (key) {
-				case "up":
-					registerOffsetKey([0, -1]);
-					break;
-				case "right":
-					registerOffsetKey([1, 0]);
-					break;
-				case "down":
-					registerOffsetKey([0, 1]);
-					break;
-				case "left":
-					registerOffsetKey([-1, 0]);
-					break;
-			}
+			pressedKeys[key] = true;
+
+			registerOffsetKey();
 		},
-		ARROW_KEYUP() {
-			deregisterOffsetKey();
+		ARROW_KEYUP([key]) {
+			pressedKeys[key] = false;
+
+			registerOffsetKey();
 		}
 	},
 	beforeUnmount() {
@@ -107,8 +104,30 @@ function registerOffsetHold(offset) {
 		beforeDestroy = stopHolding;
 	}
 }
-function registerOffsetKey(offset) {
+function registerOffsetKey() {
+	const offset = [0, 0];
+
+	if (pressedKeys.left) {
+		offset[0] = -1;
+	} else if (pressedKeys.right) {
+		offset[0] = 1;
+	}
+
+	if (pressedKeys.up) {
+		offset[1] = -1;
+	} else if (pressedKeys.down) {
+		offset[1] = 1;
+	}
+
+	if (offset === [0, 0]) {
+		holdingKeyFunction = null;
+		return;
+	}
+
 	holdingKeyFunction = function() {
+		if (Modals.isOpen)
+			return;
+
 		const { x, y } = player.towns[player.currentlyIn].display.offset;
 		player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
 		player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
@@ -121,9 +140,6 @@ function registerOffsetKey(offset) {
 			holdingMachineY += (player.towns[player.currentlyIn].display.offset.y - y);
 		}
 	};
-}
-function deregisterOffsetKey() {
-	holdingKeyFunction = null;
 }
 function handlePipeDrag(type, machine, id) {
 	holding = true;
