@@ -27,16 +27,16 @@ export function removeFromStack(stack : ResourceData[], amount : number) : numbe
 	if (!stack.length) return 0;
 	if (amount <= 0) return 0;
 
-	const removed = stack[0];
+	const removed = stack[stack.length - 1];
 
 	if (removed.amount <= amount) {
-		stack.shift();
+		stack.pop();
 		return removed.amount;
 	}
 
 	removed.amount -= amount;
 	if (removed.amount < Number.EPSILON) {
-		stack.shift();
+		stack.pop();
 	}
 	return amount;
 }

@@ -1,7 +1,7 @@
 <script setup>
 import { onMount } from "@/components/mixins";
 
-import { arr, format, str } from "@/utils";
+import { format, str } from "@/utils";
 
 
 const { machine } = defineProps({
@@ -42,18 +42,18 @@ function stopAvg() {
 	takingAvg = false;
 }
 
+const getConsumes = function(consumes, diff) {
+	// *1.1 to account for some errors
+	return typeof consumes === "object"
+		? Math.min(consumes.amount, consumes.maximum / diff * 1.1)
+		: consumes;
+};
+const getProduces = (function(x, output) {
+	return machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
+					output.otherwiseDiff;
+});
 onMount({
 	update() {
-		const getConsumes = function(consumes, diff) {
-			// *1.1 to account for some errors
-			return typeof consumes === "object"
-				? Math.min(consumes.amount, consumes.maximum / diff * 1.1)
-				: consumes;
-		};
-		const getProduces = (function(x, output) {
-			return machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
-					output.otherwiseDiff;
-		});
 		inputs = machine.inputs.map((x, id) => (x.isUnlocked ? {
 			resource: x.displayResource[0],
 			amount: machine.inputConfHistories.map(y => y[id])
@@ -72,7 +72,7 @@ onMount({
 			for (const input of machine.inputs) {
 				const avgItem = avg.inputs[input.id];
 				avgItem.isUnlocked = input.isUnlocked;
-				const resource = arr(input.data).last ? arr(input.data).last.resource : avgItem.lastResource;
+				const resource = input.displayResource[0] === "none" ? avgItem.lastResource : input.displayResource[0];
 				const conf = input.config;
 				if (avgItem.lastResource !== resource) {
 					avgItem.lastResource = resource;
@@ -113,8 +113,9 @@ onMount({
 				:key="input.id"
 			>
 				Input {{ input.id + 1 }}:
-				<span v-if="input.value && input.lastResource !== 'none'">
-					Consumes {{ format(input.value, 2, 2, true) }} {{ str(input.lastResource).capitalize }}/s
+				<span v-if="input.value && avg.inputs[input.id].lastResource !== 'none'">
+					Consumes {{ format(input.value, 2, 2, true) }}
+					{{ str(avg.inputs[input.id].lastResource).capitalize }}/s
 				</span>
 				<span v-else>
 					IDLE
@@ -132,7 +133,8 @@ onMount({
 			>
 				Output {{ output.id + 1 }}:
 				<span v-if="output.value">
-					Consumes {{ format(output.value, 2, 2, true) }} {{ str(output.lastResource).capitalize }}/s
+					Consumes {{ format(output.value, 2, 2, true) }}
+					{{ str(avg.outputs[output.id].lastResource).capitalize }}/s
 				</span>
 				<span v-else>
 					IDLE
