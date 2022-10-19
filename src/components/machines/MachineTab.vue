@@ -5,6 +5,7 @@ import { player } from "@/js/player";
 
 import { onMount } from "@/components/mixins";
 
+import GridDisplay from "./GridDisplay.vue";
 import MachineContainer from "./MachineContainer.vue";
 import PipeConnection from "./PipeConnection.vue";
 
@@ -306,6 +307,12 @@ function changeZoom({ deltaY }) {
 			:width="2 * maxOffsetX"
 			:height="2 * maxOffsetY"
 		>
+			<grid-display
+				:x="-maxOffsetX"
+				:y="-maxOffsetY"
+				:width="maxOffsetX * 2"
+				:height="maxOffsetY * 2"
+			/>
 			<pipe-connection
 				v-for="(pipe, id) in pipes"
 				:key="id"
