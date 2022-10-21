@@ -6,9 +6,8 @@ import { onMount } from "@/components/mixins";
 
 import SidebarShopMachineItem from "./SidebarShopMachineItem.vue";
 import SidebarShopUpgradeItem from "./SidebarShopUpgradeItem.vue";
+import SubtabComponent from "./SubtabComponent.vue";
 
-
-const tab = $ref("machines");
 let currentMachines = $shallowRef([]);
 let currentUpgrades = $shallowRef([]);
 let isFullyUpgraded = $ref(false);
@@ -27,54 +26,52 @@ onMount({
 </script>
 
 <template>
-	<div class="c-sidebar__shop-tabs">
-		<button
-			class="c-emphasise-text c-sidebar__shop-label"
-			:class="{ 'c-current-tab': tab === 'machines' }"
-			@click="tab = 'machines'"
+	<div
+		class="c-sidebar__shop-subtab-container"
+	>
+		<subtab-component
+			:subtabs="[
+				{ name: 'Machines', buttonClass: 'c-sidebar__shop-label' },
+				{
+					name: 'Upgrades',
+					buttonClass: {
+						'c-sidebar__shop-label': true,
+						'c-darker': isFullyUpgraded,
+						'c-glow-green': hasPartialBuyableUpgrades,
+						'c-glow-yellow': hasWholeBuyableUpgrades
+					}
+				}
+			]"
 		>
-			Machines
-		</button>
-		<button
-			class="c-emphasise-text c-sidebar__shop-label"
-			:class="{
-				'c-current-tab': tab === 'upgrades',
-				'c-darker': isFullyUpgraded,
-				'c-glow-green': hasPartialBuyableUpgrades,
-				'c-glow-yellow': hasWholeBuyableUpgrades,
-			}"
-			@click="tab = 'upgrades'"
-		>
-			Upgrades
-		</button>
-	</div>
-	<div class="c-sidebar__shop">
-		<template v-if="tab === 'machines'">
-			<h3 class="c-emphasise-text">
-				&nbsp;&nbsp;
-				Machines: {{ Object.values(player.towns[player.currentlyIn].machines).length }} / 50
-			</h3>
-			<sidebar-shop-machine-item
-				v-for="(shopItem, id) of currentMachines"
-				:key="id"
-				:shop-item="shopItem"
-			/>
-		</template>
-		<template v-else-if="tab === 'upgrades'">
-			<sidebar-shop-upgrade-item
-				v-for="(shopItem, id) of currentUpgrades"
-				:key="id"
-				:shop-item="shopItem"
-			/>
-		</template>
+			<template #MachinesTab>
+				<div class="c-sidebar__shop">
+					<h3 class="c-emphasise-text">
+						&nbsp;&nbsp;
+						Machines: {{ Object.values(player.towns[player.currentlyIn].machines).length }} / 50
+					</h3>
+					<sidebar-shop-machine-item
+						v-for="(shopItem, id) of currentMachines"
+						:key="id"
+						:shop-item="shopItem"
+					/>
+				</div>
+			</template>
+			<template #UpgradesTab>
+				<div class="c-sidebar__shop">
+					<sidebar-shop-upgrade-item
+						v-for="(shopItem, id) of currentUpgrades"
+						:key="id"
+						:shop-item="shopItem"
+					/>
+				</div>
+			</template>
+		</subtab-component>
 	</div>
 </template>
 
 <style scoped>
-.c-sidebar__shop {
+:deep(.c-sidebar__shop) {
 	width: 100%;
-	flex: 1 0 auto;
-	flex-basis: 0;
 	overflow-y: auto;
 	overflow-x: hidden;
 	display: flex;
@@ -82,29 +79,33 @@ onMount({
 	align-items: flex-start;
 }
 
-.c-sidebar__shop-tabs {
+.c-sidebar__shop-subtab-container {
 	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
 	width: 100%;
 }
 
-.c-sidebar__shop-label {
+:deep(.c-sidebar__shop-label) {
 	padding: 0 10px;
 	width: 100%;
 	margin: 5px;
 	margin-top: 10px;
-	text-align: center;
+	justify-self: stretch;
 	padding: 10px 5px;
+	font-size: 1.1em;
+	font-weight: bold;
 }
 
-.c-current-tab {
-	background-color: #ffffff33;
+:deep(.c-darker) {
+	color: #aaa;
 }
 
-.c-glow-green {
+:deep(.c-glow-green) {
 	color: lime;
 }
 
-.c-glow-yellow {
+:deep(.c-glow-yellow) {
 	color: gold;
 }
 </style>
