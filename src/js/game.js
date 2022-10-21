@@ -18,10 +18,10 @@ export function gameLoop(_diff) {
 	LogicEvent.dispatch("GAME_TICK_AFTER");
 }
 
-window.gameLoopInterval = setInterval(gameLoop, 30);
+window.gameLoopInterval = setInterval(() => gameLoop(), 30);
 
 function render() {
 	GameUI.render();
 }
 
-window.renderInterval = setInterval(render, 16);
+window.renderInterval = setInterval(() => render(), 16);
