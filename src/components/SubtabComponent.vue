@@ -18,7 +18,6 @@ const emit = defineEmits(["changeTab"]);
 			:key="id"
 			class="c-tab-button"
 			:class="[{ 'c-tab-button--current': currentTab === id }, subtab.buttonClass]"
-			:style="subtab.buttonStyle"
 
 			@click="() => {
 				currentTab = id;
