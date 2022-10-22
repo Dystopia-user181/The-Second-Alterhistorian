@@ -1,5 +1,8 @@
 import { AnyFunction, isArray, isObject } from "./types";
 
+export function nonNegativeMod(n: number, m: number) {
+	return ((n % m) + m) % m;
+}
 /**
  * Transform the values of an object using the `map` callback.
  *

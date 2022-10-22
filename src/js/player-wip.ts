@@ -17,6 +17,10 @@ export interface PlayerTown {
 
 // Things aren't typed yet but it needs to be used; as things get typed, delete these
 export interface Player {
+	options: {
+		showGridlines: number,
+		snapToGrid: number,
+	},
 	money: number,
 	fastTime: number,
 	holding: {

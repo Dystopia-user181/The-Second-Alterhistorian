@@ -1,6 +1,6 @@
 <script setup>
+import { player, Player } from "@/js/player";
 import { Modals } from "@/js/ui/modals";
-import { Player } from "@/js/player";
 
 import ModalWrapper from "./ModalWrapper.vue";
 
@@ -13,6 +13,14 @@ function importSave() {
 	};
 
 	input.click();
+}
+
+function getOptionsText(option) {
+	return player.options[option] ? "ON" : "OFF";
+}
+
+function toggleOption(option) {
+	player.options[option] = Number(!player.options[option]);
 }
 </script>
 
@@ -40,6 +48,20 @@ function importSave() {
 		>
 			HARD RESET
 		</button>
+		<br>
+		<button
+			class="c-settings-button"
+			@click="toggleOption('showGridlines')"
+		>
+			Show Gridlines: {{ getOptionsText("showGridlines") }}
+		</button>
+		<button
+			class="c-settings-button"
+			:class="{ disabled: !player.options.showGridlines }"
+			@click="if (player.options.showGridlines) toggleOption('snapToGrid');"
+		>
+			Snap To Grid: {{ getOptionsText("snapToGrid") }}
+		</button>
 	</modal-wrapper>
 </template>
 
@@ -54,5 +76,6 @@ function importSave() {
 	height: 100px;
 	font-size: 18px;
 	margin: 3px;
+	vertical-align: middle;
 }
 </style>
