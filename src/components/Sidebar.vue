@@ -33,6 +33,7 @@ import SidebarShop from "./SidebarShop.vue";
 <style scoped>
 .c-sidebar {
 	width: 300px;
+	max-height: 100vh;
 	padding: 10px;
 	display: flex;
 	flex-direction: column;

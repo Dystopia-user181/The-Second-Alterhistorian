@@ -6,6 +6,7 @@ import { onMount } from "@/components/mixins";
 import MachineInfoModal from "./MachineInfoModal.vue";
 import MachineProductionModal from "./MachineProductionModal.vue";
 import ModalWrapper from "./ModalWrapper.vue";
+import SubtabComponent from "@/components/SubtabComponent.vue";
 
 
 const { machine } = defineProps({
@@ -26,7 +27,8 @@ const machineNameEditable = $computed({
 });
 
 let isEditingName = $ref(false);
-const currentTab = $ref("INFO");
+let currentTabDisplay = $ref("INFO");
+const onChangeTab = (_, x) => currentTabDisplay = x.name;
 
 onMount({
 	on: {
@@ -40,7 +42,7 @@ onMount({
 <template>
 	<ModalWrapper class="c-machine-statistics-modal">
 		<span class="c-emphasise-text">
-			{{ currentTab }} (<input
+			{{ currentTabDisplay }} (<input
 				v-if="isEditingName"
 				v-model="machineNameEditable"
 				maxlength="20"
@@ -60,27 +62,17 @@ onMount({
 			)
 		</span>
 		<br>
-		<button
-			class="c-info__tab-button"
-			@click="currentTab = 'INFO'"
+		<SubtabComponent
+			:subtabs="[{ name: 'INFO' }, { name: 'PRODUCTION' }]"
+			@changeTab="onChangeTab"
 		>
-			INFO
-		</button>
-		<button
-			class="c-info__tab-button"
-			@click="currentTab = 'PRODUCTION'"
-		>
-			PRODUCTION
-		</button>
-		<br>
-		<MachineInfoModal
-			v-if="currentTab === 'INFO'"
-			:machine="machine"
-		/>
-		<MachineProductionModal
-			v-else-if="currentTab === 'PRODUCTION'"
-			:machine="machine"
-		/>
+			<template #INFOTab>
+				<MachineInfoModal :machine="machine" />
+			</template>
+			<template #PRODUCTIONTab>
+				<MachineProductionModal :machine="machine" />
+			</template>
+		</SubtabComponent>
 	</ModalWrapper>
 </template>
 
