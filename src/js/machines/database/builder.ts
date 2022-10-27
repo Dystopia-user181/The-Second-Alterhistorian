@@ -3,7 +3,7 @@ import { MachinesById, Pipes } from "../player-proxy-wip";
 import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
 
 import { MachineConfig, MachineData } from "@/js/machines/database/config";
-import { mapObjectValues, str } from "@/utils";
+import { mapObjectValues, nonNegativeMod, str } from "@/utils";
 import { ResourceData } from "@/types/resources";
 import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
@@ -263,6 +263,29 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 					return [machine, machine.inputs[x[1]]];
 				})
 			) as [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
+		}
+
+		moveTo(_x: number, _y: number) {
+			const maxOffsetX = 5000;
+			const maxOffsetY = 4000;
+			let x: number, y: number;
+			x = _x;
+			y = _y;
+			if (player.options.snapToGrid && player.options.showGridlines) {
+				const gridInterval = 200;
+				// Produces a graph like /\/\/\/|\/\/\/\ -- Check if value is higher than a certain threshold
+				if (Math.abs(nonNegativeMod(x, gridInterval) - gridInterval / 2) > gridInterval * 0.43 &&
+				Math.abs(nonNegativeMod(y, gridInterval) - gridInterval / 2) > gridInterval * 0.43) {
+					x = Math.round(x / gridInterval) * gridInterval;
+					y = Math.round(y / gridInterval) * gridInterval;
+				}
+			}
+			this.data.x = Math.max(Math.min(x, maxOffsetX), -maxOffsetX);
+			this.data.y = Math.max(Math.min(y, maxOffsetY), -maxOffsetY);
+		}
+
+		changePositionBy(x: number, y: number) {
+			this.moveTo(this.data.x + x, this.data.y + y);
 		}
 
 		inputItem(index: number) {

@@ -5,6 +5,7 @@ import { player } from "@/js/player";
 
 import { onMount } from "@/components/mixins";
 
+import GridDisplay from "./GridDisplay.vue";
 import MachineContainer from "./MachineContainer.vue";
 import PipeConnection from "./PipeConnection.vue";
 
@@ -132,12 +133,12 @@ function registerOffsetKey() {
 		player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
 		player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
 		if (holdingMachine) {
-			holdingMachine.data.x += (player.towns[player.currentlyIn].display.offset.x - x);
-			holdingMachine.data.y += (player.towns[player.currentlyIn].display.offset.y - y);
-			holdingMachine.data.x = Math.min(Math.max(holdingMachine.data.x, -maxOffsetX), maxOffsetX);
-			holdingMachine.data.y = Math.min(Math.max(holdingMachine.data.y, -maxOffsetY), maxOffsetY);
-			holdingMachineX += (player.towns[player.currentlyIn].display.offset.x - x);
-			holdingMachineY += (player.towns[player.currentlyIn].display.offset.y - y);
+			holdingMachine.changePositionBy(
+				player.towns[player.currentlyIn].display.offset.x - x,
+				player.towns[player.currentlyIn].display.offset.y - y
+			);
+			holdingMachineX = holdingMachine.data.x;
+			holdingMachineY = holdingMachine.data.y;
 		}
 	};
 }
@@ -196,13 +197,9 @@ function handleMoveMachineStart(machine, e) {
 		holding = true;
 		holdingMachine = machine;
 		const followMouse = function(event) {
-			machine.data.x = Math.min(
-				Math.max(holdingMachineX + (event.clientX - clientXWhenMovingMachineStarted) / zoom, -maxOffsetX),
-				maxOffsetX
-			);
-			machine.data.y = Math.min(
-				Math.max(holdingMachineY + (event.clientY - clientYWhenMovingMachineStarted) / zoom, -maxOffsetY),
-				maxOffsetY
+			machine.moveTo(
+				holdingMachineX + (event.clientX - clientXWhenMovingMachineStarted) / zoom,
+				holdingMachineY + (event.clientY - clientYWhenMovingMachineStarted) / zoom
 			);
 		};
 		document.addEventListener("mousemove", followMouse);
@@ -306,6 +303,13 @@ function changeZoom({ deltaY }) {
 			:width="2 * maxOffsetX"
 			:height="2 * maxOffsetY"
 		>
+			<grid-display
+				v-if="player.options.showGridlines"
+				:x="-maxOffsetX"
+				:y="-maxOffsetY"
+				:width="maxOffsetX * 2"
+				:height="maxOffsetY * 2"
+			/>
 			<pipe-connection
 				v-for="(pipe, id) in pipes"
 				:key="id"

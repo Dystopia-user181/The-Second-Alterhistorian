@@ -7,7 +7,7 @@ import { migrations } from "./migrations";
 import { Modals } from "./ui/modals";
 import { Towns } from "./towns/index";
 
-import { deepClone, downloadAsFile, objectMap } from "@/utils";
+import { deepClone, downloadAsFile } from "@/utils";
 
 export const Player = {
 	defaultStart() {
@@ -30,14 +30,16 @@ export const Player = {
 				resource: "earth",
 				amount: 0
 			},
-			unlockedCurrencies: objectMap(Currencies, x => x, () => false),
+			unlockedCurrencies: Object.fromEntries(new Map(Object.keys(Currencies).map(x => [x, false]))),
 			fastTime: 0,
 			migrations: migrations.length,
 			producedElixir: 0,
 			vitalMarker: Player.storageKey,
 			options: {
 				autosave: 1,
-				exportCount: 0
+				exportCount: 0,
+				showGridlines: 1,
+				snapToGrid: 1
 			}
 		};
 	},
