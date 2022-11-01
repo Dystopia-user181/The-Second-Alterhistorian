@@ -133,12 +133,13 @@ function registerOffsetKey() {
 		player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
 		player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
 		if (holdingMachine) {
+			const previousMachineX = holdingMachine.data.x, previousMachineY = holdingMachine.data.y;
 			holdingMachine.changePositionBy(
 				player.towns[player.currentlyIn].display.offset.x - x,
 				player.towns[player.currentlyIn].display.offset.y - y
 			);
-			holdingMachineX = holdingMachine.data.x;
-			holdingMachineY = holdingMachine.data.y;
+			holdingMachineX += (holdingMachine.data.x - previousMachineX);
+			holdingMachineY += (holdingMachine.data.y - previousMachineY);
 		}
 	};
 }
