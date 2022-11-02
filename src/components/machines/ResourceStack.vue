@@ -22,7 +22,7 @@ let ctx;
 
 function update() {
 	const cap = props.capacity;
-	if (props.stack.length <= 20) {
+	if (props.stack.length <= 40) {
 		display = props.stack.map(x => ({
 			height: `${x.amount / cap * 100}%`,
 			"background-color": Currencies[x.resource].colour
@@ -57,7 +57,7 @@ onMount({
 			<slot />
 		</span>
 		<div
-			v-if="props.stack.length <= 20"
+			v-if="props.stack.length <= 40"
 			class="c-resources-stack"
 		>
 			<div
@@ -69,7 +69,7 @@ onMount({
 		<canvas
 			ref="canvas"
 			:style="{
-				visibility: props.stack.length > 20 ? 'visible' : 'hidden'
+				visibility: props.stack.length > 40 ? 'visible' : 'hidden'
 			}"
 			class="c-resources-stack__canvas"
 			height="400"
