@@ -1,44 +1,54 @@
-<script>
-import { Currencies } from "@/js/currencies/currencies.ts";
+<script setup>
+import { watch } from "vue";
+
+import { Currencies } from "@/js/currencies/currencies";
+
+import { onMount } from "@/components/mixins";
 
 
-export default {
-	name: "ResourceStack",
-	props: {
-		stack: {
-			type: Array,
-			required: true
-		},
-		capacity: {
-			type: Number,
-			required: true
-		}
+const props = defineProps({
+	stack: {
+		type: Array,
+		required: true
 	},
-	data() {
-		return {
-			display: [],
-			ctx: null
-		};
-	},
-	methods: {
-		update() {
-			const display = this.stack.map(x => ({
-				height: x.amount / this.capacity * 400,
-				colour: Currencies[x.resource].colour
-			}));
-			if (!this.ctx) this.ctx = this.$refs.canvas.getContext("2d");
-			const ctx = this.ctx;
-			ctx.clearRect(0, 0, 1, 400);
-			let height = 0;
-			for (let i = display.length - 1; i >= 0; i--) {
-				const resource = display[i];
-				height += resource.height;
-				ctx.fillStyle = resource.colour;
-				ctx.fillRect(0, 400 - height, 1, resource.height);
-			}
-		}
+	capacity: {
+		type: Number,
+		required: true
 	}
-};
+});
+let display = $ref([]);
+const canvas = $ref(null);
+let ctx;
+
+function update() {
+	const cap = props.capacity;
+	if (props.stack.length <= 20) {
+		display = props.stack.map(x => ({
+			height: `${x.amount / cap * 100}%`,
+			"background-color": Currencies[x.resource].colour
+		}));
+		return;
+	}
+	const internalDisplay = props.stack.map(x => ({
+		height: x.amount / cap * 400,
+		colour: Currencies[x.resource].colour,
+	}));
+	ctx.clearRect(0, 0, 1, 400);
+	let height = 0;
+	for (let i = internalDisplay.length - 1; i >= 0; i--) {
+		const resource = display[i];
+		height += resource.height;
+		ctx.fillStyle = resource.colour;
+		ctx.fillRect(0, 400 - height, 1, resource.height);
+	}
+}
+watch(props, update, { deep: true });
+
+onMount({
+	onMount() {
+		ctx = canvas.getContext("2d");
+	}
+});
 </script>
 
 <template>
@@ -46,8 +56,21 @@ export default {
 		<span class="c-resources-container--text">
 			<slot />
 		</span>
+		<div
+			v-if="props.stack.length <= 20"
+			class="c-resources-stack"
+		>
+			<div
+				v-for="(style, id) in display"
+				:key="id"
+				:style="style"
+			/>
+		</div>
 		<canvas
 			ref="canvas"
+			:style="{
+				visibility: props.stack.length > 20 ? 'visible' : 'hidden'
+			}"
 			class="c-resources-stack__canvas"
 			height="400"
 			width="1"
@@ -71,6 +94,16 @@ export default {
 	text-align: center;
 	z-index: 1;
 	font-size: 0.9em;
+}
+
+.c-resources-stack {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
 }
 
 .c-resources-stack__canvas {
