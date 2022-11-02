@@ -166,11 +166,12 @@ export class ViewMoveHandler {
 		this._onUnmount2?.();
 	}
 
-	addEventListener<T extends EventListenerType>(
+	addEventListener<T extends keyof EventListeners>(
 		type: T,
 		func: EventListeners[T][number]
 	) {
-		// I don't know why but it's union-ing the type instead of just getting the type for specific T
+		// I don't know why but type inferring is taking the union of all possible types of functions
+		// instead of just getting the function type for specific T
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		this._eventListeners[type].push(func as any);
 	}

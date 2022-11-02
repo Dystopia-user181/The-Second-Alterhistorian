@@ -31,7 +31,6 @@ const view = new ViewMoveHandler({
 
 let holdingMachine = null;
 let holdingMachineX, holdingMachineY;
-let mouseXOnDragStart, mouseYOnDragStart;
 let beforeDestroy = null;
 let mouseX = $ref(0);
 let mouseY = $ref(0);
@@ -87,12 +86,6 @@ onMount({
 		mouseY = view._mouseY;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
-		Towns("current").playerData.display.offset.x = Math.max(-TOWNS.MAX_OFFSET_X,
-			Math.min(Towns("current").playerData.display.offset.x, TOWNS.MAX_OFFSET_X)
-		);
-		Towns("current").playerData.display.offset.y = Math.max(-TOWNS.MAX_OFFSET_Y,
-			Math.min(Towns("current").playerData.display.offset.y, TOWNS.MAX_OFFSET_Y)
-		);
 		tabWidth = machineTab.offsetWidth;
 		tabHeight = machineTab.offsetHeight;
 	}
@@ -200,39 +193,40 @@ function handlePipeStopHover() {
 	hoveringPipe.machine = null;
 }
 function handleMoveMachineStart(machine, e) {
+	if (view.config.isBlockingMove) return;
+	view.config.isBlockingMove = true;
+	holdingMachine = machine;
 	holdingMachineX = machine.data.x;
 	holdingMachineY = machine.data.y;
-	mouseXOnDragStart = e.clientX;
-	mouseYOnDragStart = e.clientY;
-	if (!view.config.isBlockingMove) {
-		view.config.isBlockingMove = true;
-		holdingMachine = machine;
-		const followMouse = function(event) {
-			machine.moveTo(
-				holdingMachineX + (event.clientX - mouseXOnDragStart) / view.zoom,
-				holdingMachineY + (event.clientY - mouseYOnDragStart) / view.zoom
-			);
-		};
-		document.addEventListener("mousemove", followMouse);
-		const stopHolding = function() {
-			view.config.isBlockingMove = false;
-			document.removeEventListener("mousemove", followMouse);
-			document.removeEventListener("mouseup", stopHolding);
-			document.removeEventListener("mouseleave", stopHolding);
-			beforeDestroy = null;
-			holdingMachine = null;
-		};
-		document.addEventListener("mouseup", stopHolding);
-		document.addEventListener("mouseleave", stopHolding);
-		beforeDestroy = stopHolding;
-	}
+	let mouseXOnDragStart = e.clientX;
+	let mouseYOnDragStart = e.clientY;
+	const onResetPerspective = () => {
+		mouseXOnDragStart = mouseX + machineTab.offsetLeft;
+		mouseYOnDragStart = mouseY + machineTab.offsetTop;
+		holdingMachineX = holdingMachine.data.x;
+		holdingMachineY = holdingMachine.data.y;
+	};
+	view.addEventListener("resetperspective", onResetPerspective);
+	const followMouse = function(event) {
+		machine.moveTo(
+			holdingMachineX + (event.clientX - mouseXOnDragStart) / view.zoom,
+			holdingMachineY + (event.clientY - mouseYOnDragStart) / view.zoom
+		);
+	};
+	document.addEventListener("mousemove", followMouse);
+	const stopHolding = function() {
+		view.config.isBlockingMove = false;
+		view.removeEventListener("resetperspective", onResetPerspective);
+		document.removeEventListener("mousemove", followMouse);
+		document.removeEventListener("mouseup", stopHolding);
+		document.removeEventListener("mouseleave", stopHolding);
+		beforeDestroy = null;
+		holdingMachine = null;
+	};
+	document.addEventListener("mouseup", stopHolding);
+	document.addEventListener("mouseleave", stopHolding);
+	beforeDestroy = stopHolding;
 }
-
-view.addEventListener("resetperspective", () => {
-	if (!holdingMachine) return;
-	holdingMachineX = holdingMachine.data.x;
-	holdingMachineY = holdingMachine.data.y;
-});
 </script>
 
 <template>
