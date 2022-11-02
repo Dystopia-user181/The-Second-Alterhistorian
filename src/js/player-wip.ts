@@ -10,8 +10,8 @@ export interface PlayerTown {
 	machinesPrepay: number[],
 	upgradesPrepay: number[],
 	display: {
-		offset: { x: 0, y: 0 },
-		zoom: 1
+		offset: { x: number, y: number },
+		zoom: number
 	},
 }
 
@@ -24,8 +24,8 @@ export interface Player {
 	money: number,
 	fastTime: number,
 	holding: {
-		resource?: ResourceType,
-		amount?: number
+		resource: ResourceType,
+		amount: number
 	},
 	towns: Record<TownType, PlayerTown>
 	producedElixir: number,

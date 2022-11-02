@@ -1,7 +1,9 @@
 <script setup>
 import { Machines, Pipe, Pipes } from "@/js/machines/index";
+import { TOWNS, Towns } from "@/js/towns";
 import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
+import { ViewMoveHandler } from "@/utils/view-move-handler";
 
 import { onMount } from "@/components/mixins";
 
@@ -11,15 +13,26 @@ import PipeConnection from "./PipeConnection.vue";
 
 import { format, formatX } from "@/utils";
 
+const view = new ViewMoveHandler({
+	get offsetX() { return Towns("current").playerData.display.offset.x; },
+	set offsetX(v) { Towns("current").playerData.display.offset.x = v; },
 
-let holding = $ref(false);
+	get offsetY() { return Towns("current").playerData.display.offset.y; },
+	set offsetY(v) { Towns("current").playerData.display.offset.y = v; },
+
+	get zoom() { return Towns("current").playerData.display.zoom; },
+	set zoom(v) { Towns("current").playerData.display.zoom = v; },
+
+	maxOffsetX: TOWNS.MAX_OFFSET_X,
+	maxOffsetY: TOWNS.MAX_OFFSET_Y,
+	maxZoom: 2,
+	isBlockingMove: false,
+});
+
 let holdingMachine = null;
 let holdingMachineX, holdingMachineY;
-let clientXWhenMovingMachineStarted, clientYWhenMovingMachineStarted;
+let mouseXOnDragStart, mouseYOnDragStart;
 let beforeDestroy = null;
-let offsetX = $ref(0);
-let offsetY = $ref(0);
-let zoom = $ref(1);
 let mouseX = $ref(0);
 let mouseY = $ref(0);
 let tabWidth = $ref(0);
@@ -38,9 +51,6 @@ const hoveringPipe = $ref({
 });
 
 const machineTab = $ref(null);
-
-const maxOffsetX = 5000;
-const maxOffsetY = 4000;
 
 const machines = $computed(() => Machines[player.currentlyIn]);
 const pipes = $computed(() => Pipes[player.currentlyIn]);
@@ -65,36 +75,36 @@ onMount({
 			registerOffsetKey();
 		}
 	},
+	onMount() {
+		view.mount(machineTab);
+	},
 	beforeUnmount() {
 		if (beforeDestroy) beforeDestroy();
+		view.unmount();
 	},
 	render() {
-		mouseX = window.mouseX - machineTab.offsetLeft;
-		mouseY = window.mouseY - machineTab.offsetTop;
+		mouseX = view._mouseX;
+		mouseY = view._mouseY;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
-		player.towns[player.currentlyIn].display.offset.x = Math.max(-maxOffsetX,
-			Math.min(player.towns[player.currentlyIn].display.offset.x, maxOffsetX)
+		Towns("current").playerData.display.offset.x = Math.max(-TOWNS.MAX_OFFSET_X,
+			Math.min(Towns("current").playerData.display.offset.x, TOWNS.MAX_OFFSET_X)
 		);
-		player.towns[player.currentlyIn].display.offset.y = Math.max(-maxOffsetY,
-			Math.min(player.towns[player.currentlyIn].display.offset.y, maxOffsetY)
+		Towns("current").playerData.display.offset.y = Math.max(-TOWNS.MAX_OFFSET_Y,
+			Math.min(Towns("current").playerData.display.offset.y, TOWNS.MAX_OFFSET_Y)
 		);
-		offsetX = player.towns[player.currentlyIn].display.offset.x;
-		offsetY = player.towns[player.currentlyIn].display.offset.y;
-		zoom = player.towns[player.currentlyIn].display.zoom;
 		tabWidth = machineTab.offsetWidth;
 		tabHeight = machineTab.offsetHeight;
 	}
 });
 function registerOffsetHold(offset) {
-	if (!holding) {
-		holding = true;
+	if (!view.config.isBlockingMove) {
+		view.config.isBlockingMove = true;
 		holdingFunction = function() {
-			player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
-			player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
+			Towns("current").changeOffset(offset[0] * 15 / view.zoom, offset[1] * 15 / view.zoom);
 		};
 		const stopHolding = function() {
-			holding = false;
+			view.config.isBlockingMove = false;
 			holdingFunction = null;
 			document.removeEventListener("mouseup", stopHolding);
 			document.removeEventListener("mouseleave", stopHolding);
@@ -120,7 +130,7 @@ function registerOffsetKey() {
 		offset[1] = 1;
 	}
 
-	if (offset === [0, 0]) {
+	if (offset[0] === 0 && offset[1] === 0) {
 		holdingKeyFunction = null;
 		return;
 	}
@@ -129,14 +139,14 @@ function registerOffsetKey() {
 		if (Modals.isOpen)
 			return;
 
-		const { x, y } = player.towns[player.currentlyIn].display.offset;
-		player.towns[player.currentlyIn].display.offset.x += offset[0] * 15 / zoom;
-		player.towns[player.currentlyIn].display.offset.y += offset[1] * 15 / zoom;
+		const { x, y } = Towns("current").playerData.display.offset;
+		Towns("current").playerData.display.offset.x += offset[0] * 15 / view.zoom;
+		Towns("current").playerData.display.offset.y += offset[1] * 15 / view.zoom;
 		if (holdingMachine) {
 			const previousMachineX = holdingMachine.data.x, previousMachineY = holdingMachine.data.y;
 			holdingMachine.changePositionBy(
-				player.towns[player.currentlyIn].display.offset.x - x,
-				player.towns[player.currentlyIn].display.offset.y - y
+				Towns("current").playerData.display.offset.x - x,
+				Towns("current").playerData.display.offset.y - y
 			);
 			holdingMachineX += (holdingMachine.data.x - previousMachineX);
 			holdingMachineY += (holdingMachine.data.y - previousMachineY);
@@ -144,7 +154,7 @@ function registerOffsetKey() {
 	};
 }
 function handlePipeDrag(type, machine, id) {
-	holding = true;
+	view.config.isBlockingMove = true;
 	draggingPipe.type = type;
 	draggingPipe.machine = machine;
 	draggingPipe.id = id;
@@ -157,7 +167,7 @@ function handlePipeDrag(type, machine, id) {
 	document.addEventListener("mouseleave", stopHolding);
 }
 function handlePipeStopDrag() {
-	holding = false;
+	view.config.isBlockingMove = false;
 	if (draggingPipe.type === "output") {
 		if (hoveringPipe.type === "input") {
 			Pipe.removeAllInputPipesTo(hoveringPipe.machine, hoveringPipe.id);
@@ -192,20 +202,20 @@ function handlePipeStopHover() {
 function handleMoveMachineStart(machine, e) {
 	holdingMachineX = machine.data.x;
 	holdingMachineY = machine.data.y;
-	clientXWhenMovingMachineStarted = e.clientX;
-	clientYWhenMovingMachineStarted = e.clientY;
-	if (!holding) {
-		holding = true;
+	mouseXOnDragStart = e.clientX;
+	mouseYOnDragStart = e.clientY;
+	if (!view.config.isBlockingMove) {
+		view.config.isBlockingMove = true;
 		holdingMachine = machine;
 		const followMouse = function(event) {
 			machine.moveTo(
-				holdingMachineX + (event.clientX - clientXWhenMovingMachineStarted) / zoom,
-				holdingMachineY + (event.clientY - clientYWhenMovingMachineStarted) / zoom
+				holdingMachineX + (event.clientX - mouseXOnDragStart) / view.zoom,
+				holdingMachineY + (event.clientY - mouseYOnDragStart) / view.zoom
 			);
 		};
 		document.addEventListener("mousemove", followMouse);
 		const stopHolding = function() {
-			holding = false;
+			view.config.isBlockingMove = false;
 			document.removeEventListener("mousemove", followMouse);
 			document.removeEventListener("mouseup", stopHolding);
 			document.removeEventListener("mouseleave", stopHolding);
@@ -217,72 +227,18 @@ function handleMoveMachineStart(machine, e) {
 		beforeDestroy = stopHolding;
 	}
 }
-function resetMovingMachingPerspective(newMouseX, newMouseY) {
+
+view.addEventListener("resetperspective", () => {
 	if (!holdingMachine) return;
 	holdingMachineX = holdingMachine.data.x;
 	holdingMachineY = holdingMachine.data.y;
-	clientXWhenMovingMachineStarted = newMouseX;
-	clientYWhenMovingMachineStarted = newMouseY;
-}
-
-function attemptUseDrag(event) {
-	if (!holding) {
-		holding = true;
-		let { x, y } = player.towns[player.currentlyIn].display.offset;
-		const followMouse = function(event2) {
-			// Move board position with edge handling, then move reference point if it hits the edge
-			player.towns[player.currentlyIn].display.offset.x = Math.max(Math.min(x +
-				(event.clientX - event2.clientX) / zoom,
-			maxOffsetX), -maxOffsetX);
-			x = player.towns[player.currentlyIn].display.offset.x + (event2.clientX - event.clientX) / zoom;
-
-			player.towns[player.currentlyIn].display.offset.y = Math.max(Math.min(y +
-				(event.clientY - event2.clientY) / zoom,
-			maxOffsetY), -maxOffsetY);
-			y = player.towns[player.currentlyIn].display.offset.y + (event2.clientY - event.clientY) / zoom;
-		};
-		document.addEventListener("mousemove", followMouse);
-		const stopHolding = function() {
-			holding = false;
-			document.removeEventListener("mousemove", followMouse);
-			document.removeEventListener("mouseup", stopHolding);
-			document.removeEventListener("mouseleave", stopHolding);
-			beforeDestroy = null;
-			holdingMachine = null;
-		};
-		document.addEventListener("mouseup", stopHolding);
-		document.addEventListener("mouseleave", stopHolding);
-		beforeDestroy = stopHolding;
-	}
-}
-
-function gotoHome() {
-	player.towns[player.currentlyIn].display.offset = { x: 0, y: 0 };
-}
-
-function changeZoom({ deltaY }) {
-	const magnitude = Math.pow(0.995, Math.sign(deltaY) * Math.min(Math.abs(deltaY), 40));
-	const oldZoom = player.towns[player.currentlyIn].display.zoom;
-	player.towns[player.currentlyIn].display.zoom *= magnitude;
-	player.towns[player.currentlyIn].display.zoom = Math.min(
-		Math.max(player.towns[player.currentlyIn].display.zoom, Math.pow(0.9, 6)),
-		Math.pow(0.9, -6)
-	);
-	const newZoom = player.towns[player.currentlyIn].display.zoom;
-	const mouseOffsetX = mouseX - tabWidth / 2;
-	const mouseOffsetY = mouseY - tabHeight / 2;
-	player.towns[player.currentlyIn].display.offset.x += mouseOffsetX * (1 / oldZoom - 1 / newZoom);
-	player.towns[player.currentlyIn].display.offset.y += mouseOffsetY * (1 / oldZoom - 1 / newZoom);
-	resetMovingMachingPerspective(mouseX, mouseY);
-}
+});
 </script>
 
 <template>
 	<div
 		ref="machineTab"
 		class="c-machine-tab"
-		@mousedown="attemptUseDrag"
-		@wheel="changeZoom"
 	>
 		<span class="c-machine-tab__fast-time-display">
 			Fast Time: {{ format(player.fastTime, 2, 2) }}s
@@ -294,22 +250,25 @@ function changeZoom({ deltaY }) {
 		<svg
 			ref="canvas"
 			class="c-machine-tab__canvas"
-			:viewBox="`-${maxOffsetX} -${maxOffsetY} ${2 * maxOffsetX} ${2 * maxOffsetY}`"
+			:viewBox="`
+				-${TOWNS.MAX_OFFSET_X} -${TOWNS.MAX_OFFSET_Y}
+				${2 * TOWNS.MAX_OFFSET_X} ${2 * TOWNS.MAX_OFFSET_Y}
+			`"
 			:style="{
 				transform: `
-				translate(${tabWidth / 2 - maxOffsetX}px, ${tabHeight / 2 - maxOffsetY}px)
-				scale(${zoom})
-				translate(${-offsetX}px, ${-offsetY}px)`
+				translate(${tabWidth / 2 - TOWNS.MAX_OFFSET_X}px, ${tabHeight / 2 - TOWNS.MAX_OFFSET_Y}px)
+				scale(${view.zoom})
+				translate(${-view.offsetX}px, ${-view.offsetY}px)`
 			}"
-			:width="2 * maxOffsetX"
-			:height="2 * maxOffsetY"
+			:width="2 * TOWNS.MAX_OFFSET_X"
+			:height="2 * TOWNS.MAX_OFFSET_Y"
 		>
 			<grid-display
 				v-if="player.options.showGridlines"
-				:x="-maxOffsetX"
-				:y="-maxOffsetY"
-				:width="maxOffsetX * 2"
-				:height="maxOffsetY * 2"
+				:x="-TOWNS.MAX_OFFSET_X"
+				:y="-TOWNS.MAX_OFFSET_Y"
+				:width="TOWNS.MAX_OFFSET_X * 2"
+				:height="TOWNS.MAX_OFFSET_Y * 2"
 			/>
 			<pipe-connection
 				v-for="(pipe, id) in pipes"
@@ -324,11 +283,11 @@ function changeZoom({ deltaY }) {
 					: draggingPipe.machine.height + 10)"
 				:x2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15
-					: mouseX / zoom + offsetX - tabWidth / 2 / zoom"
+					: mouseX / view.zoom + view.offsetX - tabWidth / 2 / view.zoom"
 				:y2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.y + (hoveringPipe.type === 'input' ? -10
 						: hoveringPipe.machine.height + 10)
-					: mouseY / zoom + offsetY - tabHeight / 2 / zoom"
+					: mouseY / view.zoom + view.offsetY - tabHeight / 2 / view.zoom"
 				stroke="gold"
 				stroke-width="10"
 				stroke-linecap="round"
@@ -338,8 +297,8 @@ function changeZoom({ deltaY }) {
 			:style="{
 				transform: `
 				translate(${tabWidth / 2}px, ${tabHeight / 2}px)
-				scale(${zoom})
-				translate(${-offsetX}px, ${-offsetY}px)`
+				scale(${view.zoom})
+				translate(${-view.offsetX}px, ${-view.offsetY}px)`
 			}"
 			class="l-machines-container"
 		>
@@ -356,28 +315,28 @@ function changeZoom({ deltaY }) {
 			/>
 		</div>
 		<div
-			v-if="offsetX > -maxOffsetX"
+			v-if="view.offsetX > -TOWNS.MAX_OFFSET_X"
 			class="fas fa-chevron-left c-machine-tab__offset c-machine-tab__offset-left"
 			@mousedown="registerOffsetHold([-1, 0])"
 		/>
 		<div
-			v-if="offsetY > -maxOffsetY"
+			v-if="view.offsetY > -TOWNS.MAX_OFFSET_Y"
 			class="fas fa-chevron-up c-machine-tab__offset c-machine-tab__offset-up"
 			@mousedown="registerOffsetHold([0, -1])"
 		/>
 		<div
-			v-if="offsetX < maxOffsetX"
+			v-if="view.offsetX < TOWNS.MAX_OFFSET_X"
 			class="fas fa-chevron-right c-machine-tab__offset c-machine-tab__offset-right"
 			@mousedown="registerOffsetHold([1, 0])"
 		/>
 		<div
-			v-if="offsetY < maxOffsetY"
+			v-if="view.offsetY < TOWNS.MAX_OFFSET_Y"
 			class="fas fa-chevron-down c-machine-tab__offset c-machine-tab__offset-down"
 			@mousedown="registerOffsetHold([0, 1])"
 		/>
 		<div
 			class="fas fa-house c-machine-tab__goto-home"
-			@mousedown="gotoHome"
+			@mousedown="Towns('current').returnHome()"
 		/>
 	</div>
 </template>
