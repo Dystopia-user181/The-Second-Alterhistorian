@@ -1,9 +1,10 @@
 import { computed, ComputedRef, markRaw } from "vue";
 
+import * as TOWN from "./constants";
 import { SidebarShopDBEntry, TownDBEntry, TownsDatabase, TownType, TownUpgradeDBEntry } from "./database";
 
 import { Machine, MachineTypes } from "@/js/machines/index";
-import { player } from "@/js/player";
+// import { player } from "@/js/player";
 
 import { arr, formatX, objectMap, run } from "@/utils";
 
@@ -198,26 +199,15 @@ class TownUpgrade {
 
 	get canAffordWhole() {
 		if (this.isBought) return false;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		if (!this.currencyType) return player.money >= this.cost;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
 	}
 
 	get prepay() {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		return player.towns[this.townId].upgradesPrepay[this.id] as number;
+		return player.towns[this.townId].upgradesPrepay[this.id];
 	}
 
 	set prepay(x) {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		player.towns[this.townId].upgradesPrepay[this.id] = x;
 	}
 
@@ -257,14 +247,20 @@ class TownUpgrade {
 
 class Town {
 	config: TownDBEntry;
+	townId: TownType;
 	sidebarShop: SidebarShopItem[];
 	upgrades: Record<string, TownUpgrade>;
 
 	constructor(config: TownDBEntry | undefined, townId: TownType) {
 		if (config === undefined) throw "Unrecognised Town Type";
 		this.config = config;
+		this.townId = townId;
 		this.sidebarShop = config.sidebarShop.map((x, id) => new SidebarShopItem(x, townId, id));
 		this.upgrades = objectMap(config.upgrades, x => x, x => new TownUpgrade(x, townId));
+	}
+
+	get playerData() {
+		return player.towns[this.townId];
 	}
 
 	get defaultMachines() {
@@ -299,6 +295,32 @@ class Town {
 
 	get hasWholeBuyableUpgrades() {
 		return Object.values(this.upgrades).find(x => x.canAffordWhole) !== undefined;
+	}
+
+	returnHome() {
+		this.playerData.display.offset.x = 0;
+		this.playerData.display.offset.y = 0;
+		this.playerData.display.zoom = 1;
+	}
+
+	setOffset(x: number, y: number) {
+		this.playerData.display.offset.x = Math.max(Math.min(x, TOWN.MAX_OFFSET_X), -TOWN.MAX_OFFSET_X);
+		this.playerData.display.offset.y = Math.max(Math.min(y, TOWN.MAX_OFFSET_Y), -TOWN.MAX_OFFSET_Y);
+	}
+
+	changeOffsetX(dx: number) {
+		this.playerData.display.offset.x = Math.max(Math.min(
+			dx + this.playerData.display.offset.x, TOWN.MAX_OFFSET_X), -TOWN.MAX_OFFSET_X);
+	}
+
+	changeOffsetY(dy: number) {
+		this.playerData.display.offset.y = Math.max(Math.min(
+			dy + this.playerData.display.offset.y, TOWN.MAX_OFFSET_Y), -TOWN.MAX_OFFSET_Y);
+	}
+
+	changeOffset(dx: number, dy: number) {
+		this.changeOffsetX(dx);
+		this.changeOffsetY(dy);
 	}
 }
 
