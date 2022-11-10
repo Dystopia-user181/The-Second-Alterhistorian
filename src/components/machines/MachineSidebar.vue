@@ -61,35 +61,45 @@ function deleteMachine() {
 			'c-machine-sidebar--new': animation
 		}"
 	>
-		<div
-			class="fas fa-arrows"
-			@mousedown="emit('move-machine-start', $event)"
-		/>
-		<div
-			class="fas"
-			:class="machine.isMinimized ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
-			@mousedown="machine.toggleMinimized()"
-		/>
-		<div
-			v-if="machine.isUpgradeable"
-			class="fas fa-arrow-up"
-			:class="{
-				'c-darker': isFullyUpgraded,
-				'c-glow-green': hasPartialBuyableUpgrades,
-				'c-glow-yellow': hasWholeBuyableUpgrades,
-			}"
-			@mousedown="openUpgrades()"
-		/>
-		<div
-			v-if="!machine.isMinimized"
-			class="fas fa-chart-bar"
-			@mousedown="showStatistics()"
-		/>
-		<div
-			v-if="!machine.data.isDefault"
-			class="fas fa-trash"
-			@mousedown="deleteMachine()"
-		/>
+		<span tooltip="Move">
+			<div
+				class="fas fa-arrows"
+				@mousedown="emit('move-machine-start', $event)"
+			/>
+		</span>
+		<span :tooltip="machine.isMinimized ? 'Expand' : 'Collapse'">
+			<div
+				class="fas"
+				:class="machine.isMinimized ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
+				@mousedown="machine.toggleMinimized()"
+			/>
+		</span>
+		<span tooltip="Upgrades">
+			<div
+				v-if="machine.isUpgradeable"
+				class="fas fa-arrow-up"
+				:class="{
+					'c-darker': isFullyUpgraded,
+					'c-glow-green': hasPartialBuyableUpgrades,
+					'c-glow-yellow': hasWholeBuyableUpgrades,
+				}"
+				@mousedown="openUpgrades()"
+			/>
+		</span>
+		<span tooltip="Info and Production">
+			<div
+				v-if="!machine.isMinimized"
+				class="fas fa-chart-bar"
+				@mousedown="showStatistics()"
+			/>
+		</span>
+		<span tooltip="Delete">
+			<div
+				v-if="!machine.data.isDefault"
+				class="fas fa-trash"
+				@mousedown="deleteMachine()"
+			/>
+		</span>
 	</div>
 </template>
 
@@ -116,6 +126,10 @@ function deleteMachine() {
 	border-radius: 5px 0 0 5px;
 	font-size: 1.1em;
 	transition: text-shadow 0.3s;
+}
+
+.c-machine-sidebar [tooltip]::before {
+	font-weight: bold;
 }
 
 .c-machine-sidebar .fas:hover {
