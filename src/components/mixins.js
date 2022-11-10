@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 
 import { UIEvent } from "@/js/ui/events.ts";
 
@@ -27,3 +27,13 @@ export function onMount(options = {}) {
 	});
 	componentId++;
 }
+
+export const WindowProperties = {
+	width: ref(innerWidth),
+	height: ref(innerHeight)
+};
+
+addEventListener("resize", () => {
+	WindowProperties.width.value = innerWidth;
+	WindowProperties.height.value = innerHeight;
+});
