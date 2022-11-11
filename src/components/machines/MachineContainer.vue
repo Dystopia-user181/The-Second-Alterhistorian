@@ -1,4 +1,5 @@
 <script setup>
+import { Machines } from "@/js/machines";
 import { Towns } from "@/js/towns";
 
 import { WindowProperties } from "@/components/mixins";
@@ -38,10 +39,26 @@ const shouldExist = $computed(() => {
 		machY > offsetY - h2 - 330 &&
 		machY < offsetY + h2 + 30;
 });
+
+function bringToTop() {
+	// Bring machine to top for Machines object
+	const idx = Machines[machine.townType].findIndex(x => x.id.toString() === machine.id.toString());
+	Machines[machine.townType].push(machine);
+	Machines[machine.townType].splice(idx, 1);
+
+	// Bring machine to top in player to save the z-index between saves
+	const playerData = Towns(machine.townType).playerData;
+	const machineData = playerData.machines[idx];
+	delete playerData.machines[idx];
+	playerData.machines[idx] = machineData;
+}
 </script>
 
 <template>
-	<span v-if="shouldExist">
+	<span
+		v-if="shouldExist"
+		@mousedown="bringToTop"
+	>
 		<machine-vue
 			:machine="machine"
 			:style="pos"
