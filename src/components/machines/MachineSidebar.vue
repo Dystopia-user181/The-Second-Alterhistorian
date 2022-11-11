@@ -61,20 +61,29 @@ function deleteMachine() {
 			'c-machine-sidebar--new': animation
 		}"
 	>
-		<span tooltip="Move">
+		<span
+			tooltip="Move"
+			tooltip-left
+		>
 			<div
 				class="fas fa-arrows"
 				@mousedown="emit('move-machine-start', $event)"
 			/>
 		</span>
-		<span :tooltip="machine.isMinimized ? 'Expand' : 'Collapse'">
+		<span
+			:tooltip="machine.isMinimized ? 'Expand' : 'Collapse'"
+			tooltip-left
+		>
 			<div
 				class="fas"
 				:class="machine.isMinimized ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
 				@mousedown="machine.toggleMinimized()"
 			/>
 		</span>
-		<span tooltip="Upgrades">
+		<span
+			tooltip="Upgrades"
+			tooltip-left
+		>
 			<div
 				v-if="machine.isUpgradeable"
 				class="fas fa-arrow-up"
@@ -86,14 +95,20 @@ function deleteMachine() {
 				@mousedown="openUpgrades()"
 			/>
 		</span>
-		<span tooltip="Info and Production">
+		<span
+			tooltip="Info and Production"
+			tooltip-left
+		>
 			<div
 				v-if="!machine.isMinimized"
 				class="fas fa-chart-bar"
 				@mousedown="showStatistics()"
 			/>
 		</span>
-		<span tooltip="Delete">
+		<span
+			tooltip="Delete"
+			tooltip-left
+		>
 			<div
 				v-if="!machine.data.isDefault"
 				class="fas fa-trash"
