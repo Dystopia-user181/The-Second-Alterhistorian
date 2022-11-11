@@ -1,4 +1,6 @@
 import "@/style.css";
+import "@/tooltips.css";
+
 import { createApp } from "vue";
 
 import App from "@/App.vue";
