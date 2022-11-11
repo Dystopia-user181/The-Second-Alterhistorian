@@ -1,13 +1,13 @@
 <script setup>
-import { computed } from "vue";
+import { Towns } from "@/js/towns";
 
-import { onMount } from "@/components/mixins";
+import { WindowProperties } from "@/components/mixins";
 
 import MachineSidebar from "./MachineSidebar.vue";
 import MachineVue from "./Machine.vue";
 
 
-const props = defineProps({
+const { machine } = defineProps({
 	machine: {
 		type: Object,
 		required: true
@@ -21,32 +21,29 @@ const emit = defineEmits([
 	"move-machine-start"
 ]);
 
-const pos = computed(() => ({
-	left: `${props.machine.data.x}px`,
-	top: `${props.machine.data.y}px`
+const pos = $computed(() => ({
+	left: `${machine.data.x}px`,
+	top: `${machine.data.y}px`
 }));
 
-let shouldExist = $ref(false);
-
-onMount({
-	update() {
-		const offsetX = player.towns[player.currentlyIn].display.offset.x;
-		const offsetY = player.towns[player.currentlyIn].display.offset.y;
-		const z = player.towns[player.currentlyIn].display.zoom;
-		const machX = props.machine.data.x, machY = props.machine.data.y;
-		const w2 = innerWidth / 2 / z, h2 = innerHeight / 2 / z;
-		shouldExist = machX > offsetX - w2 - 600 &&
-			machX < offsetX + w2 &&
-			machY > offsetY - h2 - 330 &&
-			machY < offsetY + h2 + 30;
-	}
+const shouldExist = $computed(() => {
+	const offsetX = Towns("current").playerData.display.offset.x;
+	const offsetY = Towns("current").playerData.display.offset.y;
+	const zoom = Towns("current").playerData.display.zoom;
+	const machX = machine.data.x, machY = machine.data.y;
+	const w2 = WindowProperties.width.value * 0.5 / zoom;
+	const h2 = WindowProperties.height.value * 0.5 / zoom;
+	return machX > offsetX - w2 - 600 &&
+		machX < offsetX + w2 &&
+		machY > offsetY - h2 - 330 &&
+		machY < offsetY + h2 + 30;
 });
 </script>
 
 <template>
 	<span v-if="shouldExist">
 		<machine-vue
-			:machine="props.machine"
+			:machine="machine"
 			:style="pos"
 			@input-pipe-drag-start="(...args) => emit('input-pipe-drag-start', ...args)"
 			@output-pipe-drag-start="(...args) => emit('output-pipe-drag-start', ...args)"
@@ -56,7 +53,7 @@ onMount({
 			@move-machine-start="e => emit('move-machine-start', machine, e)"
 		/>
 		<machine-sidebar
-			:machine="props.machine"
+			:machine="machine"
 			:style="pos"
 			@move-machine-start="e => emit('move-machine-start', machine, e)"
 		/>
