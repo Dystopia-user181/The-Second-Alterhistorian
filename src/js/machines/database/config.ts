@@ -37,7 +37,7 @@ export interface UpgradeConfig<UpgradeKeys extends string, Meta extends Record<s
 	name: string;
 	title: string | ((upgrade: UpgradeState<UpgradeKeys, Meta>) => string);
 
-	currencyType?: ResourceType | undefined | ((count: number) => ResourceType | undefined);
+	currencyType?: ResourceType | undefined | null | ((count: number) => ResourceType | undefined | null);
 	formatEffect?: (effect: E) => string;
 	isUnlocked?: (machine: ConfiguredMachine<UpgradeKeys, Meta>) => boolean;
 }

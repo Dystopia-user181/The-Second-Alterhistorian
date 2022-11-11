@@ -16,6 +16,7 @@ import { arr, objectMap } from "@/utils";
 export { Pipes } from "./player-proxy-wip.ts";
 
 export const Machines = {};
+window.Machines = Machines;
 export const MachineCounts = {};
 
 export function initializeMachines() {

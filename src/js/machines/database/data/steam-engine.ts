@@ -49,7 +49,7 @@ export default defineMachine({
 		harness: {
 			name: "harness",
 			cost: count => Math.pow(5, count) * 6,
-			currencyType: () => (Currencies.fire.isUnlocked ? "lava" : undefined),
+			currencyType: () => (Currencies.fire.isUnlocked ? "lava" : null),
 			max: 3,
 			title: "Harness",
 			description: "Increase operation speed",

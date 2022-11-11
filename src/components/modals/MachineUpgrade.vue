@@ -30,7 +30,7 @@ const { upgrade } = defineProps({
 			<br>
 			<cost-display
 				:cost="upgrade.cost"
-				:type="upgrade.currencyType || ''"
+				:type="upgrade.currencyType"
 			/>
 		</span>
 	</button>
