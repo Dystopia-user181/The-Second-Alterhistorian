@@ -10,15 +10,16 @@ const { cost, type } = defineProps({
 		required: true
 	},
 	type: {
-		type: String,
-		required: true
+		validator: item => item === null || item === undefined || typeof item === "string",
+		required: false,
+		default: undefined
 	}
 });
 </script>
 
 <template>
 	<span>
-		Cost: {{ !type ? "$" : "" }} {{ format(cost, 2, 1) }} {{ type }}
+		Cost: {{ type === undefined ? "$" : "" }} {{ format(cost, 2, 1) }} {{ type === null ? "???" : type }}
 		<ResourceSquare
 			v-if="type"
 			:type="type"

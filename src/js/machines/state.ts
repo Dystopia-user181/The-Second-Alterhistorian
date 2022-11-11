@@ -281,7 +281,7 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 	}
 
 	get canAfford() {
-		if (this.maxed)
+		if (this.maxed || this.currencyType === null)
 			return false;
 
 		// TODO: Global player access
@@ -291,7 +291,7 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 	}
 
 	get canAffordWhole() {
-		if (this.maxed)
+		if (this.maxed || this.currencyType === null)
 			return false;
 
 		// TODO: Global player access
