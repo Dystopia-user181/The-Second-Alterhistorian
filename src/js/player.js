@@ -4,7 +4,7 @@ import { Currencies } from "./currencies/currencies.ts";
 import { fixMachineData } from "./player-wip.ts";
 import { initializeMachines } from "./machines/index";
 import { migrations } from "./migrations";
-import { Modals } from "./ui/modals";
+import { Modals } from "./ui/modals.ts";
 import { Towns } from "./towns/index";
 
 import { deepClone, downloadAsFile } from "@/utils";
@@ -132,12 +132,12 @@ export const Player = {
 			try {
 				text = window.atob(text);
 			} catch {
-				Modals.message.show("Invalid savefile format.");
+				Modals.message.showText("Invalid savefile format.");
 				return;
 			}
 			const playerObj = JSON.parse(text);
 			if (typeof playerObj !== "object" || playerObj.vitalMarker !== Player.storageKey) {
-				Modals.message.show("Invalid savefile format.");
+				Modals.message.showText("Invalid savefile format.");
 				return;
 			}
 			Player.load(playerObj);

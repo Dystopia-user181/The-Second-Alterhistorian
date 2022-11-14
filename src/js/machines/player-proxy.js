@@ -7,7 +7,7 @@ import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
 
 import { MachinesById, Pipes } from "./player-proxy-wip.ts";
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
 import { TownsDatabase } from "@/js/towns/database";
 
@@ -51,7 +51,7 @@ export function initializeMachines() {
 Machine.add = function(townName, type, x, y) {
 	const machines = player.towns[townName].machines;
 	if (Object.values(machines).length >= 50) {
-		Modals.message.show("Reached machine cap in this town!");
+		Modals.message.showText("Reached machine cap in this town!");
 		return false;
 	}
 	const newMach = MachineTypes[type].newMachine(x, y);
@@ -70,7 +70,7 @@ Machine.add = function(townName, type, x, y) {
 		}
 		i++;
 	}
-	Modals.message.show("Could not find suitable id for machine. This message should NEVER appear.");
+	Modals.message.showText("Could not find suitable id for machine. This message should NEVER appear.");
 	return false;
 };
 

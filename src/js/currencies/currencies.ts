@@ -2,7 +2,6 @@ import { ResourceType, ResourceTypes } from "@/types/resources";
 
 import { player } from "@/js/player";
 
-
 export interface CurrencyDBEntry {
 	readonly colour: string
 	readonly value: number
@@ -184,5 +183,5 @@ export const Currencies: Record<ResourceType, Currency> = (function() {
 		Currencies[i] = newC;
 		CurrenciesList.push(newC);
 	}
-	return Currencies as Record<ResourceType, Currency>;
+	return Currencies;
 }());

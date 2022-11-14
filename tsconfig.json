@@ -19,11 +19,12 @@
     "outDir": "dist",
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"],
+      "@/*": ["*"]
     }
   },
   "files": [
-    "src/js/global.d.ts"
+    "src/js/global.d.ts",
+    "src/js/shims-vue.d.ts"
   ],
   "include": [
     "src/**/*.ts",

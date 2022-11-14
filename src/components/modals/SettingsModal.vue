@@ -1,6 +1,6 @@
 <script setup>
 import { player, Player } from "@/js/player";
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 
 import ModalWrapper from "./ModalWrapper.vue";
 

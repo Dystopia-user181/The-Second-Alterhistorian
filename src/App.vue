@@ -2,7 +2,7 @@
 import { ref } from "vue";
 
 import { Currencies } from "@/js/currencies/currencies.ts";
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
 
 import { onMount } from "@/components/mixins";
