@@ -28,7 +28,7 @@ export default {
 	methods: {
 		update() {
 			this.cost = this.shopItem.cost;
-			this.currencyType = this.shopItem.currencyType || "";
+			this.currencyType = this.shopItem.currencyType;
 			this.canAfford = this.shopItem.canAfford;
 			this.isBought = this.shopItem.isBought;
 			this.name = this.shopItem.title;

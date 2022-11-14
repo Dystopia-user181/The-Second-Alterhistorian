@@ -31,7 +31,7 @@ export default {
 	methods: {
 		update() {
 			this.cost = this.shopItem.cost;
-			this.currencyType = this.shopItem.currencyType || "";
+			this.currencyType = this.shopItem.currencyType;
 			this.canAfford = this.shopItem.canAfford;
 			this.name = str(this.shopItem.associatedMachine.config.name).capitalize;
 			this.description = this.shopItem.associatedMachine.config.description;
