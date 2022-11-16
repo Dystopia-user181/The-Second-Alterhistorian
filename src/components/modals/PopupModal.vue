@@ -1,25 +1,26 @@
-<script>
+<script setup>
 import { Modals } from "@/js/ui/modals";
 
-export default {
-	name: "PopupModal",
-	props: {
-		modal: {
-			type: Object,
-			required: true,
-		}
-	},
-	mounted() {
-		this.on$("ESCAPE_PRESSED", () => {
+import { onMount } from "@/components/mixins";
+
+const { modal } = defineProps({
+	modal: {
+		type: Object,
+		required: true,
+	}
+});
+onMount({
+	on: {
+		ESCAPE_PRESSED() {
 			if (!Modals.isOpen) return;
 			if (Modals.current.value.hide) Modals.current.value.hide();
 			else Modals.hide();
-		});
+		}
 	},
-	destroyed() {
+	beforeUnmount() {
 		document.activeElement.blur();
 	},
-};
+});
 </script>
 
 <template>

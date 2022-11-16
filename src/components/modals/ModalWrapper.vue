@@ -1,16 +1,11 @@
-<script>
+<script setup>
 import { Modals } from "@/js/ui/modals";
 
-export default {
-	name: "ModalWrapper",
-	methods: {
-		closeModal() {
-			if (!Modals.isOpen) return;
-			if (Modals.current.value.hide) Modals.current.value.hide();
-			else Modals.hide();
-		}
-	}
-};
+function closeModal() {
+	if (!Modals.isOpen) return;
+	if (Modals.current.value.hide) Modals.current.value.hide();
+	else Modals.hide();
+}
 </script>
 
 <template>

@@ -76,16 +76,16 @@ Machine.add = function(townName, type, x, y) {
 Machine.remove = function(machine) {
 	Pipe.removeAllInputPipesTo(machine);
 	requestAnimationFrame(() => Pipe.removeAllInputPipesTo(machine));
-	delete player.towns[machine.town].machines[machine.id];
-	const pipes = Pipes[machine.town];
+	delete player.towns[machine.townType].machines[machine.id];
+	const pipes = Pipes[machine.townType];
 	for (let i = 0; i < pipes.length; i++) {
 		while (pipes[i] && pipes[i].out[0].id === machine.id) {
 			pipes.splice(i, 1);
 		}
 	}
-	Machines[machine.town].splice(Machines[machine.town].findIndex(x => x.id === machine.id), 1);
-	delete MachinesById[machine.town][machine.id];
-	MachineCounts[machine.town][machine.config.name]--;
+	Machines[machine.townType].splice(Machines[machine.townType].findIndex(x => x.id === machine.id), 1);
+	delete MachinesById[machine.townType][machine.id];
+	MachineCounts[machine.townType][machine.config.name]--;
 	LogicEvent.dispatch("MACHINE_REMOVED");
 	GameUI.dispatch("MACHINE_REMOVED");
 };
