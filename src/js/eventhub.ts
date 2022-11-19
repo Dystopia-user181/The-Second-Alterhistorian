@@ -5,8 +5,8 @@ interface EventHandler {
 	target: unknown
 }
 
-export class EventHub<T extends Record<E, unknown>, E extends keyof T = keyof T> {
-	private _handlers: Partial<Record<E, EventHandler[]>>;
+export class EventHub<T extends Record<E, AnyFunction>, E extends keyof T = keyof T> {
+	private _handlers: Partial<Record<keyof T, EventHandler[]>>;
 	private _name: string;
 
 	constructor(name: string) {
@@ -14,9 +14,7 @@ export class EventHub<T extends Record<E, unknown>, E extends keyof T = keyof T>
 		this._name = name;
 	}
 
-	on<K extends E>(target: unknown, event: K): void;
-	on<K extends E>(target: unknown, event: K, fn: T[K] extends AnyFunction ? T[K] : never): void;
-	on<K extends E>(target: unknown, event: K, fn?: T[K] extends AnyFunction ? T[K] : undefined): void {
+	on<K extends E>(target: unknown, event: K, fn?: T[K]): void {
 		let handlers = this._handlers[event];
 
 		if (handlers === undefined) {
