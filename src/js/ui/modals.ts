@@ -1,4 +1,4 @@
-import { ref, shallowRef } from "vue";
+import { AllowedComponentProps, Component, ref, shallowRef, ShallowRef, VNodeProps } from "vue";
 
 import GlossaryModal from "@/components/modals/GlossaryModal.vue";
 import H2PModal from "@/components/modals/H2PModal.vue";
@@ -10,30 +10,39 @@ import MessageModal from "@/components/modals/MessageModal.vue";
 import RemoveMachineModal from "@/components/modals/RemoveMachineModal.vue";
 import SettingsModal from "@/components/modals/SettingsModal.vue";
 
+// https://stackoverflow.com/a/73784241/17814082
+// Dear god
+type ComponentProps<C extends Component> = C extends new (...args: any) => any
+  ? Omit<InstanceType<C>["$props"], keyof VNodeProps | keyof AllowedComponentProps>
+  : never;
 
-class Modal {
-	constructor(component, priority = 0) {
+class Modal<C extends Component> {
+	_component: C;
+	_props: ComponentProps<C>;
+	_priority: number;
+	afterHide?: () => void;
+	constructor(component: C, priority = 0) {
 		this._component = component;
-		this._modalConfig = {};
+		this._props = {} as ComponentProps<C>;
 		this._priority = priority;
 	}
 
-	show(modalConfig) {
-		this._props = Object.assign({}, modalConfig || {});
+	show(modalConfig?: ComponentProps<C>) {
+		this._props = Object.assign({}, modalConfig);
 
 		const modalQueue = Modals.queue;
 		// Add this modal to the front of the queue and sort based on priority to ensure priority is maintained.
 		modalQueue.unshift(this);
 		Modals.sortModalQueue();
 		return {
-			then: func => {
+			then: (func: () => void) => {
 				this.afterHide = func;
 			}
 		};
 	}
 
 	get isOpen() {
-		return Modals.current === this;
+		return Modals.current.value === this;
 	}
 
 	get component() {
@@ -49,9 +58,11 @@ class Modal {
 	}
 }
 
+interface ModalType extends Modal<Component> { hide?: () => void }
+
 export const Modals = {
-	current: shallowRef(undefined),
-	queue: [],
+	current: shallowRef(undefined) as ShallowRef<Component | undefined>,
+	queue: [] as ModalType[],
 	hide() {
 		const closed = Modals.queue.shift();
 		if (closed) {
@@ -69,7 +80,7 @@ export const Modals = {
 				Modals.hide();
 			}
 		}
-		Modals.current = undefined;
+		Modals.current.value = undefined;
 	},
 	sortModalQueue() {
 		const modalQueue = Modals.queue;
@@ -81,35 +92,38 @@ export const Modals = {
 	},
 	get isOpen() {
 		return Modals.current.value !== undefined;
-	}
-};
+	},
 
-Modals.glossary = new Modal(GlossaryModal);
-Modals.h2p = new Modal(H2PModal);
-Modals.hardReset = new Modal(HardResetModal);
-Modals.info = new Modal(InfoModal);
-Modals.machineUpgrades = new Modal(MachineUpgradeModal);
-Modals.machineStatistics = new Modal(MachineStatisticsModal);
-Modals.removeMachine = new Modal(RemoveMachineModal);
-Modals.settings = new Modal(SettingsModal);
-Modals.message = new class extends Modal {
-	show(text) {
-		if (!this.queue) this.queue = [];
-		if (!this.queue.length) this.text.value = text;
-		this.queue.push(text);
-		return super.show();
-	}
+	glossary: new Modal(GlossaryModal),
+	h2p: new Modal(H2PModal),
+	hardReset: new Modal(HardResetModal),
+	info: new Modal(InfoModal),
+	machineUpgrades: new Modal(MachineUpgradeModal),
+	machineStatistics: new Modal(MachineStatisticsModal),
+	removeMachine: new Modal(RemoveMachineModal),
+	settings: new Modal(SettingsModal),
+	message: new (class extends Modal<typeof MessageModal> {
+		queue: string[];
+		text = ref("");
 
-	hide() {
-		if (this.queue.length <= 1) {
-			Modals.hide();
+		constructor(component: typeof MessageModal, priority = 0) {
+			super(component, priority);
+			this.queue = [];
 		}
-		this.queue.shift();
-		if (this.queue && this.queue.length === 0) this.text.value = undefined;
-		else this.text.value = this.queue[0];
-	}
 
-	text = ref("");
-}(MessageModal, 2);
+		showText(text: string) {
+			if (!this.queue.length) this.text.value = text;
+			this.queue.push(text);
+			return super.show();
+		}
 
-window.Modals = Modals;
+		hide() {
+			if (this.queue.length <= 1) {
+				Modals.hide();
+			}
+			this.queue.shift();
+			if (this.queue && this.queue.length === 0) this.text.value = "";
+			else this.text.value = this.queue[0];
+		}
+	})(MessageModal, 2),
+};

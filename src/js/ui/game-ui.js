@@ -1,5 +1,5 @@
-import "@/style.css";
-import "@/tooltips.css";
+import "@/stylesheets/style.css";
+import "@/stylesheets/tooltips.css";
 
 import { createApp } from "vue";
 

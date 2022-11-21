@@ -1,5 +1,5 @@
 <script setup>
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 
 function closeModal() {
 	if (!Modals.isOpen) return;
