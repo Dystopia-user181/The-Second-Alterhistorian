@@ -257,7 +257,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 					const townMachines = MachinesById[this.townType];
 					// MachinesById isn't guaranteed to have the town type
 					if (!townMachines) {
-						throw `MachinesById is returning an invalid list for #{this.townType}`;
+						throw `MachinesById is returning an invalid list for ${this.townType}`;
 					}
 					const machine = townMachines[x[0]];
 					return [machine, machine.inputs[x[1]]];

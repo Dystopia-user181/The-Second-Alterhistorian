@@ -1,57 +1,40 @@
-<script>
+<script setup>
 import { Currencies } from "@/js/currencies/currencies.ts";
 import { player } from "@/js/player";
 
 import { format } from "@/utils";
 
 
-export default {
-	name: "SidebarSellPanel",
-	data() {
-		return {
-			money: 0,
-			holdingAmount: 0,
-			holdingResource: "",
-			showMode: "",
-			gainedMoney: 0
-		};
-	},
-	methods: {
-		update() {
-			this.money = player.money;
-			this.holdingAmount = player.holding.amount;
-			this.holdingResource = player.holding.resource;
-			switch (this.showMode) {
-				case "sell1":
-					this.gainedMoney = Currencies[this.holdingResource].value * (player.holding.amount >= 1);
-					break;
-				case "sellall":
-					this.gainedMoney = Currencies[this.holdingResource].value * this.holdingAmount;
-					break;
-				default:
-					this.gainedMoney = 0;
-			}
-		},
-		sellStatic(amount) {
-			if (player.holding.amount >= amount) {
-				player.holding.amount -= amount;
-				player.money += amount * Currencies[player.holding.resource].value;
-			}
-		},
-		sellDynamic(fraction) {
-			const amount = player.holding.amount * fraction;
-			player.holding.amount -= amount;
-			player.money += amount * Currencies[player.holding.resource].value;
-		},
-		format
+const showMode = $ref("");
+
+const gainedMoney = $computed(() => {
+	switch (showMode) {
+		case "sell1":
+			return Currencies[player.holding.resource].value * (player.holding.amount >= 1);
+		case "sellall":
+			return Currencies[player.holding.resource].value * player.holding.amount;
+		default:
+			return 0;
 	}
-};
+});
+
+function sellStatic(amount) {
+	if (player.holding.amount >= amount) {
+		player.holding.amount -= amount;
+		player.money += amount * Currencies[player.holding.resource].value;
+	}
+}
+function sellDynamic(fraction) {
+	const amount = player.holding.amount * fraction;
+	player.holding.amount -= amount;
+	player.money += amount * Currencies[player.holding.resource].value;
+}
 </script>
 
 <template>
 	<div class="c-sidebar__shop">
 		<h2 class="c-money-display">
-			${{ format(money, 2, 2) }}
+			${{ format(player.money, 2, 2) }}
 			<br>
 			<span v-if="gainedMoney">
 				+${{ format(gainedMoney, 2, 2) }}
@@ -60,7 +43,7 @@ export default {
 		</h2>
 		<button
 			class="c-sidebar-shop__sell-button"
-			:class="{ disabled: holdingAmount < 1 }"
+			:class="{ disabled: player.holding.amount < 1 }"
 			@mouseenter="showMode = 'sell1'"
 			@mouseleave="showMode = ''"
 			@click="sellStatic(1)"
@@ -69,7 +52,7 @@ export default {
 		</button>
 		<button
 			class="c-sidebar-shop__sell-button"
-			:class="{ disabled: holdingAmount <= 0 }"
+			:class="{ disabled: player.holding.amount <= 0 }"
 			@mouseenter="showMode = 'sellall'"
 			@mouseleave="showMode = ''"
 			@click="sellDynamic(1)"

@@ -1,42 +1,32 @@
-<script>
+<script setup>
 import CostDisplay from "@/components/CostDisplay.vue";
 
-import { format } from "@/utils";
+import { onMount } from "@/components/mixins";
 
-
-export default {
-	name: "SidebarShopUpgradeItem",
-	components: {
-		CostDisplay
-	},
-	props: {
-		shopItem: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			cost: 0,
-			currencyType: "",
-			canAfford: false,
-			name: "",
-			description: "",
-			isBought: false
-		};
-	},
-	methods: {
-		update() {
-			this.cost = this.shopItem.cost;
-			this.currencyType = this.shopItem.currencyType;
-			this.canAfford = this.shopItem.canAfford;
-			this.isBought = this.shopItem.isBought;
-			this.name = this.shopItem.title;
-			this.description = this.shopItem.description;
-		},
-		format
+const { shopItem } = defineProps({
+	shopItem: {
+		type: Object,
+		required: true
 	}
-};
+});
+
+let cost = $ref(0);
+let currencyType = $ref("");
+let canAfford = $ref(false);
+let name = $ref("");
+let description = $ref("");
+let isBought = $ref(false);
+
+onMount({
+	update() {
+		cost = shopItem.cost;
+		currencyType = shopItem.currencyType;
+		canAfford = shopItem.canAfford;
+		isBought = shopItem.isBought;
+		name = shopItem.title;
+		description = shopItem.description;
+	}
+});
 </script>
 
 <template>

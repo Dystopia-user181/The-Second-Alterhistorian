@@ -1,46 +1,37 @@
-<script>
+<script setup>
 import { MachineCounts } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { format, formatInt, str } from "@/utils";
-
 import CostDisplay from "@/components/CostDisplay.vue";
 
+import { formatInt, str } from "@/utils";
 
-export default {
-	name: "SidebarShopMachineItem",
-	components: {
-		CostDisplay
-	},
-	props: {
-		shopItem: {
-			type: Object,
-			required: true
-		}
-	},
-	data() {
-		return {
-			cost: 0,
-			currencyType: "",
-			canAfford: false,
-			name: "",
-			description: "",
-			count: 0
-		};
-	},
-	methods: {
-		update() {
-			this.cost = this.shopItem.cost;
-			this.currencyType = this.shopItem.currencyType;
-			this.canAfford = this.shopItem.canAfford;
-			this.name = str(this.shopItem.associatedMachine.config.name).capitalize;
-			this.description = this.shopItem.associatedMachine.config.description;
-			this.count = MachineCounts[player.currentlyIn][this.shopItem.associatedMachine.config.name];
-		},
-		format,
-		formatInt
+import { onMount } from "@/components/mixins";
+
+
+const { shopItem } = defineProps({
+	shopItem: {
+		type: Object,
+		required: true
 	}
-};
+});
+let cost = $ref(0);
+let currencyType = $ref("");
+let canAfford = $ref(false);
+let name = $ref("");
+let description = $ref("");
+let count = $ref(0);
+
+onMount({
+	update() {
+		cost = shopItem.cost;
+		currencyType = shopItem.currencyType;
+		canAfford = shopItem.canAfford;
+		name = str(shopItem.associatedMachine.config.name).capitalize;
+		description = shopItem.associatedMachine.config.description;
+		count = MachineCounts[player.currentlyIn][shopItem.associatedMachine.config.name];
+	}
+});
 </script>
 
 <template>

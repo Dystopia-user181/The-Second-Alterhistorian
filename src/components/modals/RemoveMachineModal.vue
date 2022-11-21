@@ -1,30 +1,23 @@
-<script>
+<script setup>
 import ModalWrapper from "./ModalWrapper.vue";
 
 import { Machine } from "@/js/machines/index";
 import { Modals } from "@/js/ui/modals.ts";
 
-export default {
-	name: "RemoveMachineModal",
-	components: {
-		ModalWrapper
-	},
-	props: {
-		machine: {
-			type: Object,
-			required: true
-		}
-	},
-	methods: {
-		confirm() {
-			Machine.remove(this.machine);
-			Modals.hide();
-		},
-		cancel() {
-			Modals.hide();
-		}
+const { machine } = defineProps({
+	machine: {
+		type: Object,
+		required: true
 	}
-};
+});
+
+function confirm() {
+	Machine.remove(machine);
+	Modals.hide();
+}
+function cancel() {
+	Modals.hide();
+}
 </script>
 
 <template>
