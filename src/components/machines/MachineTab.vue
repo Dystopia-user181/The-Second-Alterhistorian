@@ -1,7 +1,7 @@
 <script setup>
 import { Machines, Pipe, Pipes } from "@/js/machines/index";
 import { TOWNS, Towns } from "@/js/towns";
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
 import { ViewMoveHandler } from "@/utils/view-move-handler";
 

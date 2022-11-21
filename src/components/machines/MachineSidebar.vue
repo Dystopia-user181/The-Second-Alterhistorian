@@ -1,6 +1,6 @@
 <script setup>
 import { Machine } from "@/js/machines/index";
-import { Modals } from "@/js/ui/modals";
+import { Modals } from "@/js/ui/modals.ts";
 
 import { onMount } from "@/components/mixins";
 

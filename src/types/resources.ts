@@ -34,11 +34,11 @@ export interface ResourceData {
 }
 
 export interface Recipe<Instance = any> {
-  input: {
-    resource: MaybeResourceType;
-    amount: number;
-  };
-  output: {
+	input: {
+		resource: MaybeResourceType;
+		amount: number;
+	};
+	output: {
 		resource: ResourceType;
 		amount: number
 	};
@@ -48,5 +48,5 @@ export interface Recipe<Instance = any> {
 	vitriolUsage?: number;
 	waterUsage?: number
 
-  isUnlocked?: (machine: Instance) => boolean;
+	isUnlocked?: (machine: Instance) => boolean;
 }
