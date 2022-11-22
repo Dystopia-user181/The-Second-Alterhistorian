@@ -22,6 +22,12 @@ import ModalWrapper from "./ModalWrapper.vue";
 			<br>
 			If you want to contribute to this game, you may visit its github page below. Joining
 			the discord for more in depth discussion of development work is also recommended.
+			<br>
+			<br>
+			Credits:<br>
+			Scarlet / Dystopia181: Main dev<br>
+			Brian bugh: Co-dev<br><br>
+			BaineGames: Contributor
 		</span>
 		<br>
 		<br>
