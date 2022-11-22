@@ -61,6 +61,16 @@ class GenericStackState {
 		this.lastItem = arr(this.data).last;
 		return amt;
 	}
+
+	unclog() {
+		for (let i = 0; i < this.data.length; i++) {
+			while (this.data[i] && this.data[i].amount < 3e-3) {
+				this.volume -= this.data[i].amount;
+				this.data.splice(i, 1);
+			}
+		}
+		this.lastItem = arr(this.data).last;
+	}
 }
 
 export class InputConfigState<UpgradeKeys extends string, Meta extends Record<string, any>> {

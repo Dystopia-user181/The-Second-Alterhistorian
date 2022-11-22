@@ -133,8 +133,7 @@ function registerOffsetKey() {
 			return;
 
 		const { x, y } = Towns("current").playerData.display.offset;
-		Towns("current").playerData.display.offset.x += offset[0] * 15 / view.zoom;
-		Towns("current").playerData.display.offset.y += offset[1] * 15 / view.zoom;
+		Towns("current").changeOffset(offset[0] * 15 / view.zoom, offset[1] * 15 / view.zoom);
 		if (holdingMachine) {
 			const previousMachineX = holdingMachine.data.x, previousMachineY = holdingMachine.data.y;
 			holdingMachine.changePositionBy(

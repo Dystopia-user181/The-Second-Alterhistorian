@@ -36,7 +36,7 @@ function update() {
 	ctx.clearRect(0, 0, 1, 400);
 	let height = 0;
 	for (let i = internalDisplay.length - 1; i >= 0; i--) {
-		const resource = display[i];
+		const resource = internalDisplay[i];
 		height += resource.height;
 		ctx.fillStyle = resource.colour;
 		ctx.fillRect(0, 400 - height, 1, resource.height);

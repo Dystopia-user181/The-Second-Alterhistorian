@@ -43,6 +43,7 @@ export default defineMachine({
 	],
 	upgrades: {},
 	customLoop(diff) {
+		this.meta.updates++;
 		const cycle = [
 			Math.floor(this.meta.updates / 30) % 3,
 			Math.floor(this.meta.updates / 30 + 1) % 3,
@@ -82,6 +83,14 @@ export default defineMachine({
 			}) / diff;
 		this.outputDiffs[0] = diff;
 		this.outputs[0].otherwiseDiff = diff;
+		// Input mergers are prone to produce large stacks of very miniscule amounts of material if handled
+		// incorrectly
+		if (this.meta.updates % 20 === 0) {
+			this.inputs[0].unclog();
+			this.inputs[1].unclog();
+			this.inputs[2].unclog();
+			this.outputs[0].unclog();
+		}
 
 		Machine.addOutputHistory(this);
 		Pipe.tickPipes(this, diff);
