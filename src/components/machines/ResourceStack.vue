@@ -47,6 +47,7 @@ watch(props, update, { deep: true });
 onMount({
 	onMount() {
 		ctx = canvas.getContext("2d");
+		update();
 	}
 });
 </script>
