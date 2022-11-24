@@ -1,16 +1,20 @@
 import { reactive, toRaw } from "vue";
 
-import { Currencies } from "./currencies/currencies.ts";
-import { fixMachineData } from "./player-wip.ts";
+import { fixMachineData, PlayerType } from "./player-type";
+import { Towns, TownType } from "./towns/index";
+import { Currencies } from "./currencies/currencies";
 import { initializeMachines } from "./machines/index";
 import { migrations } from "./migrations";
-import { Modals } from "./ui/modals.ts";
-import { Towns } from "./towns/index";
+import { Modals } from "./ui/modals";
 
-import { deepClone, downloadAsFile } from "@/utils";
+import { deepAssign, downloadAsFile, mapObjectValues } from "@/utils";
+
+// https://github.com/microsoft/TypeScript/issues/31816#issuecomment-593069149
+type FileEventTarget = EventTarget & { files: FileList };
+type FileEvent = Event & { target: FileEventTarget };
 
 export const Player = {
-	defaultStart() {
+	defaultStart(): PlayerType {
 		return {
 			money: 0,
 			towns: {
@@ -30,7 +34,7 @@ export const Player = {
 				resource: "earth",
 				amount: 0
 			},
-			unlockedCurrencies: Object.fromEntries(new Map(Object.keys(Currencies).map(x => [x, false]))),
+			unlockedCurrencies: mapObjectValues(Currencies, () => false),
 			fastTime: 0,
 			migrations: migrations.length,
 			producedElixir: 0,
@@ -44,10 +48,9 @@ export const Player = {
 		};
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
-	load(playerObj) {
+	load(playerObj?: any) {
 		if (playerObj) {
-			const savedPlayer = this.coercePlayer(playerObj, this.defaultStart());
-			Object.assign(player, savedPlayer);
+			deepAssign(player, playerObj);
 			for (; player.migrations < migrations.length; player.migrations++) {
 				migrations[player.migrations](player);
 			}
@@ -58,32 +61,17 @@ export const Player = {
 		initializeMachines();
 	},
 	loadSave() {
-		this.load(JSON.parse(localStorage.getItem(this.storageKey)));
-	},
-	coercePlayer(target, source) {
-		if (target === null || target === undefined) return source;
-		if (typeof target !== "object") return target;
-		let fillObject;
-		if (source.constructor === Array) fillObject = [];
-		else fillObject = {};
-		for (const prop in target) {
-			fillObject[prop] = deepClone(target[prop]);
-		}
-		for (const prop in source) {
-			// I LOVE HARDCODING THINGS!!!!!!!!!!
-			if (prop === "machines")
-				fillObject[prop] = deepClone(target[prop]);
-			else
-				fillObject[prop] = this.coercePlayer(target[prop], source[prop]);
-		}
-		return fillObject;
+		const save = localStorage.getItem(this.storageKey);
+		if (!save) return;
+		this.load(JSON.parse(save));
 	},
 	savePlayer() {
 		if (player.vitalMarker !== Player.storageKey) return;
 		localStorage.setItem(this.storageKey, JSON.stringify(toRaw(player)));
 	},
 	fixMachines() {
-		for (const town in player.towns) {
+		for (const T in player.towns) {
+			const town = T as TownType;
 			for (const machineId in player.towns[town].machines) {
 				const machine = player.towns[town].machines[machineId];
 				fixMachineData(machine);
@@ -122,20 +110,26 @@ export const Player = {
 			window.btoa(JSON.stringify(toRaw(player)))
 		);
 	},
-	importSave(event) {
+	importSave(event: FileEvent) {
 		// This happens if the file dialog is canceled instead of a file being selected
 		if (event.target.files.length === 0) return;
 
 		const reader = new FileReader();
 		reader.onload = function() {
 			let text = reader.result;
+			if (typeof text !== "string") {
+				Modals.message.showText("Invalid savefile format.");
+				return;
+			}
 			try {
 				text = window.atob(text);
 			} catch {
 				Modals.message.showText("Invalid savefile format.");
 				return;
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const playerObj = JSON.parse(text);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (typeof playerObj !== "object" || playerObj.vitalMarker !== Player.storageKey) {
 				Modals.message.showText("Invalid savefile format.");
 				return;
@@ -147,9 +141,8 @@ export const Player = {
 	}
 };
 
-export const player = reactive({});
-window.player = player;
+export const player = reactive<PlayerType>({} as PlayerType);
 
-Promise.resolve().then(() => Player.loadSave());
+setTimeout(() => Player.loadSave(), 0);
 
 window.saveInterval = setInterval(() => Player.savePlayer(), 10000);
