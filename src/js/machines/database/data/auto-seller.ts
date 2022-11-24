@@ -12,20 +12,27 @@ export default defineMachine({
 			capacity: () => 60,
 			consumes: () => 20,
 		},
+		{
+			accepts: ResourceTypes,
+			capacity: () => 60,
+			consumes: () => 20,
+		},
 	],
 	outputs: [],
 	customLoop(diff) {
-		if (!this.inputItem(0)) return;
+		for (let i = 0; i < 2; i++) {
+			if (this.inputItem(i)) return;
 
-		const currency = this.inputItem(0)?.resource ?? "none";
-		if (currency === "none") return;
+			const currency = this.inputItem(i)?.resource ?? "none";
+			if (currency === "none") return;
 
-		Machine.addInputHistory(this);
-		Machine.addOutputHistory(this);
+			Machine.addInputHistory(this);
+			Machine.addOutputHistory(this);
 
-		const amount = this.inputs[0].removeFromStack(20 * diff);
-		player.money += Currencies[currency].value * amount;
-		Pipe.tickPipes(this, diff);
+			const amount = this.inputs[i].removeFromStack(20 * diff);
+			player.money += Currencies[currency].value * amount;
+			Pipe.tickPipes(this, diff);
+		}
 	},
 	upgrades: {},
 	description: `Automagically sells things.`,

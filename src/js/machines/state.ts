@@ -323,6 +323,7 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 			player.holding.amount = 0;
 			return;
 		}
+		if (isNaN(this.count)) this.count = 0;
 
 		if (this.currencyType) {
 			if (player.holding.amount) {

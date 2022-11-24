@@ -81,7 +81,6 @@ onMount({
 
 <style scoped>
 .c-resources-container {
-	background-color: rgba(15, 20, 25, 0.4);
 	height: 100%;
 	width: 100%;
 	position: relative;
