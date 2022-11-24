@@ -9,7 +9,7 @@ import ResourceStack from "./ResourceStack.vue";
 import { arr, format, str } from "@/utils";
 
 
-const props = defineProps({
+const { machine } = defineProps({
 	machine: {
 		type: Object,
 		required: true
@@ -34,14 +34,13 @@ let hasPartialBuyableUpgrades = $ref(false);
 let unlockedPipes = $ref(false);
 let holdFunction = null, beforeDestroy = null;
 
-const machine = $computed(() => props.machine);
-
 
 onMount({
 	onMount() {
 		if (machine.isNew) {
 			animation = true;
 			requestAnimationFrame(() => delete machine.isNew);
+			setTimeout(() => animation = false, 3000);
 		}
 	},
 	beforeUnmount() {
@@ -148,8 +147,7 @@ function inputClassObject(input) {
 }
 
 function outputClassObject(output) {
-	if (!output.data.length) return "c-cursor-default";
-	return (player.holding.resource !== arr(output.data).last.resource && player.holding.amount)
+	return (player.holding.resource !== output.displayResource[0] && player.holding.amount)
 		? "c-cursor-default" : "";
 }
 
