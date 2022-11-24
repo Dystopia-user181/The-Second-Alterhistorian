@@ -1,5 +1,7 @@
 import { defineMachine } from "../builder";
 
+import { player } from "@/js/player";
+
 import { Machine, Pipe } from "@/js/machines/logic";
 import { Currencies } from "@/js/currencies/currencies";
 import { ResourceTypes } from "@/types/resources";
