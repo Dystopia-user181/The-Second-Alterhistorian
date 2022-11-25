@@ -1,11 +1,13 @@
 import { reactive, toRaw } from "vue";
 
-import { fixMachineData, PlayerType } from "./player-type";
-import { Towns, TownType } from "./towns/index";
+import { fixMachineData, PlayerType } from "@/js/player-type";
+import { Towns, TownType } from "@/js/towns";
+
 import { Currencies } from "./currencies/currencies";
-import { initializeMachines } from "./machines/index";
-import { migrations } from "./migrations";
-import { Modals } from "./ui/modals";
+import { initializeMachines } from "@/js/machines";
+import { MachineData } from "@/js/machines/database/config";
+import { migrations } from "@/js/migrations";
+import { Modals } from "@/js/ui/modals";
 
 import { deepAssign, downloadAsFile, mapObjectValues } from "@/utils";
 
@@ -49,16 +51,24 @@ export const Player = {
 	},
 	storageKey: "igj2022-scarlet-summer-alterhistorian2",
 	load(playerObj?: any) {
+		Object.assign(player, Player.defaultStart());
 		if (playerObj) {
-			deepAssign(player, playerObj);
-			for (; player.migrations < migrations.length; player.migrations++) {
-				migrations[player.migrations](player);
-			}
-		} else {
-			Object.assign(player, Player.defaultStart());
+			this.loadAndMigrateSave(playerObj);
 		}
 		this.fixMachines();
 		initializeMachines();
+	},
+	loadAndMigrateSave(playerObj: any) {
+		deepAssign(player, playerObj);
+		// Reassign machines due to
+		for (const T in player.towns) {
+			const town = T as TownType;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			player.towns[town].machines = playerObj.towns[town].machines as MachineData[];
+		}
+		for (; player.migrations < migrations.length; player.migrations++) {
+			migrations[player.migrations](player);
+		}
 	},
 	loadSave() {
 		const save = localStorage.getItem(this.storageKey);
