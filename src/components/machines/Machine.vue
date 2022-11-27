@@ -152,20 +152,20 @@ function outputClassObject(output) {
 }
 
 function emitInputPipeDrag(id) {
-	Pipe.removeAllInputPipesTo(props.machine, id);
-	emit("input-pipe-drag-start", props.machine, id);
+	Pipe.removeAllInputPipesTo(machine, id);
+	emit("input-pipe-drag-start", machine, id);
 }
 
 function emitInputPipeHover(id) {
-	emit("input-pipe-hover", props.machine, id);
+	emit("input-pipe-hover", machine, id);
 }
 
 function emitOutputPipeDrag(id) {
-	emit("output-pipe-drag-start", props.machine, id);
+	emit("output-pipe-drag-start", machine, id);
 }
 
 function emitOutputPipeHover(id) {
-	emit("output-pipe-hover", props.machine, id);
+	emit("output-pipe-hover", machine, id);
 }
 </script>
 
