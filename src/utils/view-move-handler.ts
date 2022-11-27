@@ -21,12 +21,13 @@ interface ViewMoveHandlerConfig extends ViewMoveHandlerConfigInput {
 	readonly maxZoom: number,
 }
 
-const EventListenerTypes = ["changeoffset", "changezoom", "resetperspective"] as const;
-type EventListenerType = typeof EventListenerTypes[number];
-interface EventListeners {
+const ViewEventListenerTypes = ["changeoffset", "changezoom", "resetperspective", "unmount"] as const;
+type ViewEventListenerType = typeof ViewEventListenerTypes[number];
+interface ViewEventListeners {
 	changeoffset: ((newOffsetX: number, newOffsetY: number, oldOffsetX: number, oldOffsetY: number) => void)[],
 	changezoom: ((newZoom: number, oldZoom: number) => void)[],
 	resetperspective: (() => void)[],
+	unmount: (() => void)[],
 }
 
 export class ViewMoveHandler {
@@ -41,8 +42,8 @@ export class ViewMoveHandler {
 	_onUnmount1?: () => void;
 	_onUnmount2?: () => void;
 	_eventListeners = Object.fromEntries<any>(
-		EventListenerTypes.map(key => [key, []])
-	) as EventListeners;
+		ViewEventListenerTypes.map(key => [key, []])
+	) as ViewEventListeners;
 
 	constructor(config: ViewMoveHandlerConfigInput) {
 		config.maxOffsetX = config.maxOffsetX ?? Infinity;
@@ -145,7 +146,7 @@ export class ViewMoveHandler {
 
 	mount(el: HTMLElement) {
 		this.el = el;
-		const mouseDown = (event: MouseEvent) => this._changeOffset(event);
+		const mouseDown = (event: MouseEvent) => setTimeout(() => this._changeOffset(event), 0);
 		const mouseMove = (event: MouseEvent) => {
 			this._mouseX = event.clientX - this.el.offsetLeft;
 			this._mouseY = event.clientY - this.el.offsetTop;
@@ -164,11 +165,14 @@ export class ViewMoveHandler {
 	unmount() {
 		this._onUnmount1?.();
 		this._onUnmount2?.();
+		for (const listener of this._eventListeners.unmount) {
+			listener();
+		}
 	}
 
-	addEventListener<T extends keyof EventListeners>(
+	addEventListener<T extends keyof ViewEventListeners>(
 		type: T,
-		func: EventListeners[T][number]
+		func: ViewEventListeners[T][number]
 	) {
 		// I don't know why but type inferring is taking the union of all possible types of functions
 		// instead of just getting the function type for specific T
@@ -176,9 +180,101 @@ export class ViewMoveHandler {
 		this._eventListeners[type].push(func as any);
 	}
 
-	removeEventListener<T extends EventListenerType>(
+	removeEventListener<T extends ViewEventListenerType>(
 		type: T,
-		func: EventListeners[T][number]
+		func: ViewEventListeners[T][number]
+	) {
+		for (let i = 0; i < this._eventListeners[type].length; i++) {
+			while (this._eventListeners[type][i] === func) this._eventListeners[type].splice(i, 1);
+		}
+	}
+}
+
+
+interface HoldMoveHandlerConfig {
+	x: number,
+	y: number,
+}
+
+const HoldEventListenerTypes = ["stopholding"] as const;
+type HoldEventListenerType = typeof HoldEventListenerTypes[number];
+interface HoldEventListeners {
+	stopholding: (() => void)[]
+}
+
+export class HoldMoveHandler {
+	config: HoldMoveHandlerConfig;
+	parentView: ViewMoveHandler;
+	isActive = false;
+	_mouseXOnDragStart = 0;
+	_mouseYOnDragStart = 0;
+	_originalX = 0;
+	_originalY = 0;
+	_eventListeners = Object.fromEntries<any>(
+		HoldEventListenerTypes.map(key => [key, []])
+	) as HoldEventListeners;
+
+	constructor(config: HoldMoveHandlerConfig, parentView: ViewMoveHandler) {
+		this.config = config;
+		this.parentView = parentView;
+	}
+
+	resetPerspective = () => {
+		if (!this.isActive) return;
+		this._mouseXOnDragStart = this.parentView._mouseX + this.parentView.el.offsetLeft;
+		this._mouseYOnDragStart = this.parentView._mouseY + this.parentView.el.offsetTop;
+		this._originalX = this.config.x;
+		this._originalY = this.config.y;
+	};
+
+	trigger() {
+		const view = this.parentView;
+		if (view.config.isBlockingMove) return;
+		this.isActive = true;
+		view.config.isBlockingMove = true;
+		this._mouseXOnDragStart = view._mouseX;
+		this._mouseYOnDragStart = view._mouseY;
+		this._originalX = this.config.x;
+		this._originalY = this.config.y;
+		view.addEventListener("resetperspective", () => this.resetPerspective());
+		const followMouse = (event: MouseEvent) => {
+			this.config.x = Math.min(Math.max(
+				this._originalX + (event.clientX - this._mouseXOnDragStart) / view.zoom, view.config.minOffsetX),
+			view.config.maxOffsetX);
+			this.config.y = Math.min(Math.max(
+				this._originalY + (event.clientY - this._mouseYOnDragStart) / view.zoom, view.config.minOffsetX),
+			view.config.maxOffsetY);
+		};
+		document.addEventListener("mousemove", followMouse);
+		const stopHolding = () => {
+			this.isActive = false;
+			view.config.isBlockingMove = false;
+			view.removeEventListener("resetperspective", () => this.resetPerspective());
+			document.removeEventListener("mousemove", followMouse);
+			document.removeEventListener("mouseup", stopHolding);
+			document.removeEventListener("mouseleave", stopHolding);
+			for (const listener of this._eventListeners.stopholding) {
+				listener();
+			}
+		};
+		document.addEventListener("mouseup", stopHolding);
+		document.addEventListener("mouseleave", stopHolding);
+		view.addEventListener("unmount", stopHolding);
+	}
+
+	addEventListener<T extends keyof HoldEventListeners>(
+		type: T,
+		func: HoldEventListeners[T][number]
+	) {
+		// I don't know why but type inferring is taking the union of all possible types of functions
+		// instead of just getting the function type for specific T
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		this._eventListeners[type].push(func as any);
+	}
+
+	removeEventListener<T extends HoldEventListenerType>(
+		type: T,
+		func: HoldEventListeners[T][number]
 	) {
 		for (let i = 0; i < this._eventListeners[type].length; i++) {
 			while (this._eventListeners[type][i] === func) this._eventListeners[type].splice(i, 1);
