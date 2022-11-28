@@ -3,7 +3,8 @@ import { Machines, Pipe, Pipes } from "@/js/machines/index";
 import { TOWNS, Towns } from "@/js/towns";
 import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
-import { ViewMoveHandler } from "@/utils/view-move-handler";
+
+import { HoldMoveHandler, ViewMoveHandler } from "@/utils/view-move-handler";
 
 import { onMount } from "@/components/mixins";
 
@@ -30,7 +31,6 @@ const view = new ViewMoveHandler({
 });
 
 let holdingMachine = null;
-let holdingMachineX, holdingMachineY;
 let beforeDestroy = null;
 let mouseX = $ref(0);
 let mouseY = $ref(0);
@@ -135,13 +135,11 @@ function registerOffsetKey() {
 		const { x, y } = Towns("current").playerData.display.offset;
 		Towns("current").changeOffset(offset[0] * 15 / view.zoom, offset[1] * 15 / view.zoom);
 		if (holdingMachine) {
-			const previousMachineX = holdingMachine.data.x, previousMachineY = holdingMachine.data.y;
 			holdingMachine.changePositionBy(
 				Towns("current").playerData.display.offset.x - x,
 				Towns("current").playerData.display.offset.y - y
 			);
-			holdingMachineX += (holdingMachine.data.x - previousMachineX);
-			holdingMachineY += (holdingMachine.data.y - previousMachineY);
+			hold.resetPerspective();
 		}
 	};
 }
@@ -191,40 +189,18 @@ function handlePipeStopHover() {
 	hoveringPipe.type = "";
 	hoveringPipe.machine = null;
 }
-function handleMoveMachineStart(machine, e) {
-	if (view.config.isBlockingMove) return;
-	view.config.isBlockingMove = true;
+
+const hold = new HoldMoveHandler({
+	get x() { return holdingMachine.data.x; },
+	set x(v) { holdingMachine.data.x = v; },
+
+	get y() { return holdingMachine.data.y; },
+	set y(v) { holdingMachine.data.y = v; },
+}, view);
+
+function handleMoveMachineStart(machine) {
 	holdingMachine = machine;
-	holdingMachineX = machine.data.x;
-	holdingMachineY = machine.data.y;
-	let mouseXOnDragStart = e.clientX;
-	let mouseYOnDragStart = e.clientY;
-	const onResetPerspective = () => {
-		mouseXOnDragStart = mouseX + machineTab.offsetLeft;
-		mouseYOnDragStart = mouseY + machineTab.offsetTop;
-		holdingMachineX = holdingMachine.data.x;
-		holdingMachineY = holdingMachine.data.y;
-	};
-	view.addEventListener("resetperspective", onResetPerspective);
-	const followMouse = function(event) {
-		machine.moveTo(
-			holdingMachineX + (event.clientX - mouseXOnDragStart) / view.zoom,
-			holdingMachineY + (event.clientY - mouseYOnDragStart) / view.zoom
-		);
-	};
-	document.addEventListener("mousemove", followMouse);
-	const stopHolding = function() {
-		view.config.isBlockingMove = false;
-		view.removeEventListener("resetperspective", onResetPerspective);
-		document.removeEventListener("mousemove", followMouse);
-		document.removeEventListener("mouseup", stopHolding);
-		document.removeEventListener("mouseleave", stopHolding);
-		beforeDestroy = null;
-		holdingMachine = null;
-	};
-	document.addEventListener("mouseup", stopHolding);
-	document.addEventListener("mouseleave", stopHolding);
-	beforeDestroy = stopHolding;
+	hold.trigger();
 }
 </script>
 
