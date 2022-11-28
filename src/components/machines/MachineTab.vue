@@ -198,6 +198,8 @@ const hold = new HoldMoveHandler({
 	set y(v) { holdingMachine.data.y = v; },
 }, view);
 
+hold.addEventListener("stopholding", () => holdingMachine = null);
+
 function handleMoveMachineStart(machine) {
 	holdingMachine = machine;
 	hold.trigger();
