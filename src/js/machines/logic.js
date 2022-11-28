@@ -136,7 +136,7 @@ export const Pipe = {
 		if (!this.isUnlocked) return;
 		for (const outputId in machine.pipes) {
 			const output = machine.outputs[outputId];
-			if (!output.data.length) continue;
+			if (!output || !output.data.length) continue;
 			const ratios = [];
 			let whole = 0;
 			const outputLast = arr(output.data).last;

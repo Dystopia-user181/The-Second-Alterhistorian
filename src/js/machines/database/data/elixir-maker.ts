@@ -2,6 +2,9 @@ import { Machine } from "../../logic";
 
 import { defineMachine } from "../builder";
 
+import { player } from "@/js/player";
+
+
 export default defineMachine({
 	name: "elixirMaker",
 	inputs: [

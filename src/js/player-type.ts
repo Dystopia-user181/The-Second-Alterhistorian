@@ -1,23 +1,16 @@
-import { hasOwn } from "@/utils/extensions";
+import { PlayerTown, TownType } from "./towns";
+
 import { MachineData } from "@/js/machines/database/config";
 import { MachineTypes } from "./machines";
 import { ResourceType } from "@/types/resources";
-import { TownType } from "./towns";
 
-export interface PlayerTown {
-	machines: MachineData[],
-	upgrades: 0,
-	machinesPrepay: number[],
-	upgradesPrepay: number[],
-	display: {
-		offset: { x: number, y: number },
-		zoom: number
-	},
-}
+import { hasOwn } from "@/utils";
 
 // Things aren't typed yet but it needs to be used; as things get typed, delete these
-export interface Player {
+export interface PlayerType {
 	options: {
+		autosave: number,
+		exportCount: number,
 		showGridlines: number,
 		snapToGrid: number,
 	},
@@ -27,7 +20,11 @@ export interface Player {
 		resource: ResourceType,
 		amount: number
 	},
-	towns: Record<TownType, PlayerTown>
+	towns: Record<TownType, PlayerTown>,
+	currentlyIn: TownType,
+	unlockedCurrencies: Record<ResourceType, boolean>,
+	migrations: number,
+	vitalMarker: string,
 	producedElixir: number,
 }
 

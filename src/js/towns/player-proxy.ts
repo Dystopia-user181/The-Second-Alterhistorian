@@ -4,7 +4,7 @@ import * as TOWN from "./constants";
 import { SidebarShopDBEntry, TownDBEntry, TownsDatabase, TownType, TownUpgradeDBEntry } from "./database";
 
 import { Machine, MachineTypes } from "@/js/machines/index";
-// import { player } from "@/js/player";
+import { player } from "@/js/player";
 
 import { arr, formatX, objectMap, run } from "@/utils";
 
