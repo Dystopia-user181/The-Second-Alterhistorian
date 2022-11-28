@@ -249,11 +249,13 @@ function handleMoveMachineStart(machine) {
 			<line
 				v-if="draggingPipe.type"
 				class="c-machine-tab__dragging-pipe"
-				:x1="draggingPipe.machine.data.x + draggingPipe.id * 30 + 15"
+				:x1="draggingPipe.machine.data.x + (draggingPipe.id + (draggingPipe.type === 'input' ? 0
+					: draggingPipe.machine.inputs.length)) * 90 + 45"
 				:y1="draggingPipe.machine.data.y + (draggingPipe.type === 'input' ? -10
 					: draggingPipe.machine.height + 10)"
 				:x2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
-					? hoveringPipe.machine.data.x + hoveringPipe.id * 30 + 15
+					? hoveringPipe.machine.data.x + (hoveringPipe.id + (hoveringPipe.type === 'input' ? 0
+						: hoveringPipe.machine.inputs.length)) * 90 + 45
 					: mouseX / view.zoom + view.offsetX - tabWidth / 2 / view.zoom"
 				:y2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.y + (hoveringPipe.type === 'input' ? -10

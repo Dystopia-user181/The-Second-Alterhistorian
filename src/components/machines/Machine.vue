@@ -191,15 +191,16 @@ function emitOutputPipeHover(id) {
 		>
 			Input Pipes
 			<div
-				v-for="input in inputs.filter(x => x.isUnlocked)"
+				v-for="input in inputs"
 				:key="input.id"
 				class="c-machine__input-pipe"
-				:style="{ left: `${input.id * 30 + 15}px`}"
-				@mouseenter="emitInputPipeHover(input.id)"
-				@mouseleave="emit('pipe-stop-hover')"
-				@mousedown="emitInputPipeDrag(input.id)"
+				:class="{ disabled: !input.isUnlocked }"
+				:style="{ left: `${input.id * 90 + 45}px` }"
+				@mouseenter="if (input.isUnlocked) emitInputPipeHover(input.id);"
+				@mouseleave="if (input.isUnlocked) emit('pipe-stop-hover');"
+				@mousedown="if (input.isUnlocked) emitInputPipeDrag(input.id);"
 			>
-				{{ input.id + 1 }}
+				{{ input.isUnlocked ? input.id + 1 : "x" }}
 			</div>
 		</div>
 		<div
@@ -281,19 +282,20 @@ function emitOutputPipeHover(id) {
 		</div>
 		<div
 			v-if="unlockedPipes && outputs.length"
-			class="c-pipe-container"
+			class="c-pipe-container c-pipe-container--bottom"
 		>
 			Output Pipes
 			<div
-				v-for="output in outputs.filter(x => x.isUnlocked)"
+				v-for="output in outputs"
 				:key="output.id"
 				class="c-machine__output-pipe"
-				:style="{ left: `${output.id * 30 + 15}px`}"
-				@mouseenter="emitOutputPipeHover(output.id)"
-				@mouseleave="emit('pipe-stop-hover')"
-				@mousedown="emitOutputPipeDrag(output.id)"
+				:class="{ disabled: !output.isUnlocked }"
+				:style="{ left: `${(output.id + inputs.length) * 90 + 45}px`}"
+				@mouseenter="if (output.isUnlocked) emitOutputPipeHover(output.id);"
+				@mouseleave="if (output.isUnlocked) emit('pipe-stop-hover');"
+				@mousedown="if (output.isUnlocked) emitOutputPipeDrag(output.id);"
 			>
-				{{ output.id + 1 }}
+				{{ output.isUnlocked ? output.id + 1 : "x" }}
 			</div>
 		</div>
 	</div>
@@ -302,7 +304,7 @@ function emitOutputPipeHover(id) {
 <style scoped>
 .c-machine-container {
 	background-color: #333333;
-	height: 250px;
+	height: 270px;
 	padding: 3px 0;
 	display: flex;
 	flex-direction: column;
@@ -336,7 +338,7 @@ function emitOutputPipeHover(id) {
 	justify-content: center;
 	align-items: center;
 	margin: 1.5px 3px;
-	min-width: 94px;
+	min-width: 84px;
 	background-color: rgba(15, 20, 25, 0.4);
 	border: 2px solid #333333;
 	transition: all 0.2s;
@@ -361,12 +363,16 @@ function emitOutputPipeHover(id) {
 
 .c-pipe-container {
 	font-size: 0.67em;
-	align-self: flex-start;
-	margin-left: 5px;
+	margin: 0 5px;
 }
 
 .c-pipe-container--top {
+	align-self: flex-start;
 	height: 0;
+}
+
+.c-pipe-container--bottom {
+	align-self: flex-end;
 }
 
 .c-machine__input-pipe {
@@ -397,6 +403,10 @@ function emitOutputPipeHover(id) {
 	padding-top: 4px;
 	border-radius: 0 0 4px 4px;
 	cursor: pointer;
+}
+
+.c-machine__input-pipe.disabled, .c-machine__output-pipe.disabled {
+	cursor: default;
 }
 
 hr {

@@ -19,7 +19,7 @@ abstract class MachineBase {
 	}
 
 	get height() {
-		return this.isMinimized ? 110 : 250;
+		return this.isMinimized ? 110 : 270;
 	}
 
 	get id() {
