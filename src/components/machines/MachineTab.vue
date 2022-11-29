@@ -192,10 +192,10 @@ function handlePipeStopHover() {
 
 const hold = new HoldMoveHandler({
 	get x() { return holdingMachine.data.x; },
-	set x(v) { holdingMachine.data.x = v; },
+	set x(v) { holdingMachine.moveTo(v, undefined); },
 
 	get y() { return holdingMachine.data.y; },
-	set y(v) { holdingMachine.data.y = v; },
+	set y(v) { holdingMachine.moveTo(undefined, v); },
 }, view);
 
 hold.addEventListener("stopholding", () => holdingMachine = null);

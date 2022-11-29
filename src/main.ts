@@ -1,4 +1,3 @@
-import "./js/database";
 import "./js/eventhub";
 import "./js/machines";
 import "./js/towns";

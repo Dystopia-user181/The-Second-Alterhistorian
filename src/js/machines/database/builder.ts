@@ -3,10 +3,11 @@ import { MachinesById, Pipes } from "../player-proxy-wip";
 import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
 
 import { MachineConfig, MachineData } from "@/js/machines/database/config";
-import { mapObjectValues, nonNegativeMod, str } from "@/utils";
+import { TOWNS, TownType } from "@/js/towns";
 import { ResourceData } from "@/types/resources";
-import { TownType } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
+
+import { mapObjectValues, nonNegativeMod, str } from "@/utils";
 
 abstract class MachineBase {
 	private _data: MachineData;
@@ -265,12 +266,12 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			) as [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
 		}
 
-		moveTo(_x: number, _y: number) {
-			const maxOffsetX = 5000;
-			const maxOffsetY = 4000;
+		moveTo(_x: number | undefined, _y?: number) {
+			const maxOffsetX = TOWNS.MAX_OFFSET_X;
+			const maxOffsetY = TOWNS.MAX_OFFSET_Y;
 			let x: number, y: number;
-			x = _x;
-			y = _y;
+			x = _x ?? this.data.x;
+			y = _y ?? this.data.y;
 			if (player.options.snapToGrid && player.options.showGridlines) {
 				const gridInterval = 200;
 				// Produces a graph like /\/\/\/|\/\/\/\ -- Check if value is higher than a certain threshold
