@@ -6,8 +6,8 @@ export interface GameEvents {
 	MACHINE_DELETED: (id: number, value: string) => void
 
 	// Ticks
-	GAME_TICK_BEFORE: void
-	GAME_TICK_AFTER: void
+	GAME_TICK_BEFORE: () => void
+	GAME_TICK_AFTER: () => void
 }
 
 export type GameEvent = keyof GameEvents

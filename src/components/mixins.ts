@@ -1,9 +1,16 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 
-import { UIEvent } from "@/js/ui/events.ts";
+import { UIEvent, UIEvents } from "@/js/ui/events";
 
+interface MountOptions {
+	onMount?: () => void,
+	update?: () => void,
+	render?: () => void,
+	beforeUnmount?: () => void,
+	on?: Partial<UIEvents>
+}
 let componentId = 0;
-export function onMount(options = {}) {
+export function onMount(options: MountOptions = {}) {
 	const tempComponentId = componentId;
 	onMounted(() => {
 		if (options.onMount) options.onMount();
@@ -16,7 +23,10 @@ export function onMount(options = {}) {
 			options.render();
 		}
 		if (options.on) {
-			for (const event in options.on) {
+			let event: keyof typeof options.on;
+			for (event in options.on) {
+				// Todo: Make this not terrible
+				// But hey we know it works so whatever
 				UIEvent.on(tempComponentId, event, options.on[event]);
 			}
 		}
