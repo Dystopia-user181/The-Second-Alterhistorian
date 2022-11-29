@@ -31,7 +31,7 @@ const recipes: Recipe[] = [
 ];
 
 const fuels: Partial<Record<MaybeResourceType, number>> = {
-	none: 0,
+	none: 1e-300,
 	wood: 1,
 	coal: 7,
 };
