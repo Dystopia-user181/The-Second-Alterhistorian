@@ -187,9 +187,8 @@ function emitOutputPipeHover(id) {
 	>
 		<div
 			v-if="unlockedPipes && inputs.length"
-			class="c-pipe-container c-pipe-container--top"
+			class="c-pipe-container"
 		>
-			Input Pipes
 			<div
 				v-for="input in inputs"
 				:key="input.id"
@@ -206,6 +205,7 @@ function emitOutputPipeHover(id) {
 		<div
 			v-if="unlockedPipes || !isMin"
 			class="c-emphasise-text c-machine__title"
+			:style="{ width: `${90 * (inputs.length + outputs.length)}px` }"
 			@mousedown="emit('move-machine-start', $event)"
 		>
 			<!-- This is a zws so it doesn't get collapsed -->
@@ -282,9 +282,8 @@ function emitOutputPipeHover(id) {
 		</div>
 		<div
 			v-if="unlockedPipes && outputs.length"
-			class="c-pipe-container c-pipe-container--bottom"
+			class="c-pipe-container"
 		>
-			Output Pipes
 			<div
 				v-for="output in outputs"
 				:key="output.id"
@@ -331,6 +330,8 @@ function emitOutputPipeHover(id) {
 	align-self: stretch;
 	text-align: center;
 	font-size: 16px;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .c-machine__input, .c-machine__output {
@@ -363,16 +364,6 @@ function emitOutputPipeHover(id) {
 
 .c-pipe-container {
 	font-size: 0.67em;
-	margin: 0 5px;
-}
-
-.c-pipe-container--top {
-	align-self: flex-start;
-	height: 0;
-}
-
-.c-pipe-container--bottom {
-	align-self: flex-end;
 }
 
 .c-machine__input-pipe {
@@ -440,6 +431,7 @@ hr {
 
 .c-collapsed-text {
 	text-align: center;
+	overflow: hidden;
 }
 
 @keyframes a-just-bought {

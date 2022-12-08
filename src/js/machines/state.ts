@@ -20,7 +20,7 @@ class GenericStackState {
 		this.data = data;
 		this._volume = ref(Stack.volumeOfStack(this.data));
 		this.displayResource = reactive<[MaybeResourceType, number]>(["none", Infinity]);
-		this.lastItem = undefined;
+		this.lastItem = arr(this.data).last;
 	}
 
 	get capacity() {
