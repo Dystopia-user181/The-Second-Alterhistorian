@@ -240,6 +240,7 @@ function handleMoveMachineStart(machine) {
 				:y="-TOWNS.MAX_OFFSET_Y"
 				:width="TOWNS.MAX_OFFSET_X * 2"
 				:height="TOWNS.MAX_OFFSET_Y * 2"
+				:step="TOWNS.GRID_SIZE"
 			/>
 			<pipe-connection
 				v-for="(pipe, id) in pipes"

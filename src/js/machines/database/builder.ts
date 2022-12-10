@@ -44,6 +44,29 @@ abstract class MachineBase {
 		return this._townType;
 	}
 
+	moveTo(_x: number | undefined, _y?: number) {
+		const maxOffsetX = TOWNS.MAX_OFFSET_X;
+		const maxOffsetY = TOWNS.MAX_OFFSET_Y;
+		let x: number, y: number;
+		x = _x ?? this.data.x;
+		y = _y ?? this.data.y;
+		if (player.options.snapToGrid && player.options.showGridlines) {
+			const gridInterval = TOWNS.GRID_SIZE;
+			// Produces a graph like /\/\/\/|\/\/\/\ -- Check if value is higher than a certain threshold
+			if (Math.abs(nonNegativeMod(x, gridInterval) - gridInterval / 2) > gridInterval * 0.4 &&
+			Math.abs(nonNegativeMod(y, gridInterval) - gridInterval / 2) > gridInterval * 0.4) {
+				x = Math.round(x / gridInterval) * gridInterval;
+				y = Math.round(y / gridInterval) * gridInterval;
+			}
+		}
+		this.data.x = Math.max(Math.min(x, maxOffsetX), -maxOffsetX);
+		this.data.y = Math.max(Math.min(y, maxOffsetY), -maxOffsetY);
+	}
+
+	changePositionBy(x: number, y: number) {
+		this.moveTo(this.data.x + x, this.data.y + y);
+	}
+
 	constructor(townType: TownType, machineId: number) {
 		this._townType = townType;
 		this._id = machineId;
@@ -264,29 +287,6 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 					return [machine, machine.inputs[x[1]]];
 				})
 			) as [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
-		}
-
-		moveTo(_x: number | undefined, _y?: number) {
-			const maxOffsetX = TOWNS.MAX_OFFSET_X;
-			const maxOffsetY = TOWNS.MAX_OFFSET_Y;
-			let x: number, y: number;
-			x = _x ?? this.data.x;
-			y = _y ?? this.data.y;
-			if (player.options.snapToGrid && player.options.showGridlines) {
-				const gridInterval = 200;
-				// Produces a graph like /\/\/\/|\/\/\/\ -- Check if value is higher than a certain threshold
-				if (Math.abs(nonNegativeMod(x, gridInterval) - gridInterval / 2) > gridInterval * 0.43 &&
-				Math.abs(nonNegativeMod(y, gridInterval) - gridInterval / 2) > gridInterval * 0.43) {
-					x = Math.round(x / gridInterval) * gridInterval;
-					y = Math.round(y / gridInterval) * gridInterval;
-				}
-			}
-			this.data.x = Math.max(Math.min(x, maxOffsetX), -maxOffsetX);
-			this.data.y = Math.max(Math.min(y, maxOffsetY), -maxOffsetY);
-		}
-
-		changePositionBy(x: number, y: number) {
-			this.moveTo(this.data.x + x, this.data.y + y);
 		}
 
 		inputItem(index: number) {

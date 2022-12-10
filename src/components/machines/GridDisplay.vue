@@ -32,8 +32,8 @@ const { x, y, width, height, step } = defineProps({
 		:y1="y"
 		:x2="x + (i - 1) * step"
 		:y2="y + height"
-		stroke-width="3"
-		stroke="#444"
+		stroke-width="2"
+		stroke="#333"
 		stroke-linecap="square"
 	/>
 	<line
@@ -43,8 +43,8 @@ const { x, y, width, height, step } = defineProps({
 		:y1="y + (i - 1) * step"
 		:x2="x + width"
 		:y2="y + (i - 1) * step"
-		stroke-width="3"
-		stroke="#444"
+		stroke-width="2"
+		stroke="#333"
 		stroke-linecap="square"
 	/>
 </template>

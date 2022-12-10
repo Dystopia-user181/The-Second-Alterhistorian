@@ -81,11 +81,11 @@ function deleteMachine() {
 			/>
 		</span>
 		<span
+			v-if="machine.isUpgradeable"
 			tooltip="Upgrades"
 			tooltip-left
 		>
 			<div
-				v-if="machine.isUpgradeable"
 				class="fas fa-arrow-up"
 				:class="{
 					'c-darker': isFullyUpgraded,
@@ -96,21 +96,21 @@ function deleteMachine() {
 			/>
 		</span>
 		<span
+			v-if="!machine.isMinimized"
 			tooltip="Info and Production"
 			tooltip-left
 		>
 			<div
-				v-if="!machine.isMinimized"
 				class="fas fa-chart-bar"
 				@mousedown="showStatistics()"
 			/>
 		</span>
 		<span
+			v-if="!machine.data.isDefault"
 			tooltip="Delete"
 			tooltip-left
 		>
 			<div
-				v-if="!machine.data.isDefault"
 				class="fas fa-trash"
 				@mousedown="deleteMachine()"
 			/>
@@ -151,8 +151,8 @@ function deleteMachine() {
 	text-shadow: 0 0 5px;
 }
 
-.c-machine-sidebar .fas:nth-child(even) {
-	opacity: 0.7;
+.c-machine-sidebar span:nth-child(even) .fas {
+	background-color: #282828;
 }
 
 .c-machine-sidebar .fa-arrows {
