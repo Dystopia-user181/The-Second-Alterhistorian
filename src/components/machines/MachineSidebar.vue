@@ -28,6 +28,7 @@ onMount({
 	onMount() {
 		if (machine.isNew) {
 			animation = true;
+			setTimeout(() => animation = false, 3000);
 		}
 	},
 	update() {
