@@ -7,23 +7,23 @@ import { Currencies } from "@/js/currencies/currencies";
 TownsDatabase.set("home", {
 	defaultMachines: [{
 		type: "shoveller",
-		x: -125,
-		y: -125
+		x: -360,
+		y: -270
 	},
 	{
 		type: "cistern",
-		x: -425,
-		y: -125
+		x: -90,
+		y: -270
 	},
 	{
 		type: "quarry",
-		x: 175,
-		y: -125
+		x: 180,
+		y: -270
 	},
 	{
 		type: "essencePurifier",
-		x: -125,
-		y: -425
+		x: -360,
+		y: 90
 	}],
 	sidebarShop: [
 		{

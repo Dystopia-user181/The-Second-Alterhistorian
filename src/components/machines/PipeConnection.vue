@@ -17,9 +17,9 @@ const pipe = $computed(() => props.pipe);
 
 const displayResource = $computed(() => pipe.out[1].displayResource[0]);
 
-const x1 = $computed(() => pipe.out[0].data.x + pipe.out[1].id * 30 + 15);
+const x1 = $computed(() => pipe.out[0].data.x + (pipe.out[1].id + pipe.out[0].inputs.length) * 90 + 45);
 const y1 = $computed(() => pipe.out[0].data.y + pipe.out[0].height + 10);
-const x2 = $computed(() => pipe.in[0].data.x + pipe.in[1].id * 30 + 15);
+const x2 = $computed(() => pipe.in[0].data.x + pipe.in[1].id * 90 + 45);
 const y2 = $computed(() => pipe.in[0].data.y - 10);
 const rx1 = $computed(() => Math.min(x1, x2));
 const rx2 = $computed(() => Math.max(x1, x2));

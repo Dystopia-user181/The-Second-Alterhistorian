@@ -20,7 +20,7 @@ class GenericStackState {
 		this.data = data;
 		this._volume = ref(Stack.volumeOfStack(this.data));
 		this.displayResource = reactive<[MaybeResourceType, number]>(["none", Infinity]);
-		this.lastItem = undefined;
+		this.lastItem = arr(this.data).last;
 	}
 
 	get capacity() {
@@ -323,6 +323,7 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 			player.holding.amount = 0;
 			return;
 		}
+		if (isNaN(this.count)) this.count = 0;
 
 		if (this.currencyType) {
 			if (player.holding.amount) {
