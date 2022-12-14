@@ -341,7 +341,7 @@ function emitOutputPipeHover(id) {
 	margin: 1.5px 3px;
 	min-width: 84px;
 	background-color: rgba(15, 20, 25, 0.4);
-	border: 2px solid #333333;
+	border: none;
 	transition: all 0.2s;
 	flex-grow: 1;
 	cursor: pointer;
