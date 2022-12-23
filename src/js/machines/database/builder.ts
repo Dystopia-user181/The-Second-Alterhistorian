@@ -2,6 +2,8 @@ import { MachinesById, Pipes } from "../player-proxy-wip";
 
 import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
 
+import { player } from "@/js/player";
+
 import { MachineConfig, MachineData } from "@/js/machines/database/config";
 import { TOWNS, TownType } from "@/js/towns";
 import { ResourceData } from "@/types/resources";
