@@ -26,8 +26,8 @@ function render() {
 			ctx.strokeStyle = "#00dd00";
 			ctx.fillStyle = "#00cc0088";
 		} else {
-			ctx.strokeStyle = "#999999";
-			ctx.fillStyle = "#99999988";
+			ctx.strokeStyle = "#ffffff";
+			ctx.fillStyle = "#ffffff88";
 		}
 		ctx.beginPath();
 		ctx.roundRect(
@@ -70,21 +70,23 @@ onMount({
 	position: absolute;
 	top: 0;
 	right: 0;
-	background-color: #242424bb;
+	background-color: #242424;
 	z-index: 3;
 	border-bottom-left-radius: 10px;
+	border-left: 2px solid white;
+	border-bottom: 2px solid white;
 }
 
 .c-minimap__header {
 	font-size: 17px;
 	font-weight: bold;
 	text-align: center;
-	margin: 5px 0 0;
+	margin-top: 5px;
 }
 
 .c-minimap__canvas {
 	background-color: #121212bb;
 	border-radius: 6px;
-	margin: 6px;
+	margin: 6px 6px 0;
 }
 </style>
