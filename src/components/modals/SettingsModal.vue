@@ -62,6 +62,12 @@ function toggleOption(option) {
 		>
 			Snap To Grid: {{ getOptionsText("snapToGrid") }}
 		</button>
+		<button
+			class="c-settings-button"
+			@click="toggleOption('minimap');"
+		>
+			Show Minimap: {{ getOptionsText("minimap") }}
+		</button>
 	</modal-wrapper>
 </template>
 
