@@ -72,8 +72,7 @@ export const Player = {
 	},
 	loadSave() {
 		const save = localStorage.getItem(this.storageKey);
-		if (!save) return;
-		this.load(JSON.parse(save));
+		this.load(save ? JSON.parse(save) : undefined);
 	},
 	savePlayer() {
 		if (player.vitalMarker !== Player.storageKey) return;
