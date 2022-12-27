@@ -133,7 +133,7 @@ onMount({
 			>
 				Output {{ output.id + 1 }}:
 				<span v-if="output.value">
-					Consumes {{ format(output.value, 2, 2, true) }}
+					Produces {{ format(output.value, 2, 2, true) }}
 					{{ str(avg.outputs[output.id].lastResource).capitalize }}/s
 				</span>
 				<span v-else>

@@ -5,7 +5,7 @@ import { ConfiguredMachine } from "./database/builder";
 
 import { player } from "@/js/player";
 
-import { arr, run, Stack } from "@/utils";
+import { arr, formatX, run, Stack } from "@/utils";
 import { MaybeResourceType, ResourceData } from "@/types/resources";
 
 class GenericStackState {
@@ -254,6 +254,12 @@ export class UpgradeState<UpgradeKeys extends string, Meta extends Record<string
 	get effect(): any {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return run(this._config.effect, this.count);
+	}
+
+	get formattedEffect(): string {
+		// eslint-disable-next-line max-len
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
+		return this._config.formatEffect ? this._config.formatEffect(this.effect) : formatX(this.effect, 2, 1);
 	}
 
 	get cost() {
