@@ -38,7 +38,7 @@ export function fixMachineData(machineData: MachineData) {
 	if (Object.keys(config.upgrades).length) {
 		machineData.upgrades = machineData.upgrades || [];
 		machineData.upgradesPrepay = machineData.upgradesPrepay || [];
-		for (let i = 0; i < Object.keys(machineData.upgrades).length; i++) {
+		for (let i = 0; i < Object.keys(config.upgrades).length; i++) {
 			machineData.upgrades[i] = machineData.upgrades[i] || 0;
 			machineData.upgradesPrepay[i] = machineData.upgradesPrepay[i] || 0;
 		}
