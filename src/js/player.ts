@@ -45,7 +45,8 @@ export const Player = {
 				autosave: 1,
 				exportCount: 0,
 				showGridlines: 1,
-				snapToGrid: 1
+				snapToGrid: 1,
+				minimap: 1,
 			}
 		};
 	},

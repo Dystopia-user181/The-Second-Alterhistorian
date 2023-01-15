@@ -13,6 +13,7 @@ export interface PlayerType {
 		exportCount: number,
 		showGridlines: number,
 		snapToGrid: number,
+		minimap: number,
 	},
 	money: number,
 	fastTime: number,

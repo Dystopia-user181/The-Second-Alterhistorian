@@ -10,6 +10,7 @@ import { onMount } from "@/components/mixins";
 
 import GridDisplay from "./GridDisplay.vue";
 import MachineContainer from "./MachineContainer.vue";
+import Minimap from "./Minimap.vue";
 import PipeConnection from "./PipeConnection.vue";
 
 import { format, formatX } from "@/utils";
@@ -211,6 +212,7 @@ function handleMoveMachineStart(machine) {
 		ref="machineTab"
 		class="c-machine-tab"
 	>
+		<minimap v-if="player.options.minimap" />
 		<span class="c-machine-tab__fast-time-display">
 			Fast Time: {{ format(player.fastTime, 2, 2) }}s
 			<template v-if="player.fastTime > 0">
