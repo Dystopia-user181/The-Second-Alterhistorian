@@ -68,8 +68,8 @@ export function run<T>(
 export function deepAssign<T extends Record<K, any>, K extends keyof T>(target: T, source: T) : void {
 	Object.keys(source).forEach(k => {
 		const key = k as K;
-		if (isObject(source[key]))
-			if (isObject(target[key]))
+		if (isObject(source[key]) || isArray(source[key]))
+			if (isObject(target[key]) || isArray(target[key]))
 				deepAssign(target[key], source[key]);
 			else
 				target[key] = deepClone(source[key]);
