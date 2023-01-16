@@ -1,7 +1,7 @@
 import { shallowReactive } from "vue";
 
 import { GameUI } from "@/js/ui/game-ui";
-import { LogicEvent } from "@/js/database/events.ts";
+import { LogicEvent } from "@/js/events/events.ts";
 
 import { Machine, Pipe } from "./logic";
 import { MachineTypes } from "./database/index";
