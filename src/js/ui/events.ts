@@ -1,13 +1,16 @@
 import { EventHub } from "@/js/eventhub";
 
-import { GameEvents } from "@/js/database/events";
+import { GameEventList, GameEvents } from "@/js/events/events";
 
 export interface UIEvents extends GameEvents {
-	UPDATE: (shouldUpdate: boolean, target: string) => void,
-	RENDER: (shouldUpdate: boolean, target: string) => void,
+	UPDATE: () => void,
+	RENDER: () => void,
 	ERROR: (message: string) => void
 }
 
-export type UIEventType = keyof UIEvents
+export const UIEventList = [...GameEventList,
+	"UPDATE", "RENDER", "ERROR"] as const;
+
+export type UIEventType = keyof UIEvents;
 
 export const UIEvent = new EventHub<UIEvents>("UIEvents");

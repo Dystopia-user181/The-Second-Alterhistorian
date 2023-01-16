@@ -11,7 +11,7 @@ import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
 import { TownsDatabase } from "@/js/towns/database";
 
-import { arr, objectMap } from "@/utils";
+import { arr, mapObjectValues } from "@/utils";
 
 export { Pipes } from "./player-proxy-wip.ts";
 
@@ -25,7 +25,7 @@ export function initializeMachines() {
 		if (Pipes[town]) arr(Pipes[town]).clear();
 		else Pipes[town] = shallowReactive([]);
 		MachinesById[town] = {};
-		MachineCounts[town] = objectMap(MachineTypes, x => x, () => 0);
+		MachineCounts[town] = mapObjectValues(MachineTypes, () => 0);
 		for (const machineId in player.towns[town].machines) {
 			const machine = player.towns[town].machines[machineId];
 			const newMach = new MachineTypes[machine.type](town, machineId);

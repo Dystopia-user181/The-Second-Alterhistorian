@@ -272,7 +272,6 @@
 		],
 		"space-in-parens": "error",
 		"space-infix-ops": "error",
-		"spaced-comment": "error",
 		"strict": [
 			"error",
 			"global"

@@ -2,7 +2,7 @@ import { MachineData } from "@/js/machines/database/config";
 
 export interface PlayerTown {
 	machines: Record<number, MachineData>,
-	upgrades: 0,
+	upgrades: number,
 	machinesPrepay: number[],
 	upgradesPrepay: number[],
 	display: {

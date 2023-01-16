@@ -2,13 +2,13 @@ import { Machine, Machines } from "@/js/machines/index";
 import { player } from "@/js/player";
 
 import { GameUI } from "@/js/ui/game-ui";
-import { LogicEvent } from "@/js/database/events.ts";
-import { Modals } from "@/js/ui/modals.ts";
-import { UIEvent } from "@/js/ui/events.ts";
+import { LogicEvent } from "@/js/events/events";
+import { Modals } from "@/js/ui/modals";
+import { UIEvent } from "@/js/ui/events";
 
 let lastTick = Date.now();
 
-export function gameLoop(_diff) {
+export function gameLoop(_diff?: number) {
 	let diff = _diff;
 	if (!_diff) {
 		diff = (Date.now() - lastTick) / 1000;

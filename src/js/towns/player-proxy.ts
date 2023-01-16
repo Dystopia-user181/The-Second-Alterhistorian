@@ -6,12 +6,12 @@ import { SidebarShopDBEntry, TownDBEntry, TownsDatabase, TownType, TownUpgradeDB
 import { Machine, MachineTypes } from "@/js/machines/index";
 import { player } from "@/js/player";
 
-import { arr, formatX, objectMap, run } from "@/utils";
+import { arr, formatX, mapObjectValues, run } from "@/utils";
 
 
 class SidebarShopItem {
 	config: SidebarShopDBEntry;
-	townId: string;
+	townId: TownType;
 	id: number;
 	constructor(config: SidebarShopDBEntry, townId: TownType, id: number) {
 		this.config = config;
@@ -36,36 +36,20 @@ class SidebarShopItem {
 	}
 
 	get canAfford() {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		if (!this.currencyType) return player.money >= this.cost;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return player.holding.resource === this.currencyType && player.holding.amount > 0;
 	}
 
 	get canAffordWhole() {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		if (!this.currencyType) return player.money >= this.cost;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return player.holding.resource === this.currencyType && player.holding.amount >= this.cost;
 	}
 
 	get prepay(): number {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		return player.towns[this.townId].machinesPrepay[this.id] as number;
+		return player.towns[this.townId].machinesPrepay[this.id];
 	}
 
 	set prepay(x) {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
 		player.towns[this.townId].machinesPrepay[this.id] = x;
 	}
 
@@ -74,13 +58,7 @@ class SidebarShopItem {
 		const cost = this.cost;
 		const currencyType = this.currencyType;
 		if (!this.canAffordWhole) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			this.prepay += player.holding.amount;
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.holding.amount = 0;
 			return;
 		}
@@ -88,31 +66,17 @@ class SidebarShopItem {
 		// @ts-ignore
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		if (!Machine.add(
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
 			player.currentlyIn,
 			this.config.type,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.towns[player.currentlyIn].display.offset.x,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.towns[player.currentlyIn].display.offset.y
 		))
 			return;
 
 		if (currencyType) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.holding.amount -= cost;
 			this.prepay = 0;
 		} else {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.money -= cost;
 		}
 	}
@@ -129,10 +93,7 @@ class TownUpgrade {
 		this.config = config;
 		this.townId = townId;
 		this._ = markRaw({
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			bits: computed(() => player.towns[this.townId].upgrades as number)
+			bits: computed(() => player.towns[this.townId].upgrades)
 		});
 	}
 
@@ -145,16 +106,10 @@ class TownUpgrade {
 	}
 
 	set bits(x) {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		player.towns[this.townId].upgrades = x;
 	}
 
 	get cost() {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return run(this.config.cost) - player.towns[this.townId].upgradesPrepay[this.id];
 	}
 
@@ -188,12 +143,7 @@ class TownUpgrade {
 
 	get canAfford() {
 		if (this.isBought) return false;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		if (!this.currencyType) return player.money >= this.cost;
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return player.holding.resource === this.currencyType && player.holding.amount > 0;
 	}
 
@@ -220,25 +170,14 @@ class TownUpgrade {
 		const cost = this.cost;
 		const currencyType = this.currencyType;
 		if (!this.canAffordWhole) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			this.prepay += player.holding.amount;
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.holding.amount = 0;
 			return;
 		}
 		if (currencyType) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			player.holding.amount -= cost;
 			this.prepay = 0;
 		} else {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
 			player.money -= cost;
 		}
 		this.bits |= 1 << this.id;
@@ -256,7 +195,7 @@ class Town {
 		this.config = config;
 		this.townId = townId;
 		this.sidebarShop = config.sidebarShop.map((x, id) => new SidebarShopItem(x, townId, id));
-		this.upgrades = objectMap(config.upgrades, x => x, x => new TownUpgrade(x, townId));
+		this.upgrades = mapObjectValues(config.upgrades, x => new TownUpgrade(x, townId));
 	}
 
 	get playerData() {

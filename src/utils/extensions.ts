@@ -21,33 +21,6 @@ export function mapObjectValues<
 	) as ReturnType;
 }
 
-/**
- * @param {object} obj The object to be mapped.
- * @param {function} keyfun A function which determines the key of the new property. Takes in two parameters- First
- * is the key of the original property and second is the value of the original property.
- * @param {function} propfun A function which determines the value of the new property. Takes in two parameters- First
- * is the value of the original property and second is the key of the original property.
- * @deprecated
- */
-// NOTE: This is typed correctly as designed, but the function itself is not
-// TypeScript compatible; it will always return a union of the possible types,
-// and correct keys cannot be inferred since they are transformed.
-// If you need a type safe version, use `mapObjectValues`
-export function objectMap<T extends Record<keyof T, unknown>, K extends keyof T, R>(
-	obj: T,
-	keyfun: (index: K, value: T[K]) => K,
-	propfun: (value: T[K], index: K) => R
-): { [key in K]: R } {
-	const newObj = {} as { [key in K]: R };
-	for (const i of Object.keys(obj)) {
-		const key = i as K;
-		const fun = keyfun(key, obj[key]);
-
-		newObj[fun] = propfun(obj[key], key);
-	}
-	return newObj;
-}
-
 export function run<T>(
 	param: T,
 	...args: T extends AnyFunction ? Parameters<T> : never
