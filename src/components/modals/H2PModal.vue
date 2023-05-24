@@ -8,14 +8,18 @@ import ModalWrapper from "./ModalWrapper.vue";
 			How To Play
 		</template>
 		<span class="c-h2p__body">
-			NOTE: This game is not optimised for play on mobile devices or anything that doesn't
+			NOTE: This game is not optimised for play on mobile devices, or anything that doesn't
 			have mouse controls.
 			<br>
 			<br>
 			<table>
 				<tr>
-					<td>Left Click/Right Click</td>
-					<td>Extract/Insert resources</td>
+					<td>Left Click</td>
+					<td>Extract/Insert resources slowly</td>
+				</tr>
+				<tr>
+					<td>Right Click</td>
+					<td>Extract/Insert resources instantly</td>
 				</tr>
 				<tr>
 					<td>Arrow Keys/Dragging</td>

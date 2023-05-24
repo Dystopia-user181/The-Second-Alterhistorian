@@ -127,6 +127,7 @@ export class ViewMoveHandler {
 
 	_changeZoom(event: WheelEvent) {
 		if (this.config.isBlockingZoom) return;
+		event.preventDefault();
 		const magnitude = Math.pow(0.995, Math.sign(event.deltaY) * Math.min(Math.abs(event.deltaY), 40));
 		const oldZoom = this.zoom;
 		this.zoom *= magnitude;

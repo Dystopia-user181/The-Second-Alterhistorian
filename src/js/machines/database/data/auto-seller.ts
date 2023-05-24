@@ -23,10 +23,10 @@ export default defineMachine({
 	outputs: [],
 	customLoop(diff) {
 		for (let i = 0; i < 2; i++) {
-			if (!this.inputItem(i)) return;
+			if (!this.inputItem(i)) continue;
 
 			const currency = this.inputItem(i)?.resource ?? "none";
-			if (currency === "none") return;
+			if (currency === "none") continue;
 
 			Machine.addInputHistory(this);
 			Machine.addOutputHistory(this);
