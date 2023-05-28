@@ -22,19 +22,18 @@ export default defineMachine({
 	],
 	outputs: [],
 	customLoop(diff) {
+		Machine.addInputHistory(this);
+		Machine.addOutputHistory(this);
 		for (let i = 0; i < 2; i++) {
 			if (!this.inputItem(i)) continue;
 
 			const currency = this.inputItem(i)?.resource ?? "none";
 			if (currency === "none") continue;
 
-			Machine.addInputHistory(this);
-			Machine.addOutputHistory(this);
-
 			const amount = this.inputs[i].removeFromStack(20 * diff);
 			player.money += Currencies[currency].value * amount;
-			Pipe.tickPipes(this, diff);
 		}
+		Pipe.tickPipes(this, diff);
 	},
 	upgrades: {},
 	description: `Automagically sells things.`,

@@ -153,6 +153,12 @@ export const Player = {
 
 export const player = reactive<PlayerType>({} as PlayerType);
 
+if (/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/u.test(location.href) || location.href.includes("localhost")) {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	window.player = player;
+}
+
 setTimeout(() => Player.loadSave(), 0);
 
 window.saveInterval = setInterval(() => Player.savePlayer(), 10000);

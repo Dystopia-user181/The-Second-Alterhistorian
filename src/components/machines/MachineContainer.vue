@@ -43,6 +43,7 @@ const shouldExist = $computed(() => {
 function bringToTop() {
 	// Bring machine to top for Machines object
 	const idx = Machines[machine.townType].findIndex(x => x.id.toString() === machine.id.toString());
+	if (idx === -1) return;
 	Machines[machine.townType].push(machine);
 	Machines[machine.townType].splice(idx, 1);
 
