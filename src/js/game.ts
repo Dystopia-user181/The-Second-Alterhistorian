@@ -17,6 +17,7 @@ export function gameLoop(_diff?: number) {
 	LogicEvent.dispatch("GAME_TICK_BEFORE");
 	if (player.holding.amount < 0.5 || player.holding.resource !== "elixir")
 		Machine.gameLoop(diff, Object.values(Machines));
+	player.lastUpdateTime = Date.now();
 	GameUI.update();
 	LogicEvent.dispatch("GAME_TICK_AFTER");
 }

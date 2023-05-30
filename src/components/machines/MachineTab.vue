@@ -1,5 +1,5 @@
 <script setup>
-import { Machines, Pipe, Pipes } from "@/js/machines/index";
+import { Machine, Machines, Pipe, Pipes } from "@/js/machines/index";
 import { TOWNS, Towns } from "@/js/towns";
 import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
@@ -217,7 +217,7 @@ function handleMoveMachineStart(machine) {
 			Fast Time: {{ format(player.fastTime, 2, 2) }}s
 			<template v-if="player.fastTime > 0">
 				<br>
-				Time speedup: {{ formatX(4, 2, 1) }}
+				Time speedup: {{ formatX(Machine.timeSpeedFactor + 1, 2, 1) }}
 			</template>
 		</span>
 		<svg

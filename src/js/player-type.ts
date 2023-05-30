@@ -27,6 +27,7 @@ export interface PlayerType {
 	migrations: number,
 	vitalMarker: string,
 	producedElixir: number,
+	lastUpdateTime: number,
 }
 
 export function fixMachineData(machineData: MachineData) {

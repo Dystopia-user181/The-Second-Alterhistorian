@@ -7,11 +7,15 @@ import { arr } from "@/utils";
 
 
 export const Machine = {
+	get timeSpeedFactor() {
+		return player.fastTime < 180 ? 2 : player.fastTime / 90;
+	},
 	gameLoop(realDiff, machines = []) {
 		let diff = Math.min(realDiff, 1);
 		if (diff === 1) player.fastTime += realDiff - 1;
 		if (player.fastTime) {
-			const add = Math.min(player.fastTime, diff * 2);
+			const factor = this.timeSpeedFactor;
+			const add = Math.min(player.fastTime, diff * factor);
 			diff += add;
 			player.fastTime -= add;
 		}

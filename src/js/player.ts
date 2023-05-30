@@ -38,6 +38,7 @@ export const Player = {
 			},
 			unlockedCurrencies: mapObjectValues(Currencies, () => false),
 			fastTime: 0,
+			lastUpdateTime: Date.now(),
 			migrations: migrations.length,
 			producedElixir: 0,
 			vitalMarker: Player.storageKey,
@@ -58,6 +59,8 @@ export const Player = {
 		}
 		this.fixMachines();
 		initializeMachines();
+		player.fastTime += (Date.now() - player.lastUpdateTime) / 1000;
+		player.lastUpdateTime = Date.now();
 	},
 	loadAndMigrateSave(playerObj: any) {
 		deepAssign(player, playerObj);
