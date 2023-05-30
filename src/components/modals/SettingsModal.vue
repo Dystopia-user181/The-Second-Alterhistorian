@@ -29,6 +29,18 @@ function toggleOption(option) {
 		<template #header>
 			Settings
 		</template>
+		<button
+			class="c-settings-button"
+			@click="Player.savePlayer()"
+		>
+			Save
+		</button>
+		<button
+			class="c-settings-button"
+			@click="toggleOption('autosave')"
+		>
+			Autosave: {{ getOptionsText("autosave") }}
+		</button>
 		<br>
 		<button
 			class="c-settings-button"

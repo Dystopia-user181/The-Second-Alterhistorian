@@ -75,8 +75,16 @@ export const Player = {
 		}
 	},
 	loadSave() {
-		const save = localStorage.getItem(this.storageKey);
-		this.load(save ? JSON.parse(save) : undefined);
+		try {
+			const save = localStorage.getItem(this.storageKey);
+			this.load(save ? JSON.parse(save) : undefined);
+		} catch {
+			this.load();
+			Modals.message.showText(`
+			The game is unable to save, possibly because you are in incognito. Please export your save
+			manually before closing the game.
+			`);
+		}
 	},
 	savePlayer() {
 		if (player.vitalMarker !== Player.storageKey) return;
@@ -164,4 +172,6 @@ if (/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/u.test(location.href) || location.href.inclu
 
 setTimeout(() => Player.loadSave(), 0);
 
-window.saveInterval = setInterval(() => Player.savePlayer(), 10000);
+window.saveInterval = setInterval(() => {
+	if (player.options.autosave) Player.savePlayer();
+}, 10000);
