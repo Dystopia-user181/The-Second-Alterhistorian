@@ -50,14 +50,14 @@ const getConsumes = function(consumes, diff) {
 };
 const getProduces = (function(x, output) {
 	return machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
-					output.otherwiseDiff;
+					output.uncappedDiff;
 });
 onMount({
 	update() {
 		inputs = machine.inputs.map((x, id) => (x.isUnlocked ? {
 			resource: x.displayResource[0],
 			amount: machine.inputConfHistories.map(y => y[id])
-				.reduce((a, v) => a + getConsumes(v.consumes, x.otherwiseDiff), 0) /
+				.reduce((a, v) => a + getConsumes(v.consumes, x.uncappedDiff), 0) /
 						machine.inputConfHistories.length,
 			id
 		} : null)).filter(x => x);
@@ -78,7 +78,7 @@ onMount({
 					avgItem.lastResource = resource;
 					avgItem.time = 0;
 				}
-				avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.otherwiseDiff)) /
+				avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.uncappedDiff)) /
 						(avgItem.time + 1);
 				avgItem.time++;
 			}

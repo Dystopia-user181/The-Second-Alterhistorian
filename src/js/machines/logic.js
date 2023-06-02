@@ -31,7 +31,7 @@ export const Machine = {
 	},
 	updateLastResource(machine) {
 		for (const input of machine.inputs) {
-			const inpData = arr(machine.inputHistories).last?.[input.id];
+			const inpData = machine.inputHistory?.[input.id];
 			if (inpData?.length) {
 				input.displayResource[0] = arr(inpData).last.resource;
 				input.displayResource[1] = machine.updates;
@@ -41,7 +41,7 @@ export const Machine = {
 			}
 		}
 		for (const output of machine.outputs) {
-			const outData = arr(machine.outputHistories).last?.[output.id];
+			const outData = machine.outputHistory?.[output.id];
 			if (outData?.length) {
 				output.displayResource[0] = arr(outData).last.resource;
 				output.displayResource[1] = machine.updates;
@@ -51,15 +51,13 @@ export const Machine = {
 			}
 		}
 	},
-	addInputHistory(machine) {
-		machine.inputHistories.push((machine.data.inputs || []).map(x => x.slice(-20)));
-		if (machine.inputHistories.length > 10) machine.inputHistories.shift();
+	updateInputHistory(machine) {
+		machine.inputHistory = (machine.data.inputs || []).map(x => x.slice(-20));
 		machine.inputConfHistories.push(machine.inputs.map(x => x.config.raw));
 		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
 	},
-	addOutputHistory(machine) {
-		machine.outputHistories.push((machine.data.outputs || []).map(x => x.slice(-20)));
-		if (machine.outputHistories.length > 10) machine.outputHistories.shift();
+	updateOutputHistory(machine) {
+		machine.outputHistory = (machine.data.outputs || []).map(x => x.slice(-20));
 		machine.outputConfHistories.push(machine.outputs.map(x => x.config.raw));
 		if (machine.outputConfHistories.length > 10) machine.outputConfHistories.shift();
 	},
@@ -73,7 +71,7 @@ export const Machine = {
 		const inputs = machine.inputs.filter(x => x.isUnlocked);
 		outputs.forEach(output => {
 			const conf = output.config;
-			output.otherwiseDiff = diff;
+			output.uncappedDiff = diff;
 			output.maxDiff = output.spaceLeft / conf.produces.amount;
 			if (isNaN(output.maxDiff)) {
 				output.maxDiff = 0;
@@ -114,10 +112,10 @@ export const Machine = {
 			output.addToStack(produces);
 			machine.outputDiffs[conf.id === undefined ? id : conf.id] = Math.min(output.maxDiff, diff);
 		});
-		Machine.addInputHistory(machine);
-		Machine.addOutputHistory(machine);
+		Machine.updateInputHistory(machine);
+		Machine.updateOutputHistory(machine);
 		inputs.forEach(input => {
-			input.otherwiseDiff = diff;
+			input.uncappedDiff = diff;
 			const conf = input.config;
 			const amount = typeof conf.consumes === "object"
 				? Math.min(conf.consumes.amount * diff, conf.consumes.maximum)

@@ -60,7 +60,7 @@ export default defineMachine({
 		let amount = 0;
 		this.meta.lastDiff = diff;
 
-		Machine.addInputHistory(this);
+		Machine.updateInputHistory(this);
 		if (this.inputItem(0)?.resource === inputResource)
 			this.meta.consumes0 = this.inputs[0].removeFromStack(Math.min(production, maximum));
 		else this.meta.consumes0 = 0;
@@ -82,7 +82,7 @@ export default defineMachine({
 				amount,
 			}) / diff;
 		this.outputDiffs[0] = diff;
-		this.outputs[0].otherwiseDiff = diff;
+		this.outputs[0].uncappedDiff = diff;
 		// Input mergers are prone to produce large stacks of very miniscule amounts of material if handled
 		// incorrectly
 		if (this.meta.updates % 20 === 0) {
@@ -92,7 +92,7 @@ export default defineMachine({
 			this.outputs[0].unclog();
 		}
 
-		Machine.addOutputHistory(this);
+		Machine.updateOutputHistory(this);
 		Pipe.tickPipes(this, diff);
 	},
 	description: `Merges three inputs into one single stream.`,

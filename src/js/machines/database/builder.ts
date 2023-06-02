@@ -102,8 +102,8 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
 
-	inputHistories: ResourceData[][][];
-	outputHistories: ResourceData[][][];
+	inputHistory: ResourceData[][];
+	outputHistory: ResourceData[][];
 
 	inputConfHistories: unknown[];
 	outputConfHistories: unknown[];
@@ -131,8 +131,8 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			return this._meta;
 		}
 
-		inputHistories: ResourceData[][][] = [];
-		outputHistories: ResourceData[][][] = [];
+		inputHistory: ResourceData[][] = [];
+		outputHistory: ResourceData[][] = [];
 
 		inputConfHistories: unknown[] = [];
 		outputConfHistories: unknown[] = [];

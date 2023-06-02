@@ -9,7 +9,7 @@ import { onMount } from "@/components/mixins";
 
 import EndCutscene from "@/components/EndCutscene.vue";
 import MachineTab from "@/components/machines/MachineTab.vue";
-import PopupModal from "@/components/modals/PopupModal.vue";
+import PopupModal from "@/components/PopupModal.vue";
 import Sidebar from "@/components/Sidebar.vue";
 
 import { format } from "@/utils";

@@ -1,14 +1,14 @@
 import { AllowedComponentProps, Component, ref, shallowRef, ShallowRef, VNodeProps } from "vue";
 
-import GlossaryModal from "@/components/modals/GlossaryModal.vue";
-import H2PModal from "@/components/modals/H2PModal.vue";
-import HardResetModal from "@/components/modals/HardResetModal.vue";
-import InfoModal from "@/components/modals/InfoModal.vue";
-import MachineStatisticsModal from "@/components/modals/MachineStatisticsModal.vue";
-import MachineUpgradeModal from "@/components/modals/MachineUpgradeModal.vue";
-import MessageModal from "@/components/modals/MessageModal.vue";
-import RemoveMachineModal from "@/components/modals/RemoveMachineModal.vue";
-import SettingsModal from "@/components/modals/SettingsModal.vue";
+import GlossaryModal from "./modals/GlossaryModal.vue";
+import H2PModal from "./modals/H2PModal.vue";
+import HardResetModal from "./modals/HardResetModal.vue";
+import InfoModal from "./modals/InfoModal.vue";
+import MachineStatisticsModal from "./modals/MachineStatisticsModal.vue";
+import MachineUpgradeModal from "./modals/MachineUpgradeModal.vue";
+import MessageModal from "./modals/MessageModal.vue";
+import RemoveMachineModal from "./modals/RemoveMachineModal.vue";
+import SettingsModal from "./modals/SettingsModal.vue";
 
 // https://stackoverflow.com/a/73784241/17814082
 // Dear god

@@ -16,7 +16,7 @@ class GenericStackState {
 	lastItem?: ResourceData;
 
 	maxDiff = 0;
-	otherwiseDiff = 0;
+	uncappedDiff = 0;
 
 	constructor(data: ResourceData[]) {
 		this.data = data;
