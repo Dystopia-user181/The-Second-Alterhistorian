@@ -110,6 +110,14 @@ TownsDatabase.set("home", {
 			description: "Increase efficiency of pipes by x2.",
 			effect: 2,
 			isUnlocked: () => Towns("home").upgrades.pipesBasic.isBought
-		}
+		},
+		win: {
+			id: 3,
+			cost: 0.5,
+			currencyType: "elixir",
+			title: "########",
+			description: "Consume the elixir.",
+			effect: 1
+		},
 	}
 });

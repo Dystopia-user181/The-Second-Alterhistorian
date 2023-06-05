@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { Currencies } from "@/js/currencies/currencies.ts";
 import { Modals } from "@/js/ui/modals.ts";
 import { player } from "@/js/player";
+import { Towns } from "@/js/towns";
 
 import { onMount } from "@/components/mixins";
 
@@ -34,12 +35,12 @@ const elixirOpacity = ref(0);
 
 onMount({
 	update() {
-		if (player.holding.resource === "elixir") elixirOpacity.value = player.holding.amount;
+		if (player.holding.resource === "elixir") elixirOpacity.value = Math.pow(player.holding.amount, 0.7);
 		else elixirOpacity.value = 0;
 
 		consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
 
-		if (player.holding.amount >= 0.5 && player.holding.resource === "elixir") return;
+		if (Towns("home").upgrades.win.effectOrDefault(0)) return;
 
 		if (player.holding.amount && player.holding.resource === "elixir") {
 			const splashes = ["CONSUME more Elixir",
@@ -69,7 +70,7 @@ onMount({
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
-		<template v-if="player.holding.amount < 0.5 || player.holding.resource !== 'elixir'">
+		<template v-if="!Towns('home').upgrades.win.effectOrDefault(0)">
 			<div class="c-main-tabs">
 				<machine-tab />
 				<sidebar />

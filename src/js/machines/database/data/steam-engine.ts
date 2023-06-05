@@ -1,7 +1,5 @@
 import { defineMachine } from "../builder";
 
-import { Currencies } from "@/js/currencies/currencies";
-
 export default defineMachine({
 	name: "steamEngine",
 	inputs: [
@@ -49,7 +47,7 @@ export default defineMachine({
 		harness: {
 			name: "harness",
 			cost: count => Math.pow(5, count) * 6,
-			currencyType: () => (Currencies.fire.isUnlocked ? "lava" : null),
+			currencyType: "lava",
 			max: 3,
 			title: "Harness",
 			description: "Increase operation speed",

@@ -118,7 +118,7 @@ export default defineMachine({
 		unlock: {
 			name: "unlock",
 			cost: 150,
-			currencyType: () => (Currencies.energy.isUnlocked ? "energy" : null),
+			currencyType: "energy",
 			max: 1,
 			title: "Power",
 			description: "Supply Power to the EssencePurifier.",

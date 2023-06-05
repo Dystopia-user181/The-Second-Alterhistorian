@@ -4,6 +4,7 @@ import { player } from "@/js/player";
 import { GameUI } from "@/js/ui/game-ui";
 import { LogicEvent } from "@/js/events/events";
 import { Modals } from "@/js/ui/modals";
+import { Towns } from "@/js/towns";
 import { UIEvent } from "@/js/ui/events";
 
 let lastTick = Date.now();
@@ -15,7 +16,7 @@ export function gameLoop(_diff?: number) {
 		lastTick = Date.now();
 	}
 	LogicEvent.dispatch("GAME_TICK_BEFORE");
-	if (player.holding.amount < 0.5 || player.holding.resource !== "elixir")
+	if (!Towns("home").upgrades.win.effectOrDefault(0))
 		Machine.gameLoop(diff, Object.values(Machines));
 	player.lastUpdateTime = Date.now();
 	GameUI.update();

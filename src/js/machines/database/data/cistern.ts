@@ -1,7 +1,5 @@
 import { defineMachine } from "../builder";
 
-import { Currencies } from "@/js/currencies/currencies";
-
 export default defineMachine({
 	name: "cistern",
 	inputs: [],
@@ -58,7 +56,7 @@ export default defineMachine({
 			max: 1,
 			title: "Quantity",
 			description: "Gain a secondary input, producing Water at half the rate",
-			currencyType: () => (Currencies.energy.isUnlocked ? "energy" : null),
+			currencyType: "energy",
 			effect: count => count,
 			isUnlocked: machine => Boolean(machine.upgrades.unlock.effect),
 		},
