@@ -50,7 +50,7 @@ TownsDatabase.set("home", {
 			type: "arcFurnace",
 			cost: 15,
 			currencyType: "fire",
-			isUnlocked: () => Currencies.essence.isUnlocked || Currencies.fire.isUnlocked
+			isUnlocked: () => Currencies.energy.isUnlocked
 		},
 		{
 			type: "transmuter",
@@ -60,9 +60,9 @@ TownsDatabase.set("home", {
 		},
 		{
 			type: "essencePurifier",
-			cost: 5,
-			currencyType: "silver",
-			isUnlocked: () => Currencies.copper.isUnlocked
+			cost: 8,
+			currencyType: "copper",
+			isUnlocked: () => Currencies.iron.isUnlocked
 		},
 		{
 			type: "elixirMaker",
