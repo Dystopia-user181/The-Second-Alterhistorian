@@ -19,7 +19,10 @@ const { cost, type } = defineProps({
 
 <template>
 	<span>
-		Cost: {{ type === undefined ? "$" : "" }} {{ format(cost, 2, 1) }} {{ type === null ? "???" : type }}
+		Cost:
+		{{ type === undefined ? "$" : "" }}
+		{{ format(cost, 2, cost < 1 ? 2 : 1) }}
+		{{ type === null ? "???" : type }}
 		<ResourceSquare
 			v-if="type"
 			:type="type"

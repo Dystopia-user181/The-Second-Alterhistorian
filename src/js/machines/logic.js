@@ -8,16 +8,17 @@ import { arr } from "@/utils";
 
 export const Machine = {
 	get timeSpeedFactor() {
-		return player.fastTime < 180 ? 2 : player.fastTime / 90;
+		return player.fastTime < 180 ? 2 : Math.min(player.fastTime / 90, 9);
 	},
+	offlineEfficiency: 0.4,
 	gameLoop(realDiff, machines = []) {
 		let diff = Math.min(realDiff, 1);
 		if (diff === 1) player.fastTime += realDiff - 1;
 		if (player.fastTime) {
-			const factor = this.timeSpeedFactor;
-			const add = Math.min(player.fastTime, diff * factor);
+			const factor = this.timeSpeedFactor, efficiency = this.offlineEfficiency;
+			const add = Math.min(player.fastTime * efficiency, diff * factor);
 			diff += add;
-			player.fastTime -= add;
+			player.fastTime -= add / efficiency;
 		}
 		for (const machine of machines.flat()) {
 			if (machine.config.customLoop) {
