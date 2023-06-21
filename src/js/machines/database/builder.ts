@@ -102,15 +102,9 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
 
-	inputHistory: ResourceData[][];
-	outputHistory: ResourceData[][];
-
-	inputConfHistories: unknown[];
-	outputConfHistories: unknown[];
-
 	meta: Meta;
 	outputDiffs: Record<string, number>;
-	updates: number
+	updates: number;
 }
 
 // If you make public changes to this, make sure to also update ConfiguredMachine
@@ -130,12 +124,6 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		get meta(): Meta {
 			return this._meta;
 		}
-
-		inputHistory: ResourceData[][] = [];
-		outputHistory: ResourceData[][] = [];
-
-		inputConfHistories: unknown[] = [];
-		outputConfHistories: unknown[] = [];
 
 		outputDiffs: Record<string, number> = {};
 
@@ -292,11 +280,11 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		}
 
 		inputItem(index: number) {
-			return this._inputs[index].lastItem;
+			return this._inputs[index].statistics.lastItem;
 		}
 
 		outputItem(index: number) {
-			return this._outputs[index].lastItem;
+			return this._outputs[index].statistics.lastItem;
 		}
 
 		static get config(): Readonly<MachineConfig<UpgradeKeys, Meta>> {

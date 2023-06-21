@@ -55,13 +55,13 @@ onMount({
 		outputs = machine.outputs;
 		inputData = inputs.map(x => ({
 			stack: x.data,
-			resource: str(x.displayResource[0]).capitalize,
+			resource: str(x.statistics.displayResource[0]).capitalize,
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
 		outputData = outputs.map(x => ({
 			stack: x.data,
-			resource: str(x.displayResource[0]).capitalize,
+			resource: str(x.statistics.displayResource[0]).capitalize,
 			capacity: x.config.capacity,
 			label: x.config.label
 		}));
@@ -153,7 +153,7 @@ function inputClassObject(input) {
 
 function outputClassObject(output) {
 	if (!output.isUnlocked) return "c-cursor-default";
-	return (player.holding.resource !== output.displayResource[0] && player.holding.amount)
+	return (player.holding.resource !== output.statistics.displayResource[0] && player.holding.amount)
 		? "c-cursor-default" : "";
 }
 

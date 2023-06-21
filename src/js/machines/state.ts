@@ -12,17 +12,24 @@ class GenericStackState {
 	private _volume: Ref<number>;
 
 	data: ResourceData[];
-	displayResource: [MaybeResourceType, number];
-	lastItem?: ResourceData;
+	statistics: {
+		displayResource: [MaybeResourceType, number];
+		lastItem?: ResourceData;
+		resourcePerSec: number;
+		avgResourcePerSec: number;
+	};
 
 	maxDiff = 0;
-	uncappedDiff = 0;
 
 	constructor(data: ResourceData[]) {
 		this.data = data;
 		this._volume = ref(Stack.volumeOfStack(this.data));
-		this.displayResource = reactive<[MaybeResourceType, number]>(["none", Infinity]);
-		this.lastItem = arr(this.data).last;
+		this.statistics = {
+			displayResource: reactive<[MaybeResourceType, number]>(["none", Infinity]),
+			lastItem: arr(this.data).last,
+			resourcePerSec: 0,
+			avgResourcePerSec: 0,
+		};
 	}
 
 	get capacity() {
@@ -52,7 +59,7 @@ class GenericStackState {
 			spaceLeft: this.spaceLeft,
 		});
 		this.volume += amt;
-		this.lastItem = arr(this.data).last || undefined;
+		this.statistics.lastItem = arr(this.data).last || undefined;
 		return amt;
 	}
 
@@ -60,7 +67,7 @@ class GenericStackState {
 		const amt = Stack.removeFromStack(this.data, amount);
 		if (this.data.length) this.volume -= amt;
 		else this.volume = 0;
-		this.lastItem = arr(this.data).last;
+		this.statistics.lastItem = arr(this.data).last;
 		return amt;
 	}
 
@@ -71,7 +78,7 @@ class GenericStackState {
 				this.data.splice(i, 1);
 			}
 		}
-		this.lastItem = arr(this.data).last;
+		this.statistics.lastItem = arr(this.data).last;
 	}
 }
 
@@ -85,6 +92,10 @@ export class InputConfigState<UpgradeKeys extends string, Meta extends Record<st
 	) {
 		this._config = config;
 		this._machine = machine;
+	}
+
+	get parentMachine() {
+		return this._machine;
 	}
 
 	get capacity() {
@@ -105,13 +116,6 @@ export class InputConfigState<UpgradeKeys extends string, Meta extends Record<st
 
 	get isUnlocked() {
 		return this._config.isUnlocked === undefined ? true : run(this._config.isUnlocked, this._machine);
-	}
-
-	get raw() {
-		return {
-			capacity: this.capacity,
-			consumes: this.consumes,
-		};
 	}
 }
 
@@ -152,6 +156,29 @@ export class InputState<UpgradeKeys extends string, Meta extends Record<string, 
 	get isUnlocked() {
 		return this._config.isUnlocked;
 	}
+
+	getConsumesStatistic(diff: number) {
+		// *1.1 to account for some errors
+		return typeof this.config.consumes === "object"
+			? Math.min(this.config.consumes.amount, this.config.consumes.maximum / diff * 1.1)
+			: this.config.consumes;
+	}
+
+	updateStatistics(diff: number) {
+		const stat = this.statistics;
+		const inpData = this.data;
+		if (inpData.length) {
+			stat.displayResource[0] = arr(inpData).last?.resource || "none";
+			stat.displayResource[1] = this.config.parentMachine.updates;
+		} else if (this.config.parentMachine.updates - 5 > this.statistics.displayResource[1]) {
+			stat.displayResource[0] = "none";
+			stat.displayResource[1] = Infinity;
+		}
+		stat.resourcePerSec = this.getConsumesStatistic(diff);
+		stat.avgResourcePerSec *= 0.9;
+		stat.avgResourcePerSec += 0.1 * stat.resourcePerSec;
+		if (stat.avgResourcePerSec < 1e-6) stat.avgResourcePerSec = 0;
+	}
 }
 
 export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<string, any>> {
@@ -164,6 +191,10 @@ export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<s
 	) {
 		this._config = config;
 		this._machine = machine;
+	}
+
+	get parentMachine() {
+		return this._machine;
 	}
 
 	get capacity() {
@@ -189,19 +220,12 @@ export class OutputConfigState<UpgradeKeys extends string, Meta extends Record<s
 	get isUnlocked() {
 		return this._config.isUnlocked === undefined ? true : run(this._config.isUnlocked, this._machine);
 	}
-
-	get raw() {
-		return {
-			capacity: this.capacity,
-			produces: this.produces,
-			id: this.id,
-		};
-	}
 }
 
 export class OutputState<UpgradeKeys extends string, Meta extends Record<string, any>> extends GenericStackState {
 	private _config: OutputConfigState<UpgradeKeys, Meta>;
 	private _id: number;
+	outputDiff = 0;
 
 	constructor(machine: ConfiguredMachine<UpgradeKeys, Meta>, id: number) {
 		super(machine.data.outputs[id]);
@@ -236,6 +260,26 @@ export class OutputState<UpgradeKeys extends string, Meta extends Record<string,
 
 	get isUnlocked() {
 		return this._config.isUnlocked;
+	}
+
+	getProducesStatistic(diff: number) {
+		return this.outputDiff * this.config.produces.amount / diff;
+	}
+
+	updateStatistics(diff: number) {
+		const stat = this.statistics;
+		const outData = this.data;
+		if (outData.length) {
+			stat.displayResource[0] = arr(outData).last?.resource || "none";
+			stat.displayResource[1] = this.config.parentMachine.updates;
+		} else if (this.config.parentMachine.updates - 5 > this.statistics.displayResource[1]) {
+			stat.displayResource[0] = "none";
+			stat.displayResource[1] = Infinity;
+		}
+		stat.resourcePerSec = this.getProducesStatistic(diff);
+		stat.avgResourcePerSec *= 0.9;
+		stat.avgResourcePerSec += 0.1 * stat.resourcePerSec;
+		if (stat.avgResourcePerSec < 1e-6) stat.avgResourcePerSec = 0;
 	}
 }
 

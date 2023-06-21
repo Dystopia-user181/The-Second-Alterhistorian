@@ -22,8 +22,8 @@ export default defineMachine({
 	],
 	outputs: [],
 	customLoop(diff) {
-		Machine.updateInputHistory(this);
-		Machine.updateOutputHistory(this);
+		Machine.updateInputStatistics(this, diff);
+		Machine.updateOutputStatistics(this, diff);
 		for (let i = 0; i < 2; i++) {
 			if (!this.inputItem(i)) continue;
 

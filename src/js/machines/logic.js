@@ -27,40 +27,17 @@ export const Machine = {
 				Machine.tickThisMachine(machine, diff);
 			}
 			machine.updates++;
-			Machine.updateLastResource(machine);
 		}
 	},
-	updateLastResource(machine) {
+	updateInputStatistics(machine, diff) {
 		for (const input of machine.inputs) {
-			const inpData = machine.inputHistory?.[input.id];
-			if (inpData?.length) {
-				input.displayResource[0] = arr(inpData).last.resource;
-				input.displayResource[1] = machine.updates;
-			} else if (machine.updates - 5 > input.displayResource[1]) {
-				input.displayResource[0] = "none";
-				input.displayResource[1] = Infinity;
-			}
+			input.updateStatistics(diff);
 		}
+	},
+	updateOutputStatistics(machine, diff) {
 		for (const output of machine.outputs) {
-			const outData = machine.outputHistory?.[output.id];
-			if (outData?.length) {
-				output.displayResource[0] = arr(outData).last.resource;
-				output.displayResource[1] = machine.updates;
-			} else if (machine.updates - 5 > output.displayResource[1]) {
-				output.displayResource[0] = "none";
-				output.displayResource[1] = Infinity;
-			}
+			output.updateStatistics(diff);
 		}
-	},
-	updateInputHistory(machine) {
-		machine.inputHistory = (machine.data.inputs || []).map(x => x.slice(-20));
-		machine.inputConfHistories.push(machine.inputs.map(x => x.config.raw));
-		if (machine.inputConfHistories.length > 10) machine.inputConfHistories.shift();
-	},
-	updateOutputHistory(machine) {
-		machine.outputHistory = (machine.data.outputs || []).map(x => x.slice(-20));
-		machine.outputConfHistories.push(machine.outputs.map(x => x.config.raw));
-		if (machine.outputConfHistories.length > 10) machine.outputConfHistories.shift();
 	},
 	tickThisMachine(machine, diff) {
 		Machine.tickMachineProcesses(machine, diff);
@@ -72,7 +49,6 @@ export const Machine = {
 		const inputs = machine.inputs.filter(x => x.isUnlocked);
 		outputs.forEach(output => {
 			const conf = output.config;
-			output.uncappedDiff = diff;
 			output.maxDiff = output.spaceLeft / conf.produces.amount;
 			if (isNaN(output.maxDiff)) {
 				output.maxDiff = 0;
@@ -82,7 +58,7 @@ export const Machine = {
 			if (!inputs.length) return;
 			const requiresList = conf.requiresList ? conf.requiresList : [conf.requires];
 			for (const requirement of requiresList) {
-				const input = inputs[requirement.inputId].lastItem;
+				const input = inputs[requirement.inputId].statistics.lastItem;
 				if (!input) {
 					output.maxDiff = 0;
 					return;
@@ -111,12 +87,12 @@ export const Machine = {
 			};
 			if (produces.amount) Currencies[produces.resource].isUnlocked = true;
 			output.addToStack(produces);
-			machine.outputDiffs[conf.id === undefined ? id : conf.id] = Math.min(output.maxDiff, diff);
+			output.outputDiff = Math.min(output.maxDiff, diff);
+			machine.outputDiffs[conf.id === undefined ? id : conf.id] = output.outputDiff;
 		});
-		Machine.updateInputHistory(machine);
-		Machine.updateOutputHistory(machine);
+		Machine.updateInputStatistics(machine, diff);
+		Machine.updateOutputStatistics(machine, diff);
 		inputs.forEach(input => {
-			input.uncappedDiff = diff;
 			const conf = input.config;
 			const amount = typeof conf.consumes === "object"
 				? Math.min(conf.consumes.amount * diff, conf.consumes.maximum)

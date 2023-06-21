@@ -42,43 +42,30 @@ function stopAvg() {
 	takingAvg = false;
 }
 
-const getConsumes = function(consumes, diff) {
-	// *1.1 to account for some errors
-	return typeof consumes === "object"
-		? Math.min(consumes.amount, consumes.maximum / diff * 1.1)
-		: consumes;
-};
-const getProduces = (function(x, output) {
-	return machine.outputDiffs[x.id === undefined ? output.id : x.id] * x.produces.amount /
-					output.uncappedDiff;
-});
 onMount({
 	update() {
-		inputs = machine.inputs.map((x, id) => (x.isUnlocked ? {
-			resource: x.displayResource[0],
-			amount: machine.inputConfHistories.map(y => y[id])
-				.reduce((a, v) => a + getConsumes(v.consumes, x.uncappedDiff), 0) /
-						machine.inputConfHistories.length,
+		inputs = machine.inputs.map((input, id) => (input.isUnlocked ? {
+			resource: input.statistics.displayResource[0],
+			amount: input.statistics.avgResourcePerSec,
 			id
 		} : null)).filter(x => x);
-		outputs = machine.outputs.map((x, id) => (x.isUnlocked ? {
-			resource: x.config.produces.resource,
-			amount: machine.outputConfHistories.map(y => y[id])
-				.reduce((a, v) => a + getProduces(v, x), 0) /
-					machine.outputConfHistories.length,
+		outputs = machine.outputs.map((output, id) => (output.isUnlocked ? {
+			resource: output.config.produces.resource,
+			amount: output.statistics.avgResourcePerSec,
 			id
 		} : null)).filter(x => x);
+
 		if (takingAvg) {
 			for (const input of machine.inputs) {
 				const avgItem = avg.inputs[input.id];
 				avgItem.isUnlocked = input.isUnlocked;
-				const resource = input.displayResource[0] === "none" ? avgItem.lastResource : input.displayResource[0];
-				const conf = input.config;
+				const resource = input.statistics.displayResource[0] === "none" ? avgItem.lastResource
+					: input.statistics.displayResource[0];
 				if (avgItem.lastResource !== resource) {
 					avgItem.lastResource = resource;
 					avgItem.time = 0;
 				}
-				avgItem.value = (avgItem.value * avgItem.time + getConsumes(conf.consumes, input.uncappedDiff)) /
+				avgItem.value = (avgItem.value * avgItem.time + input.statistics.resourcePerSec) /
 						(avgItem.time + 1);
 				avgItem.time++;
 			}
@@ -91,7 +78,7 @@ onMount({
 					avgItem.lastResource = resource;
 					avgItem.time = 0;
 				}
-				avgItem.value = (avgItem.value * avgItem.time + getProduces(conf, output)) /
+				avgItem.value = (avgItem.value * avgItem.time + output.statistics.resourcePerSec) /
 						(avgItem.time + 1);
 				avgItem.time++;
 			}

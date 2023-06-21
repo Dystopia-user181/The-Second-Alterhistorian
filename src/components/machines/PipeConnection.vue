@@ -15,7 +15,7 @@ const props = defineProps({
 
 const pipe = $computed(() => props.pipe);
 
-const displayResource = $computed(() => pipe.out[1].displayResource[0]);
+const displayResource = $computed(() => pipe.out[1].statistics.displayResource[0]);
 
 const x1 = $computed(() => pipe.out[0].data.x + (pipe.out[1].id + pipe.out[0].inputs.length) * 90 + 45);
 const y1 = $computed(() => pipe.out[0].data.y + pipe.out[0].height + 10);
