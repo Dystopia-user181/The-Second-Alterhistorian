@@ -2,12 +2,10 @@
 import { Currencies } from "@/js/currencies/currencies";
 import { ResourceType } from "@/types/resources";
 
-const { type, size } = withDefaults(defineProps<{
+const { type, size = "1em" } = defineProps<{
 	type: ResourceType;
 	size: string;
-}>(), ({
-	size: "1em"
-}));
+}>();
 </script>
 
 <template>

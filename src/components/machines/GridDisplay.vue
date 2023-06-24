@@ -1,13 +1,11 @@
 <script setup lang="ts">
-const { x, y, width, height, step } = withDefaults(defineProps<{
+const { x, y, width, height, step = 200 } = defineProps<{
 	x: number;
 	y: number;
 	width: number;
 	height: number;
 	step: number;
-}>(), {
-	step: 200
-});
+}>();
 </script>
 
 <template>

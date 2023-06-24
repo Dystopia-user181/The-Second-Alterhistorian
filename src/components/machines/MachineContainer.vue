@@ -45,12 +45,6 @@ function bringToTop() {
 	if (idx === -1) return;
 	Machines[machine.townType].push(machine);
 	Machines[machine.townType].splice(idx, 1);
-
-	// Bring machine to top in player to save the z-index between saves
-	const playerData = Towns(machine.townType).playerData;
-	const machineData = playerData.machines[idx];
-	delete playerData.machines[idx];
-	playerData.machines[idx] = machineData;
 }
 </script>
 
@@ -67,7 +61,7 @@ function bringToTop() {
 			@input-pipe-hover="(...args) => emit('input-pipe-hover', ...args)"
 			@output-pipe-hover="(...args) => emit('output-pipe-hover', ...args)"
 			@pipe-stop-hover="emit('pipe-stop-hover')"
-			@move-machine-start="e => emit('move-machine-start', machine, e)"
+			@move-machine-start="(e: MouseEvent) => emit('move-machine-start', machine, e)"
 		/>
 		<machine-sidebar
 			:machine="machine"

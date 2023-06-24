@@ -63,7 +63,6 @@ export interface MachineData {
 	// inputs: unknown[];
 	// outputs: unknown[]
 	isDefault: boolean;
-	minimized: boolean;
 	pipes: Array<[number, number][]>;
 	type: MachineId;
 	upgrades: number[];

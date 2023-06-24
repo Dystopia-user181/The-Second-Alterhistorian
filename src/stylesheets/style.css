@@ -119,8 +119,9 @@ hr {
 	background: rgba(0, 128, 0, 0.6);
 }
 
+.c-darker,
 .c-darker::before {
-	color: rgb(80, 80, 80);
+	color: #777
 }
 
 .c-tint::after {

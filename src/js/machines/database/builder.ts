@@ -21,19 +21,11 @@ abstract class MachineBase {
 	}
 
 	get height() {
-		return this.isMinimized ? 110 : 270;
+		return 270;
 	}
 
 	get id() {
 		return this._id;
-	}
-
-	get isMinimized() {
-		return this.data.minimized;
-	}
-
-	toggleMinimized() {
-		this.data.minimized = !this.data.minimized;
 	}
 
 	get townType() {
@@ -309,7 +301,6 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 				type: config.name,
 				pipes: Array.from(Array(config.outputs ? config.outputs.length : 0), () => []),
 				isDefault: false,
-				minimized: false,
 				inputs: Array.from(Array(config.inputs.length), () => []),
 				outputs: Array.from(Array(config.outputs.length), () => []),
 				upgrades: Array(Object.values(config.upgrades).length).fill(0) as number[],

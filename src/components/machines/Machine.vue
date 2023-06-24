@@ -36,9 +36,8 @@ let inputData = $shallowRef<StackDataType[]>([]);
 let outputs = $shallowRef<OutputState<any, any>[]>([]);
 let outputData = $shallowRef<StackDataType[]>([]);
 let animation = $ref(false);
-let isMin = $ref(false);
 let hasWholeBuyableUpgrades = $ref(false);
-let hasPartialBuyableUpgrades = $ref(false);
+const hasPartialBuyableUpgrades = $ref(false);
 let unlockedPipes = $ref(false);
 let holdFunction: (() => void) | null = null, beforeDestroy: (() => void) | null = null;
 
@@ -58,8 +57,6 @@ onMount({
 	update() {
 		unlockedPipes = Pipe.isUnlocked;
 		hasWholeBuyableUpgrades = machine.hasWholeBuyableUpgrades;
-		hasPartialBuyableUpgrades = machine.hasPartialBuyableUpgrades;
-		isMin = machine.isMinimized;
 		inputs = machine.inputs;
 		outputs = machine.outputs;
 		inputData = inputs.map(x => ({
@@ -190,7 +187,6 @@ function emitOutputPipeHover(id: number) {
 		class="c-machine-container"
 		:class="{
 			'c-machine-container--new': animation,
-			'c-machine-container--min': isMin,
 			'c-glow-green': hasPartialBuyableUpgrades,
 			'c-glow-yellow': hasWholeBuyableUpgrades,
 		}"
@@ -213,82 +209,72 @@ function emitOutputPipeHover(id: number) {
 			</div>
 		</div>
 		<div
-			v-if="unlockedPipes || !isMin"
+			v-if="unlockedPipes"
 			class="c-emphasise-text c-machine__title"
 			:style="{ width: `${90 * (inputs.length + outputs.length)}px` }"
 			@mousedown="emit('move-machine-start', $event)"
 		>
-			<!-- This is a zws so it doesn't get collapsed -->
-			<!-- eslint-disable-next-line no-irregular-whitespace -->
-			{{ isMin ? "​" : machine.displayName }}
+			{{ machine.displayName }}
 		</div>
 		<div class="l-machine__inner">
-			<span
-				v-if="isMin"
-				class="c-collapsed-text"
+			<div
+				v-for="(input, id) in inputs"
+				:key="id"
+				class="c-machine__input"
+				:class="inputClassObject(input)"
+				@mousedown="registerInputHold(input, $event)"
 			>
-				<b>{{ machine.displayName }}</b> (Collapsed)
-			</span>
-			<template v-else>
-				<div
-					v-for="(input, id) in inputs"
-					:key="id"
-					class="c-machine__input"
-					:class="inputClassObject(input)"
-					@mousedown="registerInputHold(input, $event)"
+				<resource-stack
+					v-if="input.isUnlocked"
+					:stack="input.data"
+					:capacity="inputData[id].capacity"
 				>
-					<resource-stack
-						v-if="input.isUnlocked"
-						:stack="input.data"
-						:capacity="inputData[id].capacity"
-					>
-						{{ format(input.volume, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
+					{{ format(input.volume, 2, 1) }}<hr>{{ format(inputData[id].capacity, 2, 1) }}
+					<br>
+					Input {{ id + 1 }}
+					<br>
+					{{ inputData[id].resource }}
+					<span v-if="inputData[id].label">
 						<br>
-						Input {{ id + 1 }}
-						<br>
-						{{ inputData[id].resource }}
-						<span v-if="inputData[id].label">
-							<br>
-							{{ inputData[id].label }}
-						</span>
-					</resource-stack>
-					<span
-						v-else
-						class="fas fa-lock"
-					/>
-				</div>
-				<div
-					v-if="inputs.length && outputs.length"
-					class="l-machine-input-output-separator"
+						{{ inputData[id].label }}
+					</span>
+				</resource-stack>
+				<span
+					v-else
+					class="fas fa-lock"
 				/>
-				<div
-					v-for="(output, id) in outputs"
-					:key="id"
-					class="c-machine__output"
-					:class="outputClassObject(output)"
-					@mousedown="registerOutputHold(output, $event)"
+			</div>
+			<div
+				v-if="inputs.length && outputs.length"
+				class="l-machine-input-output-separator"
+			/>
+			<div
+				v-for="(output, id) in outputs"
+				:key="id"
+				class="c-machine__output"
+				:class="outputClassObject(output)"
+				@mousedown="registerOutputHold(output, $event)"
+			>
+				<resource-stack
+					v-if="output.isUnlocked"
+					:stack="output.data"
+					:capacity="outputData[id].capacity"
 				>
-					<resource-stack
-						v-if="output.isUnlocked"
-						:stack="output.data"
-						:capacity="outputData[id].capacity"
-					>
-						{{ format(output.volume, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
+					{{ format(output.volume, 2, 1) }}<hr>{{ format(outputData[id].capacity, 2, 1) }}
+					<br>
+					Output {{ id + 1 }}
+					<br>
+					{{ outputData[id].resource }}
+					<span v-if="outputData[id].label">
 						<br>
-						Output {{ id + 1 }}
-						<br>
-						{{ outputData[id].resource }}
-						<span v-if="outputData[id].label">
-							<br>
-							{{ outputData[id].label }}
-						</span>
-					</resource-stack>
-					<span
-						v-else
-						class="fas fa-lock"
-					/>
-				</div>
-			</template>
+						{{ outputData[id].label }}
+					</span>
+				</resource-stack>
+				<span
+					v-else
+					class="fas fa-lock"
+				/>
+			</div>
 		</div>
 		<div
 			v-if="unlockedPipes && outputs.length"
@@ -430,18 +416,8 @@ hr {
 	animation: a-just-bought 3s;
 }
 
-.c-machine-container--min {
-	height: 110px;
-	width: 160px;
-}
-
 .c-machine-container--min .l-machine__inner {
 	min-width: 160px;
-}
-
-.c-collapsed-text {
-	text-align: center;
-	overflow: hidden;
 }
 
 @keyframes a-just-bought {
