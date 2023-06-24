@@ -11,7 +11,7 @@ const { subtabs } = defineProps<{
 const currentTab = $ref(0);
 
 const emit = defineEmits<{
-	(e: "changeTab", id: number, subtab: SubtabType): void
+	(e: "change-tab", id: number, subtab: SubtabType): void
 }>();
 </script>
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{
 
 			@click="() => {
 				currentTab = id;
-				emit('changeTab', id, subtab);
+				emit('change-tab', id, subtab);
 			}"
 		>
 			{{ subtab.name }}

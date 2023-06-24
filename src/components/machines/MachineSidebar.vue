@@ -1,22 +1,17 @@
-<script setup>
-import { Machine } from "@/js/machines/index";
-import { Modals } from "@/js/ui/modals.ts";
+<script setup lang="ts">
+import { Machine, MachineObjectType } from "@/js/machines";
+import { Modals } from "@/js/ui/modals";
 
 import { onMount } from "@/components/mixins";
 
 
-const props = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
-const emit = defineEmits([
-	"move-machine-start"
-]);
-
-const machine = $computed(() => props.machine);
+const emit = defineEmits<{
+	(e: "move-machine-start", event: MouseEvent): void
+}>();
 
 let animation = $ref(false);
 let isFullyUpgraded = $ref(false);

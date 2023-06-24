@@ -24,7 +24,7 @@ export interface OutputConfig<Instance> {
 	id?: "main";
 	capacity: number | ((machine: Instance) => number);
 	produces: ResourceData | ((machine: Instance) => ResourceData);
-	isUnlocked?: (machine: Instance) => boolean;
+	isUnlocked?: boolean | ((machine: Instance) => boolean);
 	// TODO: Combine requires and requiresList, seems to do the same thing
 	requires?: (machine: Instance) => OutputConfigRequirement;
 	requiresList?: (machine: Instance) => Array<OutputConfigRequirement>;

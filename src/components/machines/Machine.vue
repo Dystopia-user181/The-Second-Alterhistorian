@@ -1,45 +1,54 @@
-<script setup>
+<script setup lang="ts">
+import ResourceStack from "./ResourceStack.vue";
+
 import { onMount } from "@/components/mixins";
 
-import { Pipe } from "@/js/machines/index";
+import { InputState, OutputState } from "@/js/machines/state";
+import { MachineObjectType, Pipe } from "@/js/machines";
 import { player } from "@/js/player";
 
-import ResourceStack from "./ResourceStack.vue";
+import { ResourceData } from "@/types/resources";
 
 import { arr, format, str } from "@/utils";
 
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
-const emit = defineEmits([
-	"input-pipe-drag-start", "input-pipe-hover",
-	"output-pipe-drag-start", "output-pipe-hover",
-	"pipe-stop-hover",
-	"move-machine-start"
-]);
+const emit = defineEmits<{
+	(e: "input-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "input-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "pipe-stop-hover"): void;
+	(e: "move-machine-start", event: MouseEvent): void;
+}>();
 
-let inputs = $shallowRef([]);
-let inputData = $shallowRef([]);
-let outputs = $shallowRef([]);
-let outputData = $shallowRef([]);
+interface StackDataType {
+	stack: ResourceData[];
+	resource: string;
+	capacity: number;
+	label?: string;
+}
+let inputs = $shallowRef<InputState<any, any>[]>([]);
+let inputData = $shallowRef<StackDataType[]>([]);
+let outputs = $shallowRef<OutputState<any, any>[]>([]);
+let outputData = $shallowRef<StackDataType[]>([]);
 let animation = $ref(false);
 let isMin = $ref(false);
 let hasWholeBuyableUpgrades = $ref(false);
 let hasPartialBuyableUpgrades = $ref(false);
 let unlockedPipes = $ref(false);
-let holdFunction = null, beforeDestroy = null;
+let holdFunction: (() => void) | null = null, beforeDestroy: (() => void) | null = null;
 
 
 onMount({
 	onMount() {
 		if (machine.isNew) {
 			animation = true;
-			requestAnimationFrame(() => delete machine.isNew);
+			// eslint-disable-next-line vue/no-mutating-props
+			requestAnimationFrame(() => machine.isNew = false);
 			setTimeout(() => animation = false, 3000);
 		}
 	},
@@ -62,8 +71,7 @@ onMount({
 		outputData = outputs.map(x => ({
 			stack: x.data,
 			resource: str(x.statistics.displayResource[0]).capitalize,
-			capacity: x.config.capacity,
-			label: x.config.label
+			capacity: x.config.capacity
 		}));
 	},
 	render() {
@@ -71,15 +79,16 @@ onMount({
 	}
 });
 
-function transferFromOutputToHolding(output) {
-	if (!output.data.length || !output.isUnlocked) return;
-	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
-	else if (player.holding.resource !== arr(output.data).last.resource) return;
+function transferFromOutputToHolding(output: OutputState<any, any>) {
+	const bottomOfStack = arr(output.data).last;
+	if (!bottomOfStack || !output.isUnlocked) return;
+	if (player.holding.amount <= 0) player.holding.resource = bottomOfStack.resource;
+	else if (player.holding.resource !== bottomOfStack.resource) return;
 	player.holding.amount += output.removeFromStack(output.config.capacity * 0.007);
 	if (player.holding.amount < 0.001) player.holding.amount = 0;
 }
 
-function registerOutputHold(output, e) {
+function registerOutputHold(output: OutputState<any, any>, e: MouseEvent) {
 	if (!output.isUnlocked) return;
 	if (e.button === 2) {
 		allToHolding(output);
@@ -99,15 +108,16 @@ function registerOutputHold(output, e) {
 	}
 }
 
-function allToHolding(output) {
-	if (!output.data.length || !output.isUnlocked) return;
-	if (player.holding.amount <= 0) player.holding.resource = arr(output.data).last.resource;
-	else if (player.holding.resource !== arr(output.data).last.resource) return;
+function allToHolding(output: OutputState<any, any>) {
+	const bottomOfStack = arr(output.data).last;
+	if (!bottomOfStack || !output.isUnlocked) return;
+	if (player.holding.amount <= 0) player.holding.resource = bottomOfStack.resource;
+	else if (player.holding.resource !== bottomOfStack.resource) return;
 	player.holding.amount += output.removeFromStack(Infinity);
 	if (player.holding.amount < 0.001) player.holding.amount = 0;
 }
 
-function transferFromHoldingToInput(input) {
+function transferFromHoldingToInput(input: InputState<any, any>) {
 	if (!input.isUnlocked) return;
 	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
 	player.holding.amount -= input.addToStack({
@@ -116,7 +126,7 @@ function transferFromHoldingToInput(input) {
 	});
 }
 
-function registerInputHold(input, e) {
+function registerInputHold(input: InputState<any, any>, e: MouseEvent) {
 	if (!input.isUnlocked) return;
 	if (e.button === 2) {
 		allToInput(input);
@@ -136,7 +146,7 @@ function registerInputHold(input, e) {
 	}
 }
 
-function allToInput(input) {
+function allToInput(input: InputState<any, any>) {
 	if (!input.isUnlocked) return;
 	if (player.holding.amount <= 0 || !input.config.accepts.includes(player.holding.resource)) return;
 	player.holding.amount -= input.addToStack({
@@ -145,32 +155,32 @@ function allToInput(input) {
 	});
 }
 
-function inputClassObject(input) {
+function inputClassObject(input: InputState<any, any>) {
 	if (!input.isUnlocked) return "c-cursor-default";
 	if (player.holding.amount === 0) return "c-cursor-default";
 	return input.config.accepts.includes(player.holding.resource) ? "" : "c-cursor-notallowed";
 }
 
-function outputClassObject(output) {
+function outputClassObject(output: OutputState<any, any>) {
 	if (!output.isUnlocked) return "c-cursor-default";
 	return (player.holding.resource !== output.statistics.displayResource[0] && player.holding.amount)
 		? "c-cursor-default" : "";
 }
 
-function emitInputPipeDrag(id) {
+function emitInputPipeDrag(id: number) {
 	Pipe.removeAllInputPipesTo(machine, id);
 	emit("input-pipe-drag-start", machine, id);
 }
 
-function emitInputPipeHover(id) {
+function emitInputPipeHover(id: number) {
 	emit("input-pipe-hover", machine, id);
 }
 
-function emitOutputPipeDrag(id) {
+function emitOutputPipeDrag(id: number) {
 	emit("output-pipe-drag-start", machine, id);
 }
 
-function emitOutputPipeHover(id) {
+function emitOutputPipeHover(id: number) {
 	emit("output-pipe-hover", machine, id);
 }
 </script>

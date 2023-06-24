@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MachinesById, Pipes } from "../player-proxy-wip";
 
 import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
@@ -94,7 +93,7 @@ interface ConfiguredMachineConstructor<UpgradeKeys extends string, Meta extends 
 export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Record<string, any>> extends MachineBase {
 	readonly config: MachineConfig<UpgradeKeys, Meta>;
 	readonly inputs: InputState<UpgradeKeys, Meta>[];
-	readonly isMinimized: boolean;
+	readonly displayName: string;
 	readonly name: string;
 	readonly outputs: OutputState<UpgradeKeys, Meta>[];
 	readonly pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
@@ -102,9 +101,11 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	readonly isUpgradeable: boolean;
 	readonly hasWholeBuyableUpgrades: boolean;
 	readonly hasPartialBuyableUpgrades: boolean;
+	readonly isFullyUpgraded: boolean;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
+	addPipe(machine: ConfiguredMachine<any, any>, inputId: number, outputId: number): void;
 	removePipe(machine: ConfiguredMachine<any, any>, inputId: number): boolean;
 	removeAllPipes(machine: ConfiguredMachine<any, any>): void;
 

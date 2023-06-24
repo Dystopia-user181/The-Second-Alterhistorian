@@ -1,17 +1,17 @@
-<script setup>
-import { Machine, Machines, Pipe, Pipes } from "@/js/machines/index";
-import { TOWNS, Towns } from "@/js/towns";
-import { Modals } from "@/js/ui/modals.ts";
-import { player } from "@/js/player";
-
-import { HoldMoveHandler, ViewMoveHandler } from "@/utils/view-move-handler";
-
-import { onMount } from "@/components/mixins";
-
+<script setup lang="ts">
 import GridDisplay from "./GridDisplay.vue";
 import MachineContainer from "./MachineContainer.vue";
 import Minimap from "./Minimap.vue";
 import PipeConnection from "./PipeConnection.vue";
+
+import { onMount } from "@/components/mixins";
+
+import { Machine, MachineObjectType, Machines, Pipe, Pipes } from "@/js/machines";
+import { TOWNS, Towns } from "@/js/towns";
+import { Modals } from "@/js/ui/modals";
+import { player } from "@/js/player";
+
+import { HoldMoveHandler, ViewMoveHandler } from "@/utils/view-move-handler";
 
 import { format, formatX } from "@/utils";
 
@@ -31,26 +31,34 @@ const view = new ViewMoveHandler({
 	isBlockingMove: false,
 });
 
-let holdingMachine = null;
-let beforeDestroy = null;
+let holdingMachine: MachineObjectType | null = null;
+let beforeDestroy: (() => void) | null = null;
 let mouseX = $ref(0);
 let mouseY = $ref(0);
 let tabWidth = $ref(0);
 let tabHeight = $ref(0);
-let holdingFunction = null;
-let holdingKeyFunction = null;
-const draggingPipe = $ref({
+let holdingFunction: (() => void) | null = null;
+let holdingKeyFunction: (() => void) | null = null;
+const draggingPipe = $ref<{
+	type: "" | "input" | "output";
+	machine: null | MachineObjectType;
+	id: number;
+}>({
 	type: "",
 	machine: null,
 	id: 0
 });
-const hoveringPipe = $ref({
+const hoveringPipe = $ref<{
+	type: "" | "input" | "output";
+	machine: null | MachineObjectType;
+	id: number;
+}>({
 	type: "",
 	machine: null,
 	id: 0
 });
 
-const machineTab = $ref(null);
+const machineTab = $ref<HTMLDivElement | null>(null);
 
 const machines = $computed(() => Machines[player.currentlyIn]);
 const pipes = $computed(() => Pipes[player.currentlyIn]);
@@ -64,19 +72,19 @@ const pressedKeys = {
 
 onMount({
 	on: {
-		ARROW_KEYDOWN([key]) {
+		ARROW_KEYDOWN(key) {
 			pressedKeys[key] = true;
 
 			registerOffsetKey();
 		},
-		ARROW_KEYUP([key]) {
+		ARROW_KEYUP(key) {
 			pressedKeys[key] = false;
 
 			registerOffsetKey();
 		}
 	},
 	onMount() {
-		view.mount(machineTab);
+		view.mount(machineTab as HTMLDivElement);
 	},
 	beforeUnmount() {
 		if (beforeDestroy) beforeDestroy();
@@ -87,11 +95,12 @@ onMount({
 		mouseY = view._mouseY;
 		if (holdingFunction) holdingFunction();
 		if (holdingKeyFunction) holdingKeyFunction();
+		if (!machineTab) return;
 		tabWidth = machineTab.offsetWidth;
 		tabHeight = machineTab.offsetHeight;
 	}
 });
-function registerOffsetHold(offset) {
+function registerOffsetHold(offset: [number, number]) {
 	if (!view.config.isBlockingMove) {
 		view.config.isBlockingMove = true;
 		holdingFunction = function() {
@@ -144,7 +153,7 @@ function registerOffsetKey() {
 		}
 	};
 }
-function handlePipeDrag(type, machine, id) {
+function handlePipeDrag(type: "input" | "output", machine: MachineObjectType, id: number) {
 	view.config.isBlockingMove = true;
 	draggingPipe.type = type;
 	draggingPipe.machine = machine;
@@ -159,20 +168,23 @@ function handlePipeDrag(type, machine, id) {
 }
 function handlePipeStopDrag() {
 	view.config.isBlockingMove = false;
+	if (!draggingPipe.machine || !hoveringPipe.machine) return;
 	if (draggingPipe.type === "output") {
 		if (hoveringPipe.type === "input") {
-			Pipe.removeAllInputPipesTo(hoveringPipe.machine, hoveringPipe.id);
+			// After wrapping it in a ref, typescript forgot HP.machine is MachineObjectType for some reason
+			Pipe.removeAllInputPipesTo(hoveringPipe.machine as MachineObjectType, hoveringPipe.id);
 			draggingPipe.machine.addPipe(
-				hoveringPipe.machine,
+				hoveringPipe.machine as MachineObjectType,
 				hoveringPipe.id,
 				draggingPipe.id
 			);
 		}
 	} else if (draggingPipe.type === "input") {
 		if (hoveringPipe.type === "output") {
-			Pipe.removeAllInputPipesTo(draggingPipe.machine, draggingPipe.id);
+			// After wrapping it in a ref, typescript forgot DP.machine is MachineObjectType for some reason
+			Pipe.removeAllInputPipesTo(draggingPipe.machine as MachineObjectType, draggingPipe.id);
 			hoveringPipe.machine.addPipe(
-				draggingPipe.machine,
+				draggingPipe.machine as MachineObjectType,
 				draggingPipe.id,
 				hoveringPipe.id
 			);
@@ -181,7 +193,7 @@ function handlePipeStopDrag() {
 	draggingPipe.type = "";
 	draggingPipe.machine = null;
 }
-function handlePipeHover(type, machine, id) {
+function handlePipeHover(type: "input" | "output", machine: MachineObjectType, id: number) {
 	hoveringPipe.type = type;
 	hoveringPipe.machine = machine;
 	hoveringPipe.id = id;
@@ -192,16 +204,16 @@ function handlePipeStopHover() {
 }
 
 const hold = new HoldMoveHandler({
-	get x() { return holdingMachine.data.x; },
-	set x(v) { holdingMachine.moveTo(v, undefined); },
+	get x() { return holdingMachine ? holdingMachine.data.x : 0; },
+	set x(v) { if (holdingMachine) holdingMachine.moveTo(v, undefined); },
 
-	get y() { return holdingMachine.data.y; },
-	set y(v) { holdingMachine.moveTo(undefined, v); },
+	get y() { return holdingMachine ? holdingMachine.data.y : 0; },
+	set y(v) { if (holdingMachine) holdingMachine.moveTo(undefined, v); },
 }, view);
 
 hold.addEventListener("stopholding", () => holdingMachine = null);
 
-function handleMoveMachineStart(machine) {
+function handleMoveMachineStart(machine: MachineObjectType) {
 	holdingMachine = machine;
 	hold.trigger();
 }
@@ -250,17 +262,17 @@ function handleMoveMachineStart(machine) {
 				:pipe="pipe"
 			/>
 			<line
-				v-if="draggingPipe.type"
+				v-if="draggingPipe.machine"
 				class="c-machine-tab__dragging-pipe"
 				:x1="draggingPipe.machine.data.x + (draggingPipe.id + (draggingPipe.type === 'input' ? 0
 					: draggingPipe.machine.inputs.length)) * 90 + 45"
 				:y1="draggingPipe.machine.data.y + (draggingPipe.type === 'input' ? -10
 					: draggingPipe.machine.height + 10)"
-				:x2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
+				:x2="(hoveringPipe.type && hoveringPipe.machine && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.x + (hoveringPipe.id + (hoveringPipe.type === 'input' ? 0
 						: hoveringPipe.machine.inputs.length)) * 90 + 45
 					: mouseX / view.zoom + view.offsetX - tabWidth / 2 / view.zoom"
-				:y2="(hoveringPipe.type && hoveringPipe.type !== draggingPipe.type)
+				:y2="(hoveringPipe.type && hoveringPipe.machine && hoveringPipe.type !== draggingPipe.type)
 					? hoveringPipe.machine.data.y + (hoveringPipe.type === 'input' ? -10
 						: hoveringPipe.machine.height + 10)
 					: mouseY / view.zoom + view.offsetY - tabHeight / 2 / view.zoom"

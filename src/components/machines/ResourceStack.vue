@@ -1,24 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from "vue";
 
 import { Currencies } from "@/js/currencies/currencies";
+import { ResourceData } from "@/types/resources";
 
 import { onMount } from "@/components/mixins";
 
 
-const props = defineProps({
-	stack: {
-		type: Array,
-		required: true
-	},
-	capacity: {
-		type: Number,
-		required: true
-	}
-});
-let display = $ref([]);
-const canvas = $ref(null);
-let ctx;
+const props = defineProps<{
+	stack: ResourceData[];
+	capacity: number;
+}>();
+let display = $ref<{
+	height: string;
+	"background-color": string;
+}[]>([]);
+const canvas = $ref<HTMLCanvasElement | null>(null);
+let ctx: CanvasRenderingContext2D | null;
 
 function update() {
 	const cap = props.capacity;
@@ -29,6 +27,7 @@ function update() {
 		}));
 		return;
 	}
+	if (!ctx) return;
 	const internalDisplay = props.stack.map(x => ({
 		height: x.amount / cap * 400,
 		colour: Currencies[x.resource].colour,
@@ -46,6 +45,7 @@ watch(props, update, { deep: true });
 
 onMount({
 	onMount() {
+		if (!canvas) return;
 		ctx = canvas.getContext("2d");
 		update();
 	}

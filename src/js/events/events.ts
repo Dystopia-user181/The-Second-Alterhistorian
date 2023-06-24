@@ -10,8 +10,8 @@ export interface GameEvents {
 	GAME_TICK_AFTER: () => void
 
 	// Keyboard
-	ARROW_KEYUP: (direction: string) => void
-	ARROW_KEYDOWN: (direction: string) => void
+	ARROW_KEYUP: (direction: "up" | "down" | "left" | "right") => void
+	ARROW_KEYDOWN: (direction: "up" | "down" | "left" | "right") => void
 	ENTER_PRESSED: () => void
 	ESCAPE_PRESSED: () => void
 }
@@ -25,6 +25,8 @@ export const GameEventList = [
 
 	"ARROW_KEYUP",
 	"ARROW_KEYDOWN",
+	"ENTER_PRESSED",
+	"ESCAPE_PRESSED"
 ] as const;
 
 export type GameEvent = keyof GameEvents;

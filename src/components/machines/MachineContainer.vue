@@ -1,26 +1,25 @@
-<script setup>
-import { Machines } from "@/js/machines";
-import { Towns } from "@/js/towns";
-
-import { WindowProperties } from "@/components/mixins";
-
+<script setup lang="ts">
 import MachineSidebar from "./MachineSidebar.vue";
 import MachineVue from "./Machine.vue";
 
+import { WindowProperties } from "@/components/mixins";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+import { MachineObjectType, Machines } from "@/js/machines";
+import { Towns } from "@/js/towns";
 
-const emit = defineEmits([
-	"input-pipe-drag-start", "input-pipe-hover",
-	"output-pipe-drag-start", "output-pipe-hover",
-	"pipe-stop-hover",
-	"move-machine-start"
-]);
+
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
+
+const emit = defineEmits<{
+	(e: "input-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "input-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "pipe-stop-hover"): void;
+	(e: "move-machine-start", machine: MachineObjectType, event: MouseEvent): void;
+}>();
 
 const pos = $computed(() => ({
 	left: `${machine.data.x}px`,

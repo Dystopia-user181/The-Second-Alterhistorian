@@ -64,7 +64,7 @@ onMount({
 		<br>
 		<SubtabComponent
 			:subtabs="[{ name: 'INFO' }, { name: 'PRODUCTION' }]"
-			@changeTab="onChangeTab"
+			@change-tab="onChangeTab"
 		>
 			<template #INFOTab>
 				<MachineInfoModal :machine="machine" />
