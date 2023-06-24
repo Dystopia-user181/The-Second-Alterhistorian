@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MachinesById, Pipes } from "../player-proxy-wip";
 
 import { InputState, OutputState, UpgradeState } from "@/js/machines/state";
@@ -101,7 +102,10 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
+	removePipe(machine: ConfiguredMachine<any, any>, inputId: number): boolean;
+	removeAllPipes(machine: ConfiguredMachine<any, any>): void;
 
+	isNew: boolean;
 	meta: Meta;
 	outputDiffs: Record<string, number>;
 	updates: number;
@@ -118,6 +122,8 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		private _outputs: OutputState<UpgradeKeys, Meta>[];
 		private _pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][] = [];
 		private _upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
+
+		isNew = false;
 
 		updates = 0;
 
@@ -209,6 +215,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			this.data.pipes[outputId].push([machine.id, inputId]);
 			// TODO: add pipes from Town(?) instead of global
 			Pipes[this.townType].push({
+				// @ts-ignore
 				out: [this, this._outputs[outputId]],
 				in: [machine, machine.inputs[inputId]],
 			});

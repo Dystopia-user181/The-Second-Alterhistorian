@@ -17,7 +17,7 @@ export function gameLoop(_diff?: number) {
 	}
 	LogicEvent.dispatch("GAME_TICK_BEFORE");
 	if (!Towns("home").upgrades.win.effectOrDefault(0))
-		Machine.gameLoop(diff, Object.values(Machines));
+		Machine.gameLoop(diff as number, Object.values(Machines));
 	player.lastUpdateTime = Date.now();
 	GameUI.update();
 	LogicEvent.dispatch("GAME_TICK_AFTER");

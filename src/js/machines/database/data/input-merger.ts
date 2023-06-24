@@ -2,7 +2,7 @@ import { Machine, Pipe } from "../../logic";
 
 import { defineMachine } from "../builder";
 
-import { MaybeResourceType, ResourceTypes } from "@/types/resources";
+import { ResourceType, ResourceTypes } from "@/types/resources";
 
 export default defineMachine({
 	name: "inputMerger",
@@ -13,7 +13,7 @@ export default defineMachine({
 		consumes2: 0,
 		lastDiff: 0,
 		updates: 0,
-		inputResource: "none" as MaybeResourceType,
+		inputResource: "earth" as ResourceType,
 	}),
 	inputs: [
 		{
@@ -49,11 +49,11 @@ export default defineMachine({
 			Math.floor(this.meta.updates / 30 + 1) % 3,
 			Math.floor(this.meta.updates / 30 + 2) % 3,
 		];
-		const inputResource =
+		const inputResource: ResourceType =
 			this.inputItem(cycle[0])?.resource ??
 			this.inputItem(cycle[1])?.resource ??
 			this.inputItem(cycle[2])?.resource ??
-			"none";
+			"earth";
 		this.meta.inputResource = inputResource;
 		const production = 4 * diff;
 		const maximum = this.outputs[0].spaceLeft;

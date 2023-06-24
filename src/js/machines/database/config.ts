@@ -2,6 +2,7 @@ import { UpgradeState } from "@/js/machines/state";
 
 import { MaybeResourceType, ResourceData, ResourceType } from "@/types/resources";
 import { ConfiguredMachine } from "./builder";
+import { MachineId } from ".";
 
 export type InputConfig<Instance> = {
 	accepts: readonly ResourceType[] | ((machine: Instance) => ResourceType[]);
@@ -43,7 +44,7 @@ export interface UpgradeConfig<UpgradeKeys extends string, Meta extends Record<s
 }
 
 export interface MachineConfig<UpgradeKeys extends string, Meta extends Record<string, any>> {
-	name: string;
+	name: MachineId;
 
 	/** The description of the machine that will be displayed to the user */
 	description: string;
@@ -64,7 +65,7 @@ export interface MachineData {
 	isDefault: boolean;
 	minimized: boolean;
 	pipes: Array<[number, number][]>;
-	type: string;
+	type: MachineId;
 	upgrades: number[];
 	upgradesPrepay: number[];
 	x: number;

@@ -23,7 +23,7 @@ export function mapObjectValues<
 
 export function run<T>(
 	param: T,
-	...args: T extends AnyFunction ? Parameters<T> : never
+	...args: T extends AnyFunction ? Parameters<T> : []
 ): T extends AnyFunction ? ReturnType<T> : T {
 	let result;
 

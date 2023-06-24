@@ -2,8 +2,8 @@ import { EventHub } from "@/js/eventhub";
 
 export interface GameEvents {
 	// Machines
-	MACHINE_ADDED: (value: string) => void
-	MACHINE_DELETED: (id: number, value: string) => void
+	MACHINE_ADDED: () => void
+	MACHINE_DELETED: (id: number) => void
 
 	// Ticks
 	GAME_TICK_BEFORE: () => void

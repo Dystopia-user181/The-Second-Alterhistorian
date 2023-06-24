@@ -12,6 +12,21 @@ import steamEngine from "./data/steam-engine";
 import transmuter from "./data/transmuter";
 import waterMixer from "./data/water-mixer";
 
+export type MachineId =
+	"arcFurnace" |
+	"autoSeller" |
+	"cistern" |
+	"elixirMaker" |
+	"essencePurifier" |
+	"furnaceBasic" |
+	"inputMerger" |
+	"pulverizer" |
+	"quarry" |
+	"shoveller" |
+	"steamEngine" |
+	"transmuter" |
+	"waterMixer";
+
 export const MachineTypes = {
 	arcFurnace,
 	autoSeller,
@@ -27,5 +42,3 @@ export const MachineTypes = {
 	transmuter,
 	waterMixer,
 };
-
-export type MachineId = keyof typeof MachineTypes
