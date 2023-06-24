@@ -1,5 +1,5 @@
-<script setup>
-import { Modals } from "@/js/ui/modals.ts";
+<script setup lang="ts">
+import { Modals } from "@/js/ui/modals";
 
 import { onMount } from "@/components/mixins";
 
@@ -13,12 +13,14 @@ onMount({
 	on: {
 		ESCAPE_PRESSED() {
 			if (!Modals.isOpen) return;
-			if (Modals.current.value.hide) Modals.current.value.hide();
+			if (Modals.current.value && Modals.current.value.hide) Modals.current.value.hide();
 			else Modals.hide();
 		}
 	},
 	beforeUnmount() {
-		document.activeElement.blur();
+		if (document.activeElement instanceof HTMLElement) {
+			document.activeElement.blur();
+		}
 	},
 });
 </script>

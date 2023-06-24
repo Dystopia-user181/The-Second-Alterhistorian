@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 
-import { Currencies } from "@/js/currencies/currencies.ts";
-import { Modals } from "@/js/ui/modals.ts";
+import { Currencies } from "@/js/currencies/currencies";
+import { Modals } from "@/js/ui/modals";
 import { player } from "@/js/player";
+import { ResourceType } from "@/types/resources";
 import { Towns } from "@/js/towns";
 
 import { onMount } from "@/components/mixins";
@@ -17,20 +18,20 @@ import { format } from "@/utils";
 
 
 const mouseX = ref(0), mouseY = ref(0);
-window.mouseX = 0;
-window.mouseY = 0;
 
-function currencyColour(curr) {
+function currencyColour(curr: ResourceType) {
 	return Currencies[curr].colour;
 }
-function updateMousePos(event) {
-	window.mouseX = event.clientX;
-	window.mouseY = event.clientY;
+function updateMousePos(event: MouseEvent) {
 	mouseX.value = event.clientX;
 	mouseY.value = event.clientY;
 }
 
-const consumes = ref([]);
+const splashTexts = ref<{
+	time: number;
+	text: string;
+	pos: [number, number];
+}[]>([]);
 const elixirOpacity = ref(0);
 
 onMount({
@@ -38,7 +39,7 @@ onMount({
 		if (player.holding.resource === "elixir") elixirOpacity.value = Math.pow(player.holding.amount, 0.7);
 		else elixirOpacity.value = 0;
 
-		consumes.value = consumes.value.filter(x => x.time + 3000 > Date.now());
+		splashTexts.value = splashTexts.value.filter(x => x.time + 3000 > Date.now());
 
 		if (Towns("home").upgrades.win.effectOrDefault(0)) return;
 
@@ -46,7 +47,7 @@ onMount({
 			const splashes = ["CONSUME more Elixir",
 				"Elixir is your magnum opus",
 				"An eternal suffering to those who dare touch your Elixir"];
-			if (Math.random() < (player.holding.amount * 5 + 1) / 100) consumes.value.push({
+			if (Math.random() < (player.holding.amount * 5 + 1) / 100) splashTexts.value.push({
 				time: Date.now(),
 				text: splashes[Math.floor(Math.random() * splashes.length)],
 				pos: [Math.random() * 100, Math.random() * 100]
@@ -55,7 +56,7 @@ onMount({
 		}
 		if (player.producedElixir > 0) {
 			const splashes = ["CONSUME the Elixir", "Elixir is your making", "Let no one profit off Elixir"];
-			if (Math.random() < 0.01) consumes.value.push({
+			if (Math.random() < 0.01) splashTexts.value.push({
 				time: Date.now(),
 				text: splashes[Math.floor(Math.random() * splashes.length)],
 				pos: [Math.random() * 100, Math.random() * 100]
@@ -84,7 +85,7 @@ onMount({
 				:style="{ opacity: elixirOpacity }"
 			/>
 			<div
-				v-for="consume in consumes"
+				v-for="consume in splashTexts"
 				:key="consume.time"
 				class="c-elixir-splashtext"
 				:style="{ top: `${consume.pos[0]}%`, left: `${consume.pos[1]}%` }"

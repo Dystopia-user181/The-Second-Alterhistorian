@@ -21,19 +21,11 @@ abstract class MachineBase {
 	}
 
 	get height() {
-		return this.isMinimized ? 110 : 270;
+		return 270;
 	}
 
 	get id() {
 		return this._id;
-	}
-
-	get isMinimized() {
-		return this.data.minimized;
-	}
-
-	toggleMinimized() {
-		this.data.minimized = !this.data.minimized;
 	}
 
 	get townType() {
@@ -93,15 +85,23 @@ interface ConfiguredMachineConstructor<UpgradeKeys extends string, Meta extends 
 export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Record<string, any>> extends MachineBase {
 	readonly config: MachineConfig<UpgradeKeys, Meta>;
 	readonly inputs: InputState<UpgradeKeys, Meta>[];
-	readonly isMinimized: boolean;
+	readonly displayName: string;
 	readonly name: string;
 	readonly outputs: OutputState<UpgradeKeys, Meta>[];
 	readonly pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
 	readonly upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
+	readonly isUpgradeable: boolean;
+	readonly hasWholeBuyableUpgrades: boolean;
+	readonly hasPartialBuyableUpgrades: boolean;
+	readonly isFullyUpgraded: boolean;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;
+	addPipe(machine: ConfiguredMachine<any, any>, inputId: number, outputId: number): void;
+	removePipe(machine: ConfiguredMachine<any, any>, inputId: number): boolean;
+	removeAllPipes(machine: ConfiguredMachine<any, any>): void;
 
+	isNew: boolean;
 	meta: Meta;
 	outputDiffs: Record<string, number>;
 	updates: number;
@@ -118,6 +118,8 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 		private _outputs: OutputState<UpgradeKeys, Meta>[];
 		private _pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][] = [];
 		private _upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
+
+		isNew = false;
 
 		updates = 0;
 
@@ -209,6 +211,7 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 			this.data.pipes[outputId].push([machine.id, inputId]);
 			// TODO: add pipes from Town(?) instead of global
 			Pipes[this.townType].push({
+				// @ts-ignore
 				out: [this, this._outputs[outputId]],
 				in: [machine, machine.inputs[inputId]],
 			});
@@ -298,7 +301,6 @@ export function defineMachine<UpgradeKeys extends string, Meta extends Record<st
 				type: config.name,
 				pipes: Array.from(Array(config.outputs ? config.outputs.length : 0), () => []),
 				isDefault: false,
-				minimized: false,
 				inputs: Array.from(Array(config.inputs.length), () => []),
 				outputs: Array.from(Array(config.outputs.length), () => []),
 				upgrades: Array(Object.values(config.upgrades).length).fill(0) as number[],

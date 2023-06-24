@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { CurrenciesList } from "@/js/currencies/currencies";
 
 import { format, str } from "@/utils";

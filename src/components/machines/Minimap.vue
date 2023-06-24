@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Machines } from "@/js/machines";
 import { player } from "@/js/player";
 import { Towns } from "@/js/towns";
@@ -6,9 +6,10 @@ import { Towns } from "@/js/towns";
 import { onMount } from "@/components/mixins";
 
 const WIDTH = 180, HEIGHT = 160;
-const canvas = $ref(null);
-let ctx;
+const canvas = $ref<HTMLCanvasElement | null>(null);
+let ctx: CanvasRenderingContext2D | null;
 function render() {
+	if (!ctx) return;
 	ctx.resetTransform();
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	ctx.translate(WIDTH / 2, HEIGHT / 2);
@@ -43,6 +44,7 @@ function render() {
 
 onMount({
 	onMount() {
+		if (!canvas) return;
 		ctx = canvas.getContext("2d");
 	},
 	render() {

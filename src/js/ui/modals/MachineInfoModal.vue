@@ -1,17 +1,18 @@
-<script setup>
-import { Currencies } from "@/js/currencies/currencies.ts";
+<script setup lang="ts">
+import { Currencies } from "@/js/currencies/currencies";
+
+import { InputState } from "@/js/machines/state";
+import { MachineObjectType } from "@/js/machines";
 
 import { areArraysEqualSets, str } from "@/utils";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
 
-function acceptsAll(accepts) {
-	return areArraysEqualSets(accepts, Object.keys(Currencies));
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
+
+function acceptsAll(accepts: InputState<any, any>["accepts"]) {
+	return areArraysEqualSets(accepts.slice(), Object.keys(Currencies));
 }
 </script>
 

@@ -1,15 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import ModalWrapper from "./ModalWrapper.vue";
 
-import { Machine } from "@/js/machines/index";
-import { Modals } from "@/js/ui/modals.ts";
+import { Machine, MachineObjectType } from "@/js/machines";
+import { Modals } from "@/js/ui/modals";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
 function confirm() {
 	Machine.remove(machine);

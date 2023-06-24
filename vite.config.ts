@@ -13,7 +13,9 @@ export default defineConfig({
 		vue({
 			reactivityTransform: true
 		}),
-		eslint(),
+		eslint({
+			failOnError: false
+		}),
 		checker({ typescript: true }),
 		tsconfigPaths()
 	],

@@ -1,15 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 
 import MachineUpgrade from "./MachineUpgrade.vue";
 import ModalWrapper from "./ModalWrapper.vue";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+import { MachineObjectType } from "@/js/machines";
+
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
 const upgrades = computed(() => Object.values(machine.upgrades || {}).filter(x => x.isUnlocked));
 </script>

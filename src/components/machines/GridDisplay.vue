@@ -1,27 +1,11 @@
-<script setup>
-const { x, y, width, height, step } = defineProps({
-	x: {
-		type: Number,
-		required: true
-	},
-	y: {
-		type: Number,
-		required: true
-	},
-	width: {
-		type: Number,
-		required: true
-	},
-	height: {
-		type: Number,
-		required: true
-	},
-	step: {
-		type: Number,
-		required: false,
-		default: 200
-	},
-});
+<script setup lang="ts">
+const { x, y, width, height, step = 200 } = defineProps<{
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	step: number;
+}>();
 </script>
 
 <template>

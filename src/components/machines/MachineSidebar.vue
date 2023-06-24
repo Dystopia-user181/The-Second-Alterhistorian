@@ -1,22 +1,17 @@
-<script setup>
-import { Machine } from "@/js/machines/index";
-import { Modals } from "@/js/ui/modals.ts";
+<script setup lang="ts">
+import { Machine, MachineObjectType } from "@/js/machines";
+import { Modals } from "@/js/ui/modals";
 
 import { onMount } from "@/components/mixins";
 
 
-const props = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
-const emit = defineEmits([
-	"move-machine-start"
-]);
-
-const machine = $computed(() => props.machine);
+const emit = defineEmits<{
+	(e: "move-machine-start", event: MouseEvent): void
+}>();
 
 let animation = $ref(false);
 let isFullyUpgraded = $ref(false);
@@ -72,16 +67,6 @@ function deleteMachine() {
 			/>
 		</span>
 		<span
-			:tooltip="machine.isMinimized ? 'Expand' : 'Collapse'"
-			tooltip-left
-		>
-			<div
-				class="fas"
-				:class="machine.isMinimized ? 'fa-expand-arrows-alt' : 'fa-compress-arrows-alt'"
-				@mousedown="machine.toggleMinimized()"
-			/>
-		</span>
-		<span
 			v-if="machine.isUpgradeable"
 			tooltip="Upgrades"
 			tooltip-left
@@ -97,12 +82,11 @@ function deleteMachine() {
 			/>
 		</span>
 		<span
-			v-if="!machine.isMinimized"
 			tooltip="Info and Production"
 			tooltip-left
 		>
 			<div
-				class="fas fa-chart-bar"
+				class="fas fa-info-circle"
 				@mousedown="showStatistics()"
 			/>
 		</span>
@@ -161,14 +145,8 @@ function deleteMachine() {
 }
 
 .c-machine-sidebar .fa-arrow-up,
-.c-machine-sidebar .fa-expand-arrows-alt,
-.c-machine-sidebar .fa-compress-arrows-alt {
+.c-machine-sidebar .fa-info-circle {
 	cursor: pointer;
-}
-
-.c-machine-sidebar .fa-info-circle,
-.c-machine-sidebar .fa-chart-bar {
-	cursor: help;
 }
 
 .c-machine-sidebar .fa-trash {

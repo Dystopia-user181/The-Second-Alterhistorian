@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import ModalWrapper from "./ModalWrapper.vue";
 </script>
 

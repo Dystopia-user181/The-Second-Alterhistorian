@@ -1,21 +1,19 @@
-<script setup>
-import { Currencies } from "@/js/currencies/currencies.ts";
-import { player } from "@/js/player";
-
-
+<script setup lang="ts">
 import { onMount } from "@/components/mixins";
 
+import { Currencies } from "@/js/currencies/currencies";
+import { player } from "@/js/player";
 
-const props = defineProps({
-	pipe: {
-		type: Object,
-		required: true
-	}
+import { PipeConnectionType } from "@/js/machines/player-proxy-wip";
+
+const { pipe } = defineProps<{
+	pipe: PipeConnectionType<string, string>;
+}>();
+
+const displayColour = $computed(() => {
+	const requiredResource = pipe.out[1].statistics.displayResource[0];
+	return requiredResource === "none" ? "#0000" : Currencies[requiredResource].colour;
 });
-
-const pipe = $computed(() => props.pipe);
-
-const displayResource = $computed(() => pipe.out[1].statistics.displayResource[0]);
 
 const x1 = $computed(() => pipe.out[0].data.x + (pipe.out[1].id + pipe.out[0].inputs.length) * 90 + 45);
 const y1 = $computed(() => pipe.out[0].data.y + pipe.out[0].height + 10);
@@ -66,7 +64,7 @@ onMount({
 			:x2="x2"
 			:y2="y2"
 			stroke-width="5"
-			:stroke="(displayResource === 'none' ? '#0000' : Currencies[displayResource].colour)"
+			:stroke="displayColour"
 			stroke-linecap="round"
 		/>
 	</template>

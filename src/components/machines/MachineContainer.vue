@@ -1,26 +1,25 @@
-<script setup>
-import { Machines } from "@/js/machines";
-import { Towns } from "@/js/towns";
-
-import { WindowProperties } from "@/components/mixins";
-
+<script setup lang="ts">
 import MachineSidebar from "./MachineSidebar.vue";
 import MachineVue from "./Machine.vue";
 
+import { WindowProperties } from "@/components/mixins";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+import { MachineObjectType, Machines } from "@/js/machines";
+import { Towns } from "@/js/towns";
 
-const emit = defineEmits([
-	"input-pipe-drag-start", "input-pipe-hover",
-	"output-pipe-drag-start", "output-pipe-hover",
-	"pipe-stop-hover",
-	"move-machine-start"
-]);
+
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
+
+const emit = defineEmits<{
+	(e: "input-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-drag-start", machine: MachineObjectType, id: number): void;
+	(e: "input-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "output-pipe-hover", machine: MachineObjectType, id: number): void;
+	(e: "pipe-stop-hover"): void;
+	(e: "move-machine-start", machine: MachineObjectType, event: MouseEvent): void;
+}>();
 
 const pos = $computed(() => ({
 	left: `${machine.data.x}px`,
@@ -46,12 +45,6 @@ function bringToTop() {
 	if (idx === -1) return;
 	Machines[machine.townType].push(machine);
 	Machines[machine.townType].splice(idx, 1);
-
-	// Bring machine to top in player to save the z-index between saves
-	const playerData = Towns(machine.townType).playerData;
-	const machineData = playerData.machines[idx];
-	delete playerData.machines[idx];
-	playerData.machines[idx] = machineData;
 }
 </script>
 
@@ -68,7 +61,7 @@ function bringToTop() {
 			@input-pipe-hover="(...args) => emit('input-pipe-hover', ...args)"
 			@output-pipe-hover="(...args) => emit('output-pipe-hover', ...args)"
 			@pipe-stop-hover="emit('pipe-stop-hover')"
-			@move-machine-start="e => emit('move-machine-start', machine, e)"
+			@move-machine-start="(e: MouseEvent) => emit('move-machine-start', machine, e)"
 		/>
 		<machine-sidebar
 			:machine="machine"

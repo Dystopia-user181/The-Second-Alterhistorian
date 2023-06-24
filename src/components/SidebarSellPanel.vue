@@ -1,5 +1,5 @@
-<script setup>
-import { Currencies } from "@/js/currencies/currencies.ts";
+<script setup lang="ts">
+import { Currencies } from "@/js/currencies/currencies";
 import { player } from "@/js/player";
 
 import { format } from "@/utils";
@@ -10,7 +10,7 @@ const showMode = $ref("");
 const gainedMoney = $computed(() => {
 	switch (showMode) {
 		case "sell1":
-			return Currencies[player.holding.resource].value * (player.holding.amount >= 1);
+			return Currencies[player.holding.resource].value * Number(player.holding.amount >= 1);
 		case "sellall":
 			return Currencies[player.holding.resource].value * player.holding.amount;
 		default:
@@ -18,13 +18,13 @@ const gainedMoney = $computed(() => {
 	}
 });
 
-function sellStatic(amount) {
+function sellStatic(amount: number) {
 	if (player.holding.amount >= amount) {
 		player.holding.amount -= amount;
 		player.money += amount * Currencies[player.holding.resource].value;
 	}
 }
-function sellDynamic(fraction) {
+function sellDynamic(fraction: number) {
 	const amount = player.holding.amount * fraction;
 	player.holding.amount -= amount;
 	player.money += amount * Currencies[player.holding.resource].value;

@@ -1,13 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import CostDisplay from "@/components/CostDisplay.vue";
 
+import { UpgradeState } from "@/js/machines/state";
 
-const { upgrade } = defineProps({
-	upgrade: {
-		type: Object,
-		required: true
-	}
-});
+
+const { upgrade } = defineProps<{
+	upgrade: UpgradeState<any, any>;
+}>();
 </script>
 
 <template>

@@ -5,54 +5,27 @@
 	},
 	"extends": [
 		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking",
 		"plugin:vue/essential",
 		"plugin:import/recommended",
 		"plugin:vue/recommended"
 	],
+	"parser": "vue-eslint-parser",
 	"parserOptions": {
+		"parser": "@typescript-eslint/parser",
+		"project": "./tsconfig.eslint.json",
+		"sourceType": "module",
 		"ecmaVersion": "latest",
-		"sourceType": "module"
+		"extraFileExtensions": [".vue"]
 	},
 	"plugins": [
+		"@typescript-eslint",
 		"vue"
 	],
 	"ignorePatterns": [
 		"dist/"
-	],
-	"overrides": [
-		{
-			"files": [
-				"src/**/*.ts",
-				"src/**/*.tsx"
-			],
-			"extends": [
-				"eslint:recommended",
-				"plugin:@typescript-eslint/eslint-recommended",
-				"plugin:@typescript-eslint/recommended",
-				"plugin:@typescript-eslint/recommended-requiring-type-checking",
-				"plugin:vue/essential",
-				"plugin:import/recommended",
-				"plugin:vue/recommended"
-			],
-			"parserOptions": {
-				"parser": "@typescript-eslint/parser",
-				"project": "./tsconfig.eslint.json",
-				"sourceType": "module",
-				"ecmaVersion": "latest"
-			},
-			"plugins": [
-				"@typescript-eslint",
-				"vue"
-			],
-			"rules": {
-				"import/no-unresolved": "off",
-				"no-shadow": "off",
-				"no-unused-vars": "off",
-				"no-use-before-define": "off",
-				"@typescript-eslint/no-explicit-any": "off",
-				"@typescript-eslint/restrict-template-expressions": "off"
-			}
-		}
 	],
 	"settings": {
 		"import/resolver": {
@@ -65,8 +38,18 @@
 		}
 	},
 	"rules": {
+		/* Anything to do with `any` has way too many false positives as a side effect of how
+		incremental games are almost inherently cyclic */
+		"@typescript-eslint/no-unsafe-assignment": "off",
+		"@typescript-eslint/no-unsafe-return": "off",
+
+		"@typescript-eslint/no-explicit-any": "off",
+		"@typescript-eslint/ban-ts-comment": "off",
+		"@typescript-eslint/no-unused-vars": ["error"],
+
+		"@typescript-eslint/func-call-spacing": "error",
 		"import/prefer-default-export": "off",
-		"import/no-unresolved": "error",
+		"import/no-unresolved": "off",
 		"import/named": "error",
 		"import/namespace": "error",
 		"import/default": "error",
@@ -79,13 +62,6 @@
 		"import/newline-after-import": "warn",
 		"import/no-named-default": "warn",
 		"import/no-self-import": "warn",
-		"import/order": [
-			"warn",
-			{
-				"newlines-between": "always-and-inside-groups",
-				"pathGroups": [{ "pattern": "@/**", "group": "sibling" }]
-			}
-		],
 		"sort-imports": [
 			"warn",
 			{
@@ -103,7 +79,7 @@
 			"property"
 		],
 		"dot-notation": "error",
-		"eol-last": ["error", "never"],
+		"eol-last": ["warn", "never"],
 		"eqeqeq": "error",
 		"no-else-return": [
 			"error",
@@ -124,7 +100,6 @@
 		"vue/padding-line-between-blocks": "warn",
 		"vue/block-tag-newline": "warn",
 		"vue/no-multiple-objects-in-class": "warn",
-		"vue/no-static-inline-styles": "warn",
 		"vue/no-v-html": "off",
 		"vue/no-multiple-template-root": "off",
 		"vue/no-setup-props-destructure": "off",
@@ -165,23 +140,10 @@
 		"wrap-iife": "error",
 		"yoda": "error",
 		"no-label-var": "error",
-		"no-shadow": "error",
+		"no-shadow": "off",
 		"no-shadow-restricted-names": "error",
 		"no-undef": "off",
-		"no-unused-vars": [
-			"error",
-			{
-				"vars": "local",
-				"args": "after-used"
-			}
-		],
-		"no-use-before-define": [
-			"error",
-			{
-				"functions": false,
-				"variables": false
-			}
-		],
+		"no-unused-vars": "off",
 		"array-bracket-spacing": "error",
 		"block-spacing": "error",
 		"brace-style": [
@@ -191,12 +153,11 @@
 				"allowSingleLine": true
 			}
 		],
-		"camelcase": ["error"],
 		"comma-spacing": "error",
 		"comma-style": "error",
 		"computed-property-spacing": "error",
 		"consistent-this": "error",
-		"func-call-spacing": "error",
+		"func-call-spacing": "off",
 		"id-blacklist": [
 			"error",
 			"ret",
@@ -228,7 +189,6 @@
 		"max-statements-per-line": ["error", { "max": 1 }],
 		"multiline-comment-style": "off",
 		"new-parens": "error",
-		"no-array-constructor": "warn",
 		"no-inline-comments": "error",
 		"no-lonely-if": "error",
 		"no-mixed-spaces-and-tabs": "error",

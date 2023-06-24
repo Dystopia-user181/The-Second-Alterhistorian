@@ -1,21 +1,34 @@
-<script setup>
+<script setup lang="ts">
 import { onMount } from "@/components/mixins";
+
+import { MachineObjectType } from "@/js/machines";
+import { MaybeResourceType } from "@/types/resources";
 
 import { format, str } from "@/utils";
 
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
-let inputs = $ref([]);
-let outputs = $ref([]);
+interface CurrentStatisticType {
+	resource: MaybeResourceType;
+	amount: number;
+	id: number;
+}
+let inputStats = $ref<CurrentStatisticType[]>([]);
+let outputStats = $ref<CurrentStatisticType[]>([]);
+
+interface AverageStatisticType {
+	lastResource: MaybeResourceType;
+	time: number;
+	value: number;
+	isUnlocked: boolean;
+	id: number;
+}
 const avg = $ref({
-	inputs: [],
-	outputs: []
+	inputs: [] as AverageStatisticType[],
+	outputs: [] as AverageStatisticType[]
 });
 let takingAvg = $ref(false);
 
@@ -44,16 +57,16 @@ function stopAvg() {
 
 onMount({
 	update() {
-		inputs = machine.inputs.map((input, id) => (input.isUnlocked ? {
+		inputStats = machine.inputs.filter(input => input.isUnlocked).map((input, id) => ({
 			resource: input.statistics.displayResource[0],
 			amount: input.statistics.avgResourcePerSec,
 			id
-		} : null)).filter(x => x);
-		outputs = machine.outputs.map((output, id) => (output.isUnlocked ? {
+		}));
+		outputStats = machine.outputs.filter(output => output.isUnlocked).map((output, id) => ({
 			resource: output.config.produces.resource,
 			amount: output.statistics.avgResourcePerSec,
 			id
-		} : null)).filter(x => x);
+		}));
 
 		if (takingAvg) {
 			for (const input of machine.inputs) {
@@ -92,7 +105,7 @@ onMount({
 		v-if="takingAvg"
 		class="c-production--average"
 	>
-		<template v-if="inputs.length">
+		<template v-if="inputStats.length">
 			<span class="c-emphasise-text">Inputs</span>
 			<br>
 			<span
@@ -111,7 +124,7 @@ onMount({
 			</span>
 			<br>
 		</template>
-		<template v-if="outputs.length">
+		<template v-if="outputStats.length">
 			<span class="c-emphasise-text">Outputs</span>
 			<br>
 			<span
@@ -132,11 +145,11 @@ onMount({
 		</template>
 	</span>
 	<template v-else>
-		<template v-if="inputs.length">
+		<template v-if="inputStats.length">
 			<span class="c-emphasise-text">Inputs</span>
 			<br>
 			<span
-				v-for="input in inputs"
+				v-for="input in inputStats"
 				:key="input.id"
 			>
 				Input {{ input.id + 1 }}:
@@ -150,11 +163,11 @@ onMount({
 			</span>
 			<br>
 		</template>
-		<template v-if="outputs.length">
+		<template v-if="outputStats.length">
 			<span class="c-emphasise-text">Outputs</span>
 			<br>
 			<span
-				v-for="output in outputs"
+				v-for="output in outputStats"
 				:key="output.id"
 			>
 				Output {{ output.id + 1 }}:

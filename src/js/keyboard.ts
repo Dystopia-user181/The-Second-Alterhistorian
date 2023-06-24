@@ -11,21 +11,17 @@ window.addEventListener("keydown", e => {
 
 	isKeydown[key] = true;
 
-	if (key.startsWith("arrow")) {
-		GameUI.dispatch("ARROW_KEYDOWN", key.slice(5));
-		return;
-	}
 	switch (key) {
-		case "w":
+		case "w": case "arrowup":
 			GameUI.dispatch("ARROW_KEYDOWN", "up");
 			break;
-		case "a":
+		case "a": case "arrowleft":
 			GameUI.dispatch("ARROW_KEYDOWN", "left");
 			break;
-		case "s":
+		case "s": case "arrowdown":
 			GameUI.dispatch("ARROW_KEYDOWN", "down");
 			break;
-		case "d":
+		case "d": case "arrowright":
 			GameUI.dispatch("ARROW_KEYDOWN", "right");
 			break;
 		case "escape":
@@ -43,22 +39,17 @@ window.addEventListener("keyup", e => {
 
 	isKeydown[key] = false;
 
-	if (key.startsWith("arrow")) {
-		GameUI.dispatch("ARROW_KEYUP", key.slice(5));
-		return;
-	}
-
 	switch (key) {
-		case "w":
+		case "w": case "arrowup":
 			GameUI.dispatch("ARROW_KEYUP", "up");
 			break;
-		case "a":
+		case "a": case "arrowleft":
 			GameUI.dispatch("ARROW_KEYUP", "left");
 			break;
-		case "s":
+		case "s": case "arrowdown":
 			GameUI.dispatch("ARROW_KEYUP", "down");
 			break;
-		case "d":
+		case "d": case "arrowright":
 			GameUI.dispatch("ARROW_KEYUP", "right");
 			break;
 	}

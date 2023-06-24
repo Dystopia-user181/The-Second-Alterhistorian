@@ -9,7 +9,7 @@ import { player } from "@/js/player";
 import { arr, formatX, mapObjectValues, run } from "@/utils";
 
 
-class SidebarShopItem {
+export class SidebarShopItem {
 	config: SidebarShopDBEntry;
 	townId: TownType;
 	id: number;
@@ -82,7 +82,7 @@ class SidebarShopItem {
 	}
 }
 
-class TownUpgrade {
+export class TownUpgrade {
 	config: TownUpgradeDBEntry;
 	townId: TownType;
 	_: {

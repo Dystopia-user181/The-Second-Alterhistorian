@@ -1,17 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import CostDisplay from "@/components/CostDisplay.vue";
 
 import { onMount } from "@/components/mixins";
 
-const { shopItem } = defineProps({
-	shopItem: {
-		type: Object,
-		required: true
-	}
-});
+import { ResourceType } from "@/types/resources";
+import { TownUpgrade } from "@/js/towns";
+
+const { shopItem } = defineProps<{
+	shopItem: TownUpgrade;
+}>();
 
 let cost = $ref(0);
-let currencyType = $ref("");
+let currencyType = $ref<ResourceType | undefined>("earth");
 let canAfford = $ref(false);
 let name = $ref("");
 let description = $ref("");

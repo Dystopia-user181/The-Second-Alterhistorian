@@ -1,20 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import ResourceSquare from "@/components/ResourceSquare.vue";
 
 import { format } from "@/utils";
+import { ResourceType } from "@/types/resources";
 
 
-const { cost, type } = defineProps({
-	cost: {
-		type: Number,
-		required: true
-	},
-	type: {
-		validator: item => item === null || item === undefined || typeof item === "string",
-		required: false,
-		default: undefined
-	}
-});
+const { cost, type } = defineProps<{
+	cost: number;
+	type: ResourceType | null | undefined;
+}>();
 </script>
 
 <template>
