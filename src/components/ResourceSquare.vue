@@ -1,16 +1,13 @@
-<script setup>
-import { Currencies } from "@/js/currencies/currencies.ts";
+<script setup lang="ts">
+import { Currencies } from "@/js/currencies/currencies";
+import { ResourceType } from "@/types/resources";
 
-const { type, size } = defineProps({
-	type: {
-		type: String,
-		required: true
-	},
-	size: {
-		type: String,
-		default: "1em"
-	}
-});
+const { type, size } = withDefaults(defineProps<{
+	type: ResourceType;
+	size: string;
+}>(), ({
+	size: "1em"
+}));
 </script>
 
 <template>

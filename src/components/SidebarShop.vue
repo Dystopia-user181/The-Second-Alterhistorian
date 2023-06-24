@@ -1,5 +1,5 @@
-<script setup>
-import { SidebarShop, Towns } from "@/js/towns/index";
+<script setup lang="ts">
+import { SidebarShop, SidebarShopItem, Towns, TownUpgrade } from "@/js/towns";
 import { player } from "@/js/player";
 
 import { onMount } from "@/components/mixins";
@@ -8,8 +8,8 @@ import SidebarShopMachineItem from "./SidebarShopMachineItem.vue";
 import SidebarShopUpgradeItem from "./SidebarShopUpgradeItem.vue";
 import SubtabComponent from "./SubtabComponent.vue";
 
-let currentMachines = $shallowRef([]);
-let currentUpgrades = $shallowRef([]);
+let currentMachines = $shallowRef<SidebarShopItem[]>([]);
+let currentUpgrades = $shallowRef<TownUpgrade[]>([]);
 let isFullyUpgraded = $ref(false);
 let hasPartialBuyableUpgrades = $ref(false);
 let hasWholeBuyableUpgrades = $ref(false);

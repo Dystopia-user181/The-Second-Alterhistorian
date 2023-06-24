@@ -1,14 +1,18 @@
-<script setup>
-const { subtabs } = defineProps({
-	subtabs: {
-		type: Array,
-		required: true
-	}
-});
+<script setup lang="ts">
+interface SubtabType {
+	name: string;
+	buttonClass: string | Record<string, boolean>;
+}
+
+const { subtabs } = defineProps<{
+	subtabs: SubtabType[]
+}>();
 
 const currentTab = $ref(0);
 
-const emit = defineEmits(["changeTab"]);
+const emit = defineEmits<{
+	(e: "changeTab", id: number, subtab: SubtabType): void
+}>();
 </script>
 
 <template>

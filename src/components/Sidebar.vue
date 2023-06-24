@@ -1,5 +1,5 @@
-<script setup>
-import { Modals } from "@/js/ui/modals.ts";
+<script setup lang="ts">
+import { Modals } from "@/js/ui/modals";
 
 import SidebarSellPanel from "./SidebarSellPanel.vue";
 import SidebarShop from "./SidebarShop.vue";

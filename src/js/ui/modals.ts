@@ -41,7 +41,7 @@ class Modal<C extends Component> {
 		};
 	}
 
-	get isOpen() {
+	get isOpen(): boolean {
 		return Modals.current.value === this;
 	}
 
@@ -61,7 +61,7 @@ class Modal<C extends Component> {
 interface ModalType extends Modal<Component> { hide?: () => void }
 
 export const Modals = {
-	current: shallowRef(undefined) as ShallowRef<Component | undefined>,
+	current: shallowRef(undefined) as ShallowRef<ModalType | undefined>,
 	queue: [] as ModalType[],
 	hide() {
 		const closed = Modals.queue.shift();

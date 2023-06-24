@@ -99,6 +99,9 @@ export interface ConfiguredMachine<UpgradeKeys extends string, Meta extends Reco
 	readonly outputs: OutputState<UpgradeKeys, Meta>[];
 	readonly pipes: [ConfiguredMachine<string, Meta>, InputState<UpgradeKeys, Meta>][][];
 	readonly upgrades: Record<UpgradeKeys, UpgradeState<UpgradeKeys, Meta>>;
+	readonly isUpgradeable: boolean;
+	readonly hasWholeBuyableUpgrades: boolean;
+	readonly hasPartialBuyableUpgrades: boolean;
 
 	inputItem(index: number): ResourceData | undefined;
 	outputItem(index: number): ResourceData | undefined;

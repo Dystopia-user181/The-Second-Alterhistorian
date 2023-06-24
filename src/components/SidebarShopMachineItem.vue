@@ -1,22 +1,22 @@
-<script setup>
-import { MachineCounts } from "@/js/machines/index";
-import { player } from "@/js/player";
-
+<script setup lang="ts">
 import CostDisplay from "@/components/CostDisplay.vue";
-
-import { formatInt, str } from "@/utils";
 
 import { onMount } from "@/components/mixins";
 
+import { SidebarShopItem } from "@/js/towns";
 
-const { shopItem } = defineProps({
-	shopItem: {
-		type: Object,
-		required: true
-	}
-});
+import { MachineCounts } from "@/js/machines";
+import { player } from "@/js/player";
+import { ResourceType } from "@/types/resources";
+
+import { formatInt, str } from "@/utils";
+
+
+const { shopItem } = defineProps<{
+	shopItem: SidebarShopItem
+}>();
 let cost = $ref(0);
-let currencyType = $ref("");
+let currencyType = $ref<ResourceType | undefined>("earth");
 let canAfford = $ref(false);
 let name = $ref("");
 let description = $ref("");

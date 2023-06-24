@@ -46,6 +46,8 @@
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/ban-ts-comment": "off",
 		"@typescript-eslint/no-unused-vars": ["error"],
+
+		"@typescript-eslint/func-call-spacing": "error",
 		"import/prefer-default-export": "off",
 		"import/no-unresolved": "off",
 		"import/named": "error",
@@ -155,7 +157,7 @@
 		"comma-style": "error",
 		"computed-property-spacing": "error",
 		"consistent-this": "error",
-		"func-call-spacing": "error",
+		"func-call-spacing": "off",
 		"id-blacklist": [
 			"error",
 			"ret",
