@@ -1,25 +1,30 @@
-<script setup>
+<script setup lang="ts">
 import { player, Player } from "@/js/player";
-import { Modals } from "@/js/ui/modals.ts";
+import { Modals } from "@/js/ui/modals";
 
 import ModalWrapper from "./ModalWrapper.vue";
+
+interface FileEvent extends Event {
+    target: HTMLInputElement;
+}
 
 function importSave() {
 	const input = document.createElement("input");
 	input.type = "file";
 
-	input.onchange = e => {
-		Player.importSave(e);
+	input.onchange = (e: Event) => {
+		// @ts-ignore: Typescript does not type input events properly
+		Player.importSave(e as FileEvent);
 	};
 
 	input.click();
 }
 
-function getOptionsText(option) {
+function getOptionsText(option: keyof typeof player.options) {
 	return player.options[option] ? "ON" : "OFF";
 }
 
-function toggleOption(option) {
+function toggleOption(option: keyof typeof player.options) {
 	player.options[option] = Number(!player.options[option]);
 }
 </script>

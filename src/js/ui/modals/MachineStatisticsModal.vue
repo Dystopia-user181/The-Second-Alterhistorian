@@ -1,20 +1,19 @@
-<script setup>
-import { str } from "@/utils";
-
-import { onMount } from "@/components/mixins";
-
+<script setup lang="ts">
 import MachineInfoModal from "./MachineInfoModal.vue";
 import MachineProductionModal from "./MachineProductionModal.vue";
 import ModalWrapper from "./ModalWrapper.vue";
 import SubtabComponent from "@/components/SubtabComponent.vue";
 
+import { onMount } from "@/components/mixins";
 
-const { machine } = defineProps({
-	machine: {
-		type: Object,
-		required: true
-	}
-});
+import { MachineObjectType } from "@/js/machines";
+
+import { str } from "@/utils";
+
+
+const { machine } = defineProps<{
+	machine: MachineObjectType;
+}>();
 
 const machineNameEditable = $computed({
 	get() {
@@ -28,7 +27,7 @@ const machineNameEditable = $computed({
 
 let isEditingName = $ref(false);
 let currentTabDisplay = $ref("INFO");
-const onChangeTab = (_, x) => currentTabDisplay = x.name;
+const onChangeTab = (_: number, x: { name: string }) => currentTabDisplay = x.name;
 
 onMount({
 	on: {

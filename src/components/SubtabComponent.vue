@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface SubtabType {
 	name: string;
-	buttonClass: string | Record<string, boolean>;
+	buttonClass?: string | Record<string, boolean>;
 }
 
 const { subtabs } = defineProps<{

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { reactive, Ref, ref } from "vue";
 
 import { InputConfig, OutputConfig, UpgradeConfig } from "./database/config";

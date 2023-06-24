@@ -1,8 +1,3 @@
-// TODO: Convert this to typescript
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { player } from "@/js/player";
 
 import { MachineCounts, MachineObjectType, Machines, Pipes } from "./player-proxy";

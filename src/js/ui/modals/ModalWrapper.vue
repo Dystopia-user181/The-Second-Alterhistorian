@@ -1,9 +1,9 @@
-<script setup>
-import { Modals } from "@/js/ui/modals.ts";
+<script setup lang="ts">
+import { Modals } from "@/js/ui/modals";
 
 function closeModal() {
 	if (!Modals.isOpen) return;
-	if (Modals.current.value.hide) Modals.current.value.hide();
+	if (Modals.current.value?.hide) Modals.current.value.hide();
 	else Modals.hide();
 }
 </script>
