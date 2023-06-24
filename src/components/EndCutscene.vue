@@ -1,12 +1,12 @@
-<script setup>
+<script setup lang="ts">
+import { onMount } from "@/components/mixins";
+
 import { Player } from "@/js/player";
 
 import { str } from "@/utils";
 
-import { onMount } from "@/components/mixins";
 
-
-function predictableRandom(x) {
+function predictableRandom(x: number) {
 	let start = Math.pow(x % 97, 4.3) * 232344573;
 	const a = 15485863;
 	const b = 521791;
@@ -22,7 +22,7 @@ function randomSymbol() {
 }
 
 const WordShift = {
-	wordCycle(list, noBuffer = false) {
+	wordCycle(list: string[], noBuffer = false) {
 		const len = list.length;
 		const tick = Math.floor(Date.now() / 250) % (len * 5);
 		const mod5 = ((Date.now() / 250) % (len * 5)) % 5;
@@ -44,7 +44,7 @@ const WordShift = {
 
 		return " ".repeat(Math.ceil(bufferSpace)) + v + " ".repeat(Math.floor(bufferSpace));
 	},
-	randomCrossWords(string, frac = 0.7) {
+	randomCrossWords(string: string, frac = 0.7) {
 		if (frac <= 0) return string;
 		const x = string.split("");
 		for (let i = 0; i < x.length * frac; i++) {
@@ -55,7 +55,7 @@ const WordShift = {
 		}
 		return x.join("");
 	},
-	blendWords(first, second, param) {
+	blendWords(first: string, second: string, param: number) {
 		if (param <= 0) return first;
 		if (param >= 1) return second;
 		return first.substring(0, first.length * (1 - param)) +
@@ -81,7 +81,7 @@ const Quotes = [{
 },
 {
 	cel: "sol",
-	line: () => "You've finally brought yourself here."
+	line: () => "You've finally found your way here."
 },
 {
 	cel: "sol",
@@ -122,7 +122,7 @@ let lineNumber = $ref(0);
 let brightness = $ref(-0.5);
 let currentLine = $ref("");
 let currentCel = $ref("???");
-let updateCycle = $ref(0);
+let updateCycle = $ref(false);
 
 function nextLine() {
 	if (currentLine.length !== Quotes[lineNumber].line().length) return;

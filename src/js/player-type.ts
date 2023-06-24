@@ -4,8 +4,6 @@ import { MachineData } from "@/js/machines/database/config";
 import { MachineTypes } from "./machines";
 import { ResourceType } from "@/types/resources";
 
-import { hasOwn } from "@/utils";
-
 // Things aren't typed yet but it needs to be used; as things get typed, delete these
 export interface PlayerType {
 	options: {
@@ -31,7 +29,7 @@ export interface PlayerType {
 }
 
 export function fixMachineData(machineData: MachineData) {
-	if (!hasOwn(MachineTypes, machineData.type)) {
+	if (!MachineTypes[machineData.type]) {
 		throw `machineData.type '${machineData.type}' is not a valid MachineType`;
 	}
 
