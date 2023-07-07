@@ -36,8 +36,10 @@ const elixirOpacity = ref(0);
 
 onMount({
 	update() {
-		if (player.holding.resource === "elixir") elixirOpacity.value = Math.pow(player.holding.amount, 0.7);
-		else elixirOpacity.value = 0;
+		if (player.holding.resource === "elixir")
+			elixirOpacity.value = Math.min(Math.pow(player.holding.amount, 0.7), 0.8);
+		else
+			elixirOpacity.value = 0;
 
 		splashTexts.value = splashTexts.value.filter(x => x.time + 3000 > Date.now());
 
