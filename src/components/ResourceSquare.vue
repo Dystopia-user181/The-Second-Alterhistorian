@@ -4,7 +4,7 @@ import { ResourceType } from "@/types/resources";
 
 const { type, size = "1em" } = defineProps<{
 	type: ResourceType;
-	size: string;
+	size?: string;
 }>();
 </script>
 

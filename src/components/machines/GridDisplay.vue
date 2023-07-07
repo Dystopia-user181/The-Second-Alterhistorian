@@ -4,7 +4,7 @@ const { x, y, width, height, step = 200 } = defineProps<{
 	y: number;
 	width: number;
 	height: number;
-	step: number;
+	step?: number;
 }>();
 </script>
 
