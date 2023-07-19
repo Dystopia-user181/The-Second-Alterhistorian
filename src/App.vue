@@ -36,14 +36,14 @@ const elixirOpacity = ref(0);
 
 onMount({
 	update() {
-		if (player.holding.resource === "elixir")
+		if (player.holding.resource === "elixir" && !player.finishedEndCutscene)
 			elixirOpacity.value = Math.min(Math.pow(player.holding.amount, 0.7), 0.8);
 		else
 			elixirOpacity.value = 0;
-
+		if (player.finishedEndCutscene) splashTexts.value = [];
 		splashTexts.value = splashTexts.value.filter(x => x.time + 3000 > Date.now());
 
-		if (Towns("home").upgrades.win.effectOrDefault(0)) return;
+		if (Towns("home").upgrades.win.effectOrDefault(0) && !player.finishedEndCutscene) return;
 
 		if (player.holding.amount && player.holding.resource === "elixir") {
 			const splashes = ["CONSUME more Elixir",
@@ -73,7 +73,7 @@ onMount({
 		class="c-game-ui"
 		@mousemove="updateMousePos"
 	>
-		<template v-if="!Towns('home').upgrades.win.effectOrDefault(0)">
+		<template v-if="!Towns('home').upgrades.win.effectOrDefault(0) || player.finishedEndCutscene">
 			<div class="c-main-tabs">
 				<machine-tab />
 				<sidebar />

@@ -61,10 +61,10 @@ export default defineMachine({
 		{
 			id: "main",
 			capacity: 10,
-			produces: {
+			produces: () => ({
 				resource: "elixir",
-				amount: 0.1,
-			},
+				amount: player.finishedEndCutscene ? 0.01 : 0.1,
+			}),
 			requiresList: () => [
 				{
 					resource: "quicksilver",

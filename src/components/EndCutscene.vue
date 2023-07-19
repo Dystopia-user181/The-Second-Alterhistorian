@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMount } from "@/components/mixins";
 
-import { Player } from "@/js/player";
+import { player, Player } from "@/js/player";
 
 import { str } from "@/utils";
 
@@ -85,11 +85,11 @@ const Quotes = [{
 },
 {
 	cel: "sol",
-	line: () => "By cheating and plundering your way through, no less."
+	line: () => `By cheating your way through everything using ${elixirText()}, no less.`
 },
 {
 	cel: "sol",
-	line: () => `Still holding onto your dearest ${elixirText()} the whole time you were coming up here.`
+	line: () => `And you're still holding onto your dearest ${elixirText()}, I see.`
 },
 {
 	cel: "sol",
@@ -106,16 +106,15 @@ const Quotes = [{
 },
 {
 	cel: "luna",
-	line: () => `They are a hack and a fraud, attempting to cheat their way through the system of Afterlife and Earth\
- to attain ${immortalText()}.`
+	line: () => `They attempted to cheat their way through the system of Afterlife to attain ${immortalText()}.`
 },
 {
 	cel: "luna",
-	line: () => "Banish them. Forever, from reaching the afterlife so many of them so seek."
+	line: () => "But perhaps, they were only coaxed into this mission by someone else."
 },
 {
 	cel: "luna",
-	line: () => "To punish them eternally for their hubris."
+	line: () => "Give them another chance to correct their wrongdoings."
 }];
 
 let lineNumber = $ref(0);
@@ -134,7 +133,11 @@ onMount({
 	render() {
 		if (lineNumber >= Quotes.length) {
 			brightness -= 0.003;
-			if (brightness <= -0.2) Player.reset();
+			if (brightness <= -0.2) {
+				player.finishedEndCutscene = true;
+				player.holding.amount = 0;
+				Player.savePlayer();
+			}
 		} else brightness = Math.min(brightness + 0.005, 1);
 		if (brightness < 1) return;
 		updateCycle = !updateCycle;

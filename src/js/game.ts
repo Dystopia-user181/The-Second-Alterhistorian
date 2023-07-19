@@ -10,14 +10,11 @@ import { UIEvent } from "@/js/ui/events";
 let lastTick = Date.now();
 
 export function gameLoop(_diff?: number) {
-	let diff = _diff;
-	if (!_diff) {
-		diff = (Date.now() - lastTick) / 1000;
-		lastTick = Date.now();
-	}
+	const diff = _diff ?? (Date.now() - lastTick) / 1000;
+	if (!_diff) lastTick = Date.now();
 	LogicEvent.dispatch("GAME_TICK_BEFORE");
-	if (!Towns("home").upgrades.win.effectOrDefault(0))
-		Machine.gameLoop(diff as number, Object.values(Machines));
+	if (!Towns("home").upgrades.win.effectOrDefault(0) || player.finishedEndCutscene)
+		Machine.gameLoop(diff, Object.values(Machines));
 	player.lastUpdateTime = Date.now();
 	GameUI.update();
 	LogicEvent.dispatch("GAME_TICK_AFTER");

@@ -26,6 +26,7 @@ export interface PlayerType {
 	vitalMarker: string,
 	producedElixir: number,
 	lastUpdateTime: number,
+	finishedEndCutscene: boolean,
 }
 
 export function fixMachineData(machineData: MachineData) {

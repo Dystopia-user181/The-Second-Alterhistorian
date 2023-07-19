@@ -41,6 +41,7 @@ export const Player = {
 			lastUpdateTime: Date.now(),
 			migrations: migrations.length,
 			producedElixir: 0,
+			finishedEndCutscene: false,
 			vitalMarker: Player.storageKey,
 			options: {
 				autosave: 1,
