@@ -172,7 +172,7 @@ onMount({
 			>
 				Output {{ output.id + 1 }}:
 				<span v-if="output.amount">
-					Consumes {{ format(output.amount, 2, 2, true) }} {{ str(output.resource).capitalize }}/s
+					Produces {{ format(output.amount, 2, 2, true) }} {{ str(output.resource).capitalize }}/s
 				</span>
 				<span v-else>
 					IDLE
