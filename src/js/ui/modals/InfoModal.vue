@@ -43,6 +43,12 @@ import ModalWrapper from "./ModalWrapper.vue";
 			class="fa-brands fa-github"
 			title="Contribute"
 		/>
+		<a
+			href="https://buymeacoffee.com/s.composer"
+			target="_blank"
+			class="fas fa-dollar-sign"
+			title="Donate"
+		/>
 	</ModalWrapper>
 </template>
 
@@ -55,7 +61,7 @@ import ModalWrapper from "./ModalWrapper.vue";
 	font-size: 16px;
 }
 
-.fa-brands {
+.fa-brands, .fas {
 	font-size: 60px;
 	margin: 3px 20px;
 }
