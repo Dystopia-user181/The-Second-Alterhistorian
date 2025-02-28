@@ -25,7 +25,7 @@ import ModalWrapper from "./ModalWrapper.vue";
 			<br>
 			<br>
 			Credits:<br>
-			Scarlet / Dystopia181: Main dev<br>
+			Dystopia181: Main dev<br>
 			Brian bugh: Co-dev<br><br>
 			BaineGames: Contributor
 		</span>
